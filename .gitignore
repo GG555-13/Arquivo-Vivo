@@ -1,0 +1,8 @@
+obj/
+
+jogo
+
+.vscode/
+
+core.*
+core
