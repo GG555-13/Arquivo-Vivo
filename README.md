@@ -10,6 +10,27 @@ Esse trabalho foi realizado como parte da disciplina de Introdução ao Desenvol
 
 O projeto foi desenvolvido e testado em ambiente Linux e utiliza um `Makefile` para automatizar a compilação.
 
+### Windows
+
+No Windows, use MinGW-w64 com `g++` e `mingw32-make`.
+
+O `Makefile` procura as bibliotecas SDL em `C:/SDL-2.32.10` por padrao. Se o SDL estiver em outro local, informe o caminho pela variavel `SDL_PATHS`.
+
+Para compilar na raiz do projeto:
+
+```bash
+mingw32-make
+```
+
+Ou, se o SDL estiver em outro diretorio:
+
+```bash
+mingw32-make SDL_PATHS=C:/caminho/para/SDL
+```
+
+Para executar, mantenha `SDL2.dll`, `SDL2_image.dll`, `SDL2_mixer.dll` e `SDL2_ttf.dll` ao lado de `jogo.exe` ou deixe a pasta `C:/SDL-2.32.10/bin` no `PATH`.
+
+### Linux
 ### 1. Requisitos
 
 Antes de compilar, certifique-se de que você tem as bibliotecas de desenvolvimento do SDL2 instaladas. Em sistemas baseados em Debian/Ubuntu, você pode instalá-las com o seguinte comando:
