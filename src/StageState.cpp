@@ -3,7 +3,6 @@
 #include "Game.h"
 #include "TileSet.h"
 #include "TileMap.h"
-#include "InputManager.h"
 #include "Camera.h"
 #include "Character.h"
 #include "PlayerController.h"
@@ -15,7 +14,7 @@
 #include "EndState.h"
 #include "TransitionTrigger.h"
 
-StageState::StageState() : State()
+StageState::StageState() : WalkableState()
 {
 }
 
@@ -81,21 +80,9 @@ void StageState::LoadAssets()
     music.Play(-1);
 }
 
-void StageState::Update(float dt)
+void StageState::UpdateWalkable(float dt)
 {
-    if (InputManager::GetInstance().QuitRequested())
-    {
-        quitRequested = true;
-    }
-    if (InputManager::GetInstance().KeyPress(ESCAPE_KEY))
-    {
-        popRequested = true;
-    }
-
-    Camera::Update(dt);
-
-    UpdateArray(dt);
-
+    (void)dt;
 }
 
 void StageState::Render()

@@ -1,5 +1,4 @@
 #include "State.h"
-#include "Interactable.h"
 
 #include <limits>
 
@@ -28,17 +27,23 @@ std::weak_ptr<GameObject> State::GetObjectPtr(GameObject* go) {
     return std::weak_ptr<GameObject>();
 }
 
-Interactable* State::GetInteractable(const Vec2& playerPos, bool hasInteractionPoint, const Vec2& interactionPoint) {
+Interactable* State::GetInteractable(const Interactable::InteractionContext& context) {
     Interactable* selectedInteractable = nullptr;
     float shortestDistance = std::numeric_limits<float>::max();
 
     for (auto& obj : objectArray) {
         Interactable* interactable = obj->GetComponent<Interactable>();
-        if (!interactable || !interactable->CanActivate(playerPos, hasInteractionPoint, interactionPoint)) {
+        if (!interactable || !interactable->CanActivate(context)) {
             continue;
         }
 
-        const float distance = obj->box.Center().Distance(playerPos);
+        float distance = 0.0f;
+        if (context.hasActor) {
+            distance = obj->box.Center().Distance(context.actorPos);
+        } else if (context.hasInteractionPoint) {
+            distance = obj->box.Center().Distance(context.interactionPoint);
+        }
+
         if (distance < shortestDistance) {
             shortestDistance = distance;
             selectedInteractable = interactable;

@@ -7,10 +7,12 @@
 
 Interactable::Interactable(GameObject &associated,
                            ActivationType activationType,
+                                                     Requirement requirement,
                            float interactionRadius,
                            std::function<void()> onInteract)
     : Component(associated),
       activationType(activationType),
+            requirement(requirement),
       interactionRadius(interactionRadius),
       enabled(true),
       wasPlayerNearLastFrame(false),
@@ -37,18 +39,18 @@ void Interactable::Update(float dt)
     if (!enabled)
     {
         wasPlayerNearLastFrame = false;
-        UpdateAreaMarker(Vec2(-10000.0f, -10000.0f));
+        UpdateAreaMarker(InteractionContext());
         return;
     }
 
+    InteractionContext context;
     if (Character::player != nullptr)
     {
-        UpdateAreaMarker(Character::player->GetPosition());
+        context.hasActor = true;
+        context.actorPos = Character::player->GetPosition();
     }
-    else
-    {
-        UpdateAreaMarker(Vec2(-10000.0f, -10000.0f));
-    }
+
+    UpdateAreaMarker(context);
 
     if (activationType != AUTO_ENTER)
     {
@@ -56,30 +58,23 @@ void Interactable::Update(float dt)
         return;
     }
 
-    if (Character::player == nullptr)
-    {
-        wasPlayerNearLastFrame = false;
-        return;
-    }
+    const bool isActorEligible = CanAutoActivate(context);
 
-    const Vec2 playerPos = Character::player->GetPosition();
-    const bool isPlayerNear = CanAutoActivate(playerPos);
-
-    if (isPlayerNear && !wasPlayerNearLastFrame)
+    if (isActorEligible && !wasPlayerNearLastFrame)
     {
         Activate();
     }
 
-    wasPlayerNearLastFrame = isPlayerNear;
+    wasPlayerNearLastFrame = isActorEligible;
 }
 
 void Interactable::Render()
 {
 }
 
-bool Interactable::IsPlayerNear(const Vec2 &playerPos) const
+bool Interactable::IsActorNear(const Vec2 &actorPos) const
 {
-    return playerPos.Distance(associated.box.Center()) <= interactionRadius;
+    return actorPos.Distance(associated.box.Center()) <= interactionRadius;
 }
 
 bool Interactable::ContainsPoint(const Vec2 &worldPoint) const
@@ -87,12 +82,12 @@ bool Interactable::ContainsPoint(const Vec2 &worldPoint) const
     return associated.box.Contains(worldPoint);
 }
 
-bool Interactable::IsPlayerInsideArea(const Vec2 &playerPos) const
+bool Interactable::IsActorInsideArea(const Vec2 &actorPos) const
 {
-    return ContainsPoint(playerPos);
+    return ContainsPoint(actorPos);
 }
 
-bool Interactable::CanAutoActivate(const Vec2 &playerPos) const
+bool Interactable::CanAutoActivate(const InteractionContext &context) const
 {
     if (!enabled)
     {
@@ -104,17 +99,17 @@ bool Interactable::CanAutoActivate(const Vec2 &playerPos) const
         return false;
     }
 
-    return IsPlayerNear(playerPos);
-}
-
-bool Interactable::CanActivate(const Vec2 &playerPos, bool hasInteractionPoint, const Vec2 &interactionPoint) const
-{
-    if (!enabled)
+    if (requirement == NO_ACTOR)
     {
         return false;
     }
 
-    if (!IsPlayerNear(playerPos))
+    return MeetsRequirement(context);
+}
+
+bool Interactable::CanActivate(const InteractionContext &context) const
+{
+    if (!enabled)
     {
         return false;
     }
@@ -124,7 +119,12 @@ bool Interactable::CanActivate(const Vec2 &playerPos, bool hasInteractionPoint, 
         return false;
     }
 
-    if (!hasInteractionPoint)
+    if (!MeetsRequirement(context))
+    {
+        return false;
+    }
+
+    if (!context.hasInteractionPoint)
     {
         return activationType == SPACE_ONLY || activationType == SPACE_OR_CLICK;
     }
@@ -134,7 +134,7 @@ bool Interactable::CanActivate(const Vec2 &playerPos, bool hasInteractionPoint, 
         return false;
     }
 
-    return ContainsPoint(interactionPoint);
+    return ContainsPoint(context.interactionPoint);
 }
 
 void Interactable::Activate()
@@ -170,7 +170,32 @@ Interactable::ActivationType Interactable::GetActivationType() const
     return activationType;
 }
 
-void Interactable::UpdateAreaMarker(const Vec2 &playerPos)
+Interactable::Requirement Interactable::GetRequirement() const
+{
+    return requirement;
+}
+
+bool Interactable::MeetsRequirement(const InteractionContext &context) const
+{
+    if (requirement == NO_ACTOR)
+    {
+        return true;
+    }
+
+    if (!context.hasActor)
+    {
+        return false;
+    }
+
+    if (requirement == REQUIRE_INSIDE_AREA)
+    {
+        return IsActorInsideArea(context.actorPos);
+    }
+
+    return IsActorNear(context.actorPos);
+}
+
+void Interactable::UpdateAreaMarker(const InteractionContext &context)
 {
     std::shared_ptr<GameObject> marker = areaMarker.lock();
     if (!marker)
@@ -178,7 +203,20 @@ void Interactable::UpdateAreaMarker(const Vec2 &playerPos)
         return;
     }
 
-    if (!enabled || !IsPlayerInsideArea(playerPos))
+    bool shouldShow = false;
+    if (enabled && context.hasActor)
+    {
+        if (requirement == REQUIRE_INSIDE_AREA)
+        {
+            shouldShow = IsActorInsideArea(context.actorPos);
+        }
+        else if (requirement == REQUIRE_NEAR)
+        {
+            shouldShow = IsActorNear(context.actorPos);
+        }
+    }
+
+    if (!shouldShow)
     {
         marker->box.x = -10000.0f;
         marker->box.y = -10000.0f;

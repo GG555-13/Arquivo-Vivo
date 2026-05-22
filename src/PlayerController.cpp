@@ -23,10 +23,13 @@ void PlayerController::Update(float dt)
     InputManager &input = InputManager::GetInstance();
     State &currentState = Game::GetInstance().GetCurrentState();
     const Vec2 playerPos = character->GetPosition();
+    Interactable::InteractionContext interactionContext;
+    interactionContext.hasActor = true;
+    interactionContext.actorPos = playerPos;
 
     if (input.KeyPress(SPACE_KEY))
     {
-        Interactable* interactable = currentState.GetInteractable(playerPos, false, Vec2());
+        Interactable* interactable = currentState.GetInteractable(interactionContext);
         if (interactable)
         {
             interactable->Activate();
@@ -39,8 +42,10 @@ void PlayerController::Update(float dt)
     {
         float mouseWorldX = input.GetMouseX() + Camera::pos.x;
         float mouseWorldY = input.GetMouseY() + Camera::pos.y;
+        interactionContext.hasInteractionPoint = true;
+        interactionContext.interactionPoint = Vec2(mouseWorldX, mouseWorldY);
 
-        Interactable* interactable = currentState.GetInteractable(playerPos, true, Vec2(mouseWorldX, mouseWorldY));
+        Interactable* interactable = currentState.GetInteractable(interactionContext);
         if (interactable)
         {
             interactable->Activate();

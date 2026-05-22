@@ -19,7 +19,8 @@ public:
     TransitionTrigger(GameObject &associated,
                       ActivationType activationType,
                       float interactionRadius,
-                      std::function<void()> onTransition);
+                      std::function<void()> onTransition,
+                      Requirement requirement = Interactable::REQUIRE_NEAR);
 };
 
 #endif
