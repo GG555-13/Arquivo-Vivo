@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-class TransitionTrigger;
+class Interactable;
 
 class State {
 public:
@@ -22,8 +22,7 @@ public:
 
     virtual std::weak_ptr<GameObject> AddObject(GameObject* object);
     virtual std::weak_ptr<GameObject> GetObjectPtr(GameObject* object);
-    TransitionTrigger* GetTriggerForSpace(const Vec2& playerPos);
-    TransitionTrigger* GetTriggerForClick(const Vec2& playerPos, const Vec2& worldPoint);
+    Interactable* GetInteractable(const Vec2& playerPos, bool hasInteractionPoint, const Vec2& interactionPoint);
 
     bool PopRequested();
     bool QuitRequested();

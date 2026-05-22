@@ -7,7 +7,7 @@
 #include "SpriteRenderer.h"
 #include "Game.h"
 #include "State.h"
-#include "TransitionTrigger.h"
+#include "Interactable.h"
 
 PlayerController::PlayerController(GameObject &associated) : Component(associated) {}
 
@@ -26,10 +26,10 @@ void PlayerController::Update(float dt)
 
     if (input.KeyPress(SPACE_KEY))
     {
-        TransitionTrigger* trigger = currentState.GetTriggerForSpace(playerPos);
-        if (trigger)
+        Interactable* interactable = currentState.GetInteractable(playerPos, false, Vec2());
+        if (interactable)
         {
-            trigger->Activate();
+            interactable->Activate();
             return;
         }
     }
@@ -40,10 +40,10 @@ void PlayerController::Update(float dt)
         float mouseWorldX = input.GetMouseX() + Camera::pos.x;
         float mouseWorldY = input.GetMouseY() + Camera::pos.y;
 
-        TransitionTrigger* trigger = currentState.GetTriggerForClick(playerPos, Vec2(mouseWorldX, mouseWorldY));
-        if (trigger)
+        Interactable* interactable = currentState.GetInteractable(playerPos, true, Vec2(mouseWorldX, mouseWorldY));
+        if (interactable)
         {
-            trigger->Activate();
+            interactable->Activate();
             return;
         }
         
