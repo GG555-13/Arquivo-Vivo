@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+class TransitionTrigger;
+
 class State {
 public:
     State();
@@ -20,6 +22,8 @@ public:
 
     virtual std::weak_ptr<GameObject> AddObject(GameObject* object);
     virtual std::weak_ptr<GameObject> GetObjectPtr(GameObject* object);
+    TransitionTrigger* GetTriggerForSpace(const Vec2& playerPos);
+    TransitionTrigger* GetTriggerForClick(const Vec2& playerPos, const Vec2& worldPoint);
 
     bool PopRequested();
     bool QuitRequested();

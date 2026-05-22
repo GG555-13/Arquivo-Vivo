@@ -1,4 +1,7 @@
 #include "State.h"
+#include "TransitionTrigger.h"
+
+#include <limits>
 
 State::State() : popRequested(false), quitRequested(false), started(false) {
 }
@@ -23,6 +26,46 @@ std::weak_ptr<GameObject> State::GetObjectPtr(GameObject* go) {
         }
     }
     return std::weak_ptr<GameObject>();
+}
+
+TransitionTrigger* State::GetTriggerForSpace(const Vec2& playerPos) {
+    TransitionTrigger* selectedTrigger = nullptr;
+    float shortestDistance = std::numeric_limits<float>::max();
+
+    for (auto& obj : objectArray) {
+        TransitionTrigger* trigger = obj->GetComponent<TransitionTrigger>();
+        if (!trigger || !trigger->CanActivateWithSpace(playerPos)) {
+            continue;
+        }
+
+        const float distance = obj->box.Center().Distance(playerPos);
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            selectedTrigger = trigger;
+        }
+    }
+
+    return selectedTrigger;
+}
+
+TransitionTrigger* State::GetTriggerForClick(const Vec2& playerPos, const Vec2& worldPoint) {
+    TransitionTrigger* selectedTrigger = nullptr;
+    float shortestDistance = std::numeric_limits<float>::max();
+
+    for (auto& obj : objectArray) {
+        TransitionTrigger* trigger = obj->GetComponent<TransitionTrigger>();
+        if (!trigger || !trigger->CanActivateWithClick(playerPos, worldPoint)) {
+            continue;
+        }
+
+        const float distance = obj->box.Center().Distance(playerPos);
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            selectedTrigger = trigger;
+        }
+    }
+
+    return selectedTrigger;
 }
 
 bool State::PopRequested() {

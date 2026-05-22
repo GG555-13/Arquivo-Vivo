@@ -13,6 +13,7 @@
 #include <cmath>
 #include "GameData.h"
 #include "EndState.h"
+#include "TransitionTrigger.h"
 
 StageState::StageState() : State()
 {
@@ -45,7 +46,22 @@ void StageState::Start()
     mansionGo->box.y = 900.0f - mansionSprite->GetHeight(); 
     AddObject(mansionGo);
 
-    // 3. PLAYER
+    // 3. DOOR WITH TRANSITION TRIGGER
+    GameObject* doorTriggerGo = new GameObject();
+    doorTriggerGo->box = Rect(1288.0f, 560.0f, 170.0f, 260.0f);
+    doorTriggerGo->AddComponent(new TransitionTrigger(
+        *doorTriggerGo,
+        TransitionTrigger::SPACE_OR_CLICK,
+        140.0f,
+        []()
+        {
+            GameData::playerVictory = true;
+            Game::GetInstance().Push(new EndState());
+        }
+    ));
+    AddObject(doorTriggerGo);
+
+    // 4. PLAYER
     GameObject *playerGo = new GameObject();
     playerGo->box.x = 200;
     playerGo->box.y = 700; 
