@@ -1,10 +1,11 @@
 #include "MindPlaceState.h"
 
 #include "Camera.h"
+#include "Draggable.h"
 #include "GameObject.h"
 #include "InputManager.h"
-#include "Text.h"
 #include "SpriteRenderer.h"
+#include "Text.h"
 
 MindPlaceState::MindPlaceState() : State()
 {
@@ -41,17 +42,25 @@ void MindPlaceState::Start()
         "recursos/font/neodgm.ttf",
         28,
         Text::BLENDED,
-        "S ou ESC para voltar",
+        "Arraste a pasta com o mouse. S ou ESC para voltar",
         {180, 180, 180, 255}
     ));
     AddObject(helpGO);
 
     GameObject* backgroundGO = new GameObject();
-    SpriteRenderer* backgroundSR = new SpriteRenderer(*backgroundGO, "recursos/img/EsboçoMental.png");
+    SpriteRenderer* backgroundSR = new SpriteRenderer(*backgroundGO, "recursos/img/EsboçoMental2.png");
     backgroundSR->SetScale(0.56782f, 0.56782f);
     backgroundGO->AddComponent(backgroundSR);
     backgroundGO->box.SetCenter(Vec2(180.79f, 107.5f));
     AddObject(backgroundGO);
+
+    GameObject* folderGO = new GameObject();
+    SpriteRenderer* folderSR = new SpriteRenderer(*folderGO, "recursos/img/esboçoPasta.png");
+    folderSR->SetScale(0.65f, 0.65f);
+    folderGO->AddComponent(folderSR);
+    folderGO->AddComponent(new Draggable(*folderGO));
+    folderGO->box.SetCenter(Vec2(700.0f, 520.0f));
+    AddObject(folderGO);
 
     StartArray();
     started = true;
