@@ -22,6 +22,9 @@ public:
     virtual std::weak_ptr<GameObject> AddObject(GameObject* object);
     virtual std::weak_ptr<GameObject> GetObjectPtr(GameObject* object);
     Interactable* GetInteractable(const Interactable::InteractionContext& context);
+    bool ActivateActorInteractable(const Vec2& actorPos);
+    bool ActivateInteractableAtPoint(const Vec2& worldPoint);
+    bool ActivateInteractableAtPoint(const Vec2& worldPoint, const Vec2& actorPos);
 
     bool PopRequested();
     bool QuitRequested();

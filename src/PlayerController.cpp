@@ -6,8 +6,6 @@
 #include "Vec2.h"
 #include "SpriteRenderer.h"
 #include "Game.h"
-#include "State.h"
-#include "Interactable.h"
 
 PlayerController::PlayerController(GameObject &associated) : Component(associated) {}
 
@@ -23,16 +21,11 @@ void PlayerController::Update(float dt)
     InputManager &input = InputManager::GetInstance();
     State &currentState = Game::GetInstance().GetCurrentState();
     const Vec2 playerPos = character->GetPosition();
-    Interactable::InteractionContext interactionContext;
-    interactionContext.hasActor = true;
-    interactionContext.actorPos = playerPos;
 
     if (input.KeyPress(SPACE_KEY))
     {
-        Interactable* interactable = currentState.GetInteractable(interactionContext);
-        if (interactable)
+        if (currentState.ActivateActorInteractable(playerPos))
         {
-            interactable->Activate();
             return;
         }
     }
@@ -42,13 +35,10 @@ void PlayerController::Update(float dt)
     {
         float mouseWorldX = input.GetMouseX() + Camera::pos.x;
         float mouseWorldY = input.GetMouseY() + Camera::pos.y;
-        interactionContext.hasInteractionPoint = true;
-        interactionContext.interactionPoint = Vec2(mouseWorldX, mouseWorldY);
+        Vec2 mouseWorldPoint(mouseWorldX, mouseWorldY);
 
-        Interactable* interactable = currentState.GetInteractable(interactionContext);
-        if (interactable)
+        if (currentState.ActivateInteractableAtPoint(mouseWorldPoint, playerPos))
         {
-            interactable->Activate();
             return;
         }
         
