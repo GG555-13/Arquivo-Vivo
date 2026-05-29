@@ -3,6 +3,7 @@
 
 #include "State.h"
 #include "Timer.h"
+#include "Music.h"
 
 
 class TitleState : public State
@@ -21,6 +22,7 @@ public:
 
 private:
     Timer textTimer;
+    Music backgroundMusic;
 };
 
 #endif

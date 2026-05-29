@@ -22,30 +22,37 @@ void EndState::Start()
     Camera::pos = Vec2(0, 0);
 
     GameObject *bg = new GameObject();
-    bg->box.x = 0;
-    bg->box.y = 0;
+    SpriteRenderer *bgSprite = nullptr;
 
     if (GameData::playerVictory)
     {
-        bg->AddComponent(new SpriteRenderer(*bg, "recursos/img/Win.png"));
-        backgroundMusic.Open("recursos/audio/endStateWin.ogg");
+        bgSprite = new SpriteRenderer(*bg, "recursos/img/End.png");
+        backgroundMusic.Open("recursos/audio/Win.mp3");
     }
     else
     {
-        bg->AddComponent(new SpriteRenderer(*bg, "recursos/img/Lose.png"));
-        backgroundMusic.Open("recursos/audio/endStateLose.ogg");
+        bgSprite = new SpriteRenderer(*bg, "recursos/img/Lose.png");
+        backgroundMusic.Open("recursos/audio/GameOver.mp3");
     }
+
+    float scale = 1200.0f / bgSprite->GetWidth(); 
+    bgSprite->SetScale(scale, scale); 
+    bg->AddComponent(bgSprite);
+
+    bg->box.SetCenter(Vec2(1200.0f / 2.0f, 900.0f / 2.0f));
+
     AddObject(bg);
 
     backgroundMusic.Play(-1);
 
     GameObject *textGO = new GameObject();
-    textGO->box.x = 300;
-    textGO->box.y = 500;
     SDL_Color color = {255, 0, 0, 255};
 
     Text *text = new Text(*textGO, "recursos/font/neodgm.ttf", 40, Text::SOLID, "ESC para Sair - ESPACO para Menu", color);
     textGO->AddComponent(text);
+    
+    textGO->box.SetCenter(Vec2(1200.0f / 2.0f, 800.0f));
+    
     AddObject(textGO);
 
     StartArray();
