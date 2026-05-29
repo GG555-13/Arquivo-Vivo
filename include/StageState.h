@@ -1,23 +1,25 @@
 #ifndef STAGESTATE_H
 #define STAGESTATE_H
 
-#include "State.h"
+#include "WalkableState.h"
 #include "Music.h"
 #include "TileSet.h"
 #include "Timer.h"
 
-class StageState : public State {
+class StageState : public WalkableState {
 public:
     StageState();
     ~StageState();
 
     void LoadAssets();
-    void Update(float dt);
     void Render();
 
     void Start();
     void Pause();
     void Resume();
+
+protected:
+    void UpdateWalkable(float dt) override;
 
 private:
     Music music;

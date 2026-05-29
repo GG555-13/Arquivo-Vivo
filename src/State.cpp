@@ -1,5 +1,7 @@
 #include "State.h"
 
+#include <limits>
+
 State::State() : popRequested(false), quitRequested(false), started(false) {
 }
 
@@ -23,6 +25,32 @@ std::weak_ptr<GameObject> State::GetObjectPtr(GameObject* go) {
         }
     }
     return std::weak_ptr<GameObject>();
+}
+
+Interactable* State::GetInteractable(const Interactable::InteractionContext& context) {
+    Interactable* selectedInteractable = nullptr;
+    float shortestDistance = std::numeric_limits<float>::max();
+
+    for (auto& obj : objectArray) {
+        Interactable* interactable = obj->GetComponent<Interactable>();
+        if (!interactable || !interactable->CanActivate(context)) {
+            continue;
+        }
+
+        float distance = 0.0f;
+        if (context.hasActor) {
+            distance = obj->box.Center().Distance(context.actorPos);
+        } else if (context.hasInteractionPoint) {
+            distance = obj->box.Center().Distance(context.interactionPoint);
+        }
+
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            selectedInteractable = interactable;
+        }
+    }
+
+    return selectedInteractable;
 }
 
 bool State::PopRequested() {

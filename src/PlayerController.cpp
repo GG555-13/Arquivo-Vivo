@@ -7,6 +7,7 @@
 #include "SpriteRenderer.h"
 #include "Game.h"
 #include "State.h"
+#include "Interactable.h"
 
 PlayerController::PlayerController(GameObject &associated) : Component(associated) {}
 
@@ -14,17 +15,42 @@ void PlayerController::Start() {}
 
 void PlayerController::Update(float dt)
 {
+    (void)dt;
+
     Character *character = associated.GetComponent<Character>();
     if (!character) return;
 
     InputManager &input = InputManager::GetInstance();
+    State &currentState = Game::GetInstance().GetCurrentState();
+    const Vec2 playerPos = character->GetPosition();
+    Interactable::InteractionContext interactionContext;
+    interactionContext.hasActor = true;
+    interactionContext.actorPos = playerPos;
+
+    if (input.KeyPress(SPACE_KEY))
+    {
+        Interactable* interactable = currentState.GetInteractable(interactionContext);
+        if (interactable)
+        {
+            interactable->Activate();
+            return;
+        }
+    }
 
     // Mouse
     if (input.MousePress(LEFT_MOUSE_BUTTON))
     {
-
         float mouseWorldX = input.GetMouseX() + Camera::pos.x;
         float mouseWorldY = input.GetMouseY() + Camera::pos.y;
+        interactionContext.hasInteractionPoint = true;
+        interactionContext.interactionPoint = Vec2(mouseWorldX, mouseWorldY);
+
+        Interactable* interactable = currentState.GetInteractable(interactionContext);
+        if (interactable)
+        {
+            interactable->Activate();
+            return;
+        }
         
         // determina até aonde o protagonista anda, verificar o valor e mander constante nos cenário 
         // ter certeza que tem o mesmo valor que em character.cpp 

@@ -3,7 +3,6 @@
 #include "Game.h"
 #include "TileSet.h"
 #include "TileMap.h"
-#include "InputManager.h"
 #include "Camera.h"
 #include "Character.h"
 #include "PlayerController.h"
@@ -13,8 +12,9 @@
 #include <cmath>
 #include "GameData.h"
 #include "EndState.h"
+#include "TransitionTrigger.h"
 
-StageState::StageState() : State()
+StageState::StageState() : WalkableState()
 {
 }
 
@@ -45,7 +45,22 @@ void StageState::Start()
     mansionGo->box.y = 900.0f - mansionSprite->GetHeight(); 
     AddObject(mansionGo);
 
-    // 3. PLAYER
+    // 3. DOOR WITH TRANSITION TRIGGER
+    GameObject* doorTriggerGo = new GameObject();
+    doorTriggerGo->box = Rect(1288.0f, 560.0f, 170.0f, 260.0f);
+    doorTriggerGo->AddComponent(new TransitionTrigger(
+        *doorTriggerGo,
+        TransitionTrigger::SPACE_OR_CLICK,
+        140.0f,
+        []()
+        {
+            GameData::playerVictory = true;
+            Game::GetInstance().Push(new EndState());
+        }
+    ));
+    AddObject(doorTriggerGo);
+
+    // 4. PLAYER
     GameObject *playerGo = new GameObject();
     playerGo->box.x = 200;
     playerGo->box.y = 700; 
@@ -66,21 +81,9 @@ void StageState::LoadAssets()
     music.Play(-1);
 }
 
-void StageState::Update(float dt)
+void StageState::UpdateWalkable(float dt)
 {
-    if (InputManager::GetInstance().QuitRequested())
-    {
-        quitRequested = true;
-    }
-    if (InputManager::GetInstance().KeyPress(ESCAPE_KEY))
-    {
-        popRequested = true;
-    }
-
-    Camera::Update(dt);
-
-    UpdateArray(dt);
-
+    (void)dt;
 }
 
 void StageState::Render()

@@ -2,6 +2,7 @@
 #define STATE_H
 
 #include "GameObject.h"
+#include "Interactable.h"
 #include <vector>
 #include <memory>
 
@@ -20,6 +21,7 @@ public:
 
     virtual std::weak_ptr<GameObject> AddObject(GameObject* object);
     virtual std::weak_ptr<GameObject> GetObjectPtr(GameObject* object);
+    Interactable* GetInteractable(const Interactable::InteractionContext& context);
 
     bool PopRequested();
     bool QuitRequested();
