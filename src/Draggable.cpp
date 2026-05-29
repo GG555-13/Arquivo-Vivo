@@ -6,8 +6,13 @@
 
 Draggable *Draggable::activeDraggable = nullptr;
 
-Draggable::Draggable(GameObject &associated)
-    : Component(associated), dragging(false), dragOffset()
+Draggable::Draggable(GameObject &associated, bool returnToSpawnOnRelease)
+    : Component(associated),
+      dragging(false),
+      returnToSpawnOnRelease(returnToSpawnOnRelease),
+    spawnPosition(associated.box.Center()),
+      dragOffset(),
+      onRelease()
 {
 }
 
@@ -36,11 +41,7 @@ void Draggable::Update(float dt)
             return;
         }
 
-        dragging = false;
-        if (activeDraggable == this)
-        {
-            activeDraggable = nullptr;
-        }
+        FinishDrag();
         return;
     }
 
@@ -67,4 +68,49 @@ void Draggable::Render()
 bool Draggable::IsDragging() const
 {
     return dragging;
+}
+
+void Draggable::SetReturnToSpawnOnRelease(bool value)
+{
+    returnToSpawnOnRelease = value;
+}
+
+void Draggable::SetSpawnPosition(const Vec2 &position)
+{
+    spawnPosition = position;
+}
+
+Vec2 Draggable::GetSpawnPosition() const
+{
+    return spawnPosition;
+}
+
+void Draggable::ResetToSpawn()
+{
+    associated.box.SetCenter(spawnPosition);
+}
+
+void Draggable::SetOnRelease(std::function<bool(const Vec2 &releasePoint)> callback)
+{
+    onRelease = callback;
+}
+
+void Draggable::FinishDrag()
+{
+    dragging = false;
+    if (activeDraggable == this)
+    {
+        activeDraggable = nullptr;
+    }
+
+    bool dropAccepted = false;
+    if (onRelease)
+    {
+        dropAccepted = onRelease(associated.box.Center());
+    }
+
+    if (returnToSpawnOnRelease && !dropAccepted)
+    {
+        ResetToSpawn();
+    }
 }

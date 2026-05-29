@@ -42,7 +42,7 @@ void MindPlaceState::Start()
         "recursos/font/neodgm.ttf",
         28,
         Text::BLENDED,
-        "Arraste a pasta com o mouse. S ou ESC para voltar",
+        "S ou ESC para voltar",
         {180, 180, 180, 255}
     ));
     AddObject(helpGO);
@@ -58,8 +58,9 @@ void MindPlaceState::Start()
     SpriteRenderer* folderSR = new SpriteRenderer(*folderGO, "recursos/img/esboçoPasta.png");
     folderSR->SetScale(0.65f, 0.65f);
     folderGO->AddComponent(folderSR);
-    folderGO->AddComponent(new Draggable(*folderGO));
-    folderGO->box.SetCenter(Vec2(700.0f, 520.0f));
+    folderGO->AddComponent(new Draggable(*folderGO, true));
+    folderGO->box.SetCenter(Vec2(190.0f, 210.0f));
+    folderGO->GetComponent<Draggable>()->SetSpawnPosition(folderGO->box.Center());
     AddObject(folderGO);
 
     StartArray();
