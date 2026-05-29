@@ -57,11 +57,12 @@ void StageState::Start()
 
     started = true;
     StartArray();
+
 }
 
 void StageState::LoadAssets()
 {
-    music.Open("recursos/audio/BGM.wav");
+    music.Open("recursos/audio/Intro.mp3");
     music.Play(-1);
 }
 

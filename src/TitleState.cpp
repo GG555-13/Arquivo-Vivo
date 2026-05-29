@@ -1,11 +1,10 @@
 #include "TitleState.h"
 #include "StageState.h"
-#include "Game.h"
-#include "GameObject.h"
-#include "SpriteRenderer.h"
 #include "InputManager.h"
-#include <Camera.h>
-#include <Text.h>
+#include "Game.h"
+#include "SpriteRenderer.h"
+#include "GameObject.h"
+#include "Camera.h"
 
 TitleState::TitleState() : State()
 {
@@ -17,63 +16,51 @@ TitleState::~TitleState()
 
 void TitleState::Start()
 {
-    LoadAssets();
 
-    Camera::Unfollow(); 
-    Camera::pos = Vec2(0, 0);
+    GameObject* bg = new GameObject();
+    SpriteRenderer* bgSprite = new SpriteRenderer(*bg, "recursos/img/Title.png");
 
-    GameObject *go = new GameObject();
-    go->box.x = 0;
-    go->box.y = 0;
+    bg->AddComponent(bgSprite);
 
-    go->AddComponent(new SpriteRenderer(*go, "recursos/img/Title.png"));
-    AddObject(go);
+    bg->box.x = 0;
+    bg->box.y = 0;
 
-    GameObject* textGO = new GameObject();
-    textGO->box.x = 300; 
-    textGO->box.y = 500;
-    SDL_Color color = {255, 255, 255, 255};
-    Text* text = new Text(*textGO, "recursos/font/neodgm.ttf", 40, Text::BLENDED, "Pressione Espaco para Iniciar", color); 
+    AddObject(bg);
 
-    textGO->AddComponent(text);
-    AddObject(textGO);
+    Camera::pos = Vec2(236.0f, 20.5f);
+    Camera::Unfollow();
 
-    StartArray();
+
+    backgroundMusic.Open("recursos/audio/Title.mp3");
+    backgroundMusic.Play(-1);
+
     started = true;
+    StartArray();
 }
 
 void TitleState::LoadAssets()
 {
+
 }
 
 void TitleState::Update(float dt)
 {
-    UpdateArray(dt);
-
-    textTimer.Update(dt);
-    if (objectArray.size() > 1) { 
-        auto textGO = objectArray[1]; 
-        if (textTimer.Get() < 0.5f) {
-            Text* txt = textGO->GetComponent<Text>();
-            if(txt) txt->SetColor({255, 255, 255, 255});
-        } else {
-            Text* txt = textGO->GetComponent<Text>();
-            if(txt) txt->SetColor({0, 0, 0, 0}); 
-        }
-        if (textTimer.Get() > 1.0f) textTimer.Restart();
-    }
-
-    InputManager &input = InputManager::GetInstance();
+    InputManager& input = InputManager::GetInstance();
 
     if (input.QuitRequested() || input.KeyPress(ESCAPE_KEY))
     {
         quitRequested = true;
     }
 
-    if (input.KeyPress(SPACE_KEY))
+    if (input.KeyPress(SPACE_KEY) || input.MousePress(LEFT_MOUSE_BUTTON))
     {
+        backgroundMusic.Stop(1000);
+
+        popRequested = true;
         Game::GetInstance().Push(new StageState());
     }
+
+    UpdateArray(dt);
 }
 
 void TitleState::Render()
@@ -81,5 +68,11 @@ void TitleState::Render()
     RenderArray();
 }
 
-void TitleState::Pause() {}
-void TitleState::Resume() {}
+void TitleState::Pause()
+{
+}
+
+void TitleState::Resume()
+{
+    Camera::pos = Vec2(0, 0);
+}
