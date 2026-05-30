@@ -53,6 +53,50 @@ Interactable* State::GetInteractable(const Interactable::InteractionContext& con
     return selectedInteractable;
 }
 
+bool State::ActivateActorInteractable(const Vec2& actorPos) {
+    Interactable::InteractionContext context;
+    context.hasActor = true;
+    context.actorPos = actorPos;
+
+    Interactable* interactable = GetInteractable(context);
+    if (!interactable) {
+        return false;
+    }
+
+    interactable->Activate();
+    return true;
+}
+
+bool State::ActivateInteractableAtPoint(const Vec2& worldPoint) {
+    Interactable::InteractionContext context;
+    context.hasInteractionPoint = true;
+    context.interactionPoint = worldPoint;
+
+    Interactable* interactable = GetInteractable(context);
+    if (!interactable) {
+        return false;
+    }
+
+    interactable->Activate();
+    return true;
+}
+
+bool State::ActivateInteractableAtPoint(const Vec2& worldPoint, const Vec2& actorPos) {
+    Interactable::InteractionContext context;
+    context.hasActor = true;
+    context.actorPos = actorPos;
+    context.hasInteractionPoint = true;
+    context.interactionPoint = worldPoint;
+
+    Interactable* interactable = GetInteractable(context);
+    if (!interactable) {
+        return false;
+    }
+
+    interactable->Activate();
+    return true;
+}
+
 bool State::PopRequested() {
     return popRequested;
 }

@@ -36,6 +36,10 @@ private:
                          const Vec2 &visibleCenter,
                          float scaleX,
                          float scaleY);
+    void ShowFolderContent(const std::string &imagePath,
+                           const Vec2 &visibleCenter,
+                           float scaleX,
+                           float scaleY);
     void EnsureInteractFolderDetail();
     void OpenInteractFolderDetail();
     void CloseDetailPanel();
