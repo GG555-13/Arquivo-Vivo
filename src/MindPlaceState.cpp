@@ -12,12 +12,9 @@ namespace
 {
 const Vec2 mindPlaceBackgroundCenter(180.79f, 107.5f);
 const float mindPlaceBackgroundScale = 0.56782f;
-const float folderScale = 0.65f;
-const Vec2 dragFolderCenter(190.0f, 210.0f);
-const Vec2 interactFolderCenter(340.0f, 210.0f);
 }
 
-MindPlaceState::MindPlaceState() : State(), detailVisible(false)
+MindPlaceState::MindPlaceState() : State(), detailVisible(false), tabs(*this)
 {
 }
 
@@ -64,31 +61,78 @@ void MindPlaceState::Start()
     backgroundGO->box.SetCenter(mindPlaceBackgroundCenter);
     AddObject(backgroundGO);
 
-    GameObject* dragFolderGO = new GameObject();
-    SpriteRenderer* dragFolderSR = new SpriteRenderer(*dragFolderGO, "recursos/img/esboçoPasta.png");
-    dragFolderSR->SetScale(folderScale, folderScale);
-    dragFolderGO->AddComponent(dragFolderSR);
-    dragFolderGO->AddComponent(new Draggable(*dragFolderGO, true));
-    dragFolderGO->box.SetCenter(dragFolderCenter);
-    dragFolderGO->GetComponent<Draggable>()->SetSpawnPosition(dragFolderGO->box.Center());
-    AddObject(dragFolderGO);
+    // --- tab system ---
+    const float offscreenY = 2000.0f;
+    const float folderScaleLocal = 0.65f;
 
-    GameObject* interactFolderGO = new GameObject();
-    SpriteRenderer* interactFolderSR = new SpriteRenderer(*interactFolderGO, "recursos/img/esboçoPasta.png");
-    interactFolderSR->SetScale(folderScale, folderScale);
-    interactFolderGO->AddComponent(interactFolderSR);
-    interactFolderGO->AddComponent(new Interactable(
-        *interactFolderGO,
-        Interactable::CLICK_ONLY,
-        Interactable::NO_ACTOR,
-        0.0f,
-        [this]()
-        {
-            OpenInteractFolderDetail();
-        }
-    ));
-    interactFolderGO->box.SetCenter(interactFolderCenter);
-    AddObject(interactFolderGO);
+    int tab0 = tabs.AddTab(Vec2(162.0f, 110.0f),
+                           "recursos/img/abaPessoasDownEsboço.png",
+                           "recursos/img/abaPessoasUpEsboço.png");
+    int tab1 = tabs.AddTab(Vec2(362.0f, 110.0f),
+                           "recursos/img/abaPessoasDownEsboço.png",
+                           "recursos/img/abaPessoasUpEsboço.png");
+    int tab2 = tabs.AddTab(Vec2(562.0f, 110.0f),
+                           "recursos/img/abaPessoasDownEsboço.png",
+                           "recursos/img/abaPessoasUpEsboço.png");
+
+    {
+        Vec2 center(190.0f, 210.0f);
+        GameObject* dragFolder = new GameObject();
+        SpriteRenderer* sr = new SpriteRenderer(*dragFolder, "recursos/img/esboçoPasta.png");
+        sr->SetScale(folderScaleLocal, folderScaleLocal);
+        dragFolder->AddComponent(sr);
+        dragFolder->AddComponent(new Draggable(*dragFolder, true));
+        dragFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
+        dragFolder->GetComponent<Draggable>()->SetSpawnPosition(center);
+        tabs.AddContent(tab0, AddObject(dragFolder));
+    }
+    {
+        Vec2 center(340.0f, 210.0f);
+        GameObject* interactFolder = new GameObject();
+        SpriteRenderer* sr = new SpriteRenderer(*interactFolder, "recursos/img/esboçoPasta.png");
+        sr->SetScale(folderScaleLocal, folderScaleLocal);
+        interactFolder->AddComponent(sr);
+        interactFolder->AddComponent(new Interactable(
+            *interactFolder,
+            Interactable::CLICK_ONLY,
+            Interactable::NO_ACTOR,
+            0.0f,
+            [this]() { OpenInteractFolderDetail(); }
+        ));
+        interactFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
+        tabs.AddContent(tab0, AddObject(interactFolder));
+    }
+
+    {
+        Vec2 center(190.0f, 210.0f);
+        GameObject* dragFolder = new GameObject();
+        SpriteRenderer* sr = new SpriteRenderer(*dragFolder, "recursos/img/esboçoPasta.png");
+        sr->SetScale(folderScaleLocal, folderScaleLocal);
+        dragFolder->AddComponent(sr);
+        dragFolder->AddComponent(new Draggable(*dragFolder, true));
+        dragFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
+        dragFolder->GetComponent<Draggable>()->SetSpawnPosition(center);
+        tabs.AddContent(tab1, AddObject(dragFolder));
+    }
+
+    {
+        Vec2 center(190.0f, 210.0f);
+        GameObject* interactFolder = new GameObject();
+        SpriteRenderer* sr = new SpriteRenderer(*interactFolder, "recursos/img/esboçoPasta.png");
+        sr->SetScale(folderScaleLocal, folderScaleLocal);
+        interactFolder->AddComponent(sr);
+        interactFolder->AddComponent(new Interactable(
+            *interactFolder,
+            Interactable::CLICK_ONLY,
+            Interactable::NO_ACTOR,
+            0.0f,
+            [this]() { OpenInteractFolderDetail(); }
+        ));
+        interactFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
+        tabs.AddContent(tab2, AddObject(interactFolder));
+    }
+
+    tabs.SwitchTo(0);
 
     StartArray();
     started = true;

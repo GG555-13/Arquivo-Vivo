@@ -2,6 +2,7 @@
 #define MINDPLACESTATE_H
 
 #include "State.h"
+#include "TabGroup.h"
 
 #include <memory>
 #include <string>
@@ -31,6 +32,7 @@ private:
 
     std::vector<DetailObjectEntry> activeDetailObjects;
     bool detailVisible;
+    TabGroup tabs;
 
     void AddDetailSprite(const std::string &imagePath,
                          const Vec2 &visibleCenter,
