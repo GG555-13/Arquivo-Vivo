@@ -14,7 +14,13 @@ const Vec2 mindPlaceBackgroundCenter(180.79f, 107.5f);
 const float mindPlaceBackgroundScale = 0.56782f;
 }
 
-MindPlaceState::MindPlaceState() : State(), detailVisible(false), tabs(*this)
+MindPlaceState::MindPlaceState()
+        : State(),
+            tabs(*this),
+            detailPanel(*this,
+                                    mindPlaceBackgroundCenter,
+                                    mindPlaceBackgroundScale,
+                                    "recursos/img/EsboçoMentalSelecionado.png")
 {
 }
 
@@ -92,12 +98,12 @@ std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
                                                        const std::string &spritePath)
 {
     return CreateFolder(center,
-                        [this]() { OpenInteractFolderDetail(); },
+                        [this]() { detailPanel.Open(); },
                         scale,
                         spritePath);
 }
 
-//interactible = nullptr para testar a funcao de arrastar, passar funcao lambda para interacoes especificas
+//interactable = nullptr para testar a funcao de arrastar, passar funcao lambda para interacoes especificas
 std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
                                                        std::function<void()> interactable,
                                                        float scale,
@@ -145,9 +151,9 @@ void MindPlaceState::Update(float dt)
 
     if (input.KeyPress(ESCAPE_KEY) || input.KeyPress(MIND_PLACE_KEY))
     {
-        if (detailVisible)
+        if (detailPanel.IsVisible())
         {
-            CloseDetailPanel();
+            detailPanel.Close();
         }
         else
         {
@@ -156,14 +162,14 @@ void MindPlaceState::Update(float dt)
         return;
     }
 
-    if (!detailVisible && input.MousePress(LEFT_MOUSE_BUTTON))
+    if (!detailPanel.IsVisible() && input.MousePress(LEFT_MOUSE_BUTTON))
     {
         Vec2 mouseWorldPoint(input.GetMouseX() + Camera::pos.x,
                              input.GetMouseY() + Camera::pos.y);
         ActivateInteractableAtPoint(mouseWorldPoint);
     }
 
-    if (!detailVisible)
+    if (!detailPanel.IsVisible())
     {
         UpdateArray(dt);
     }
@@ -180,86 +186,4 @@ void MindPlaceState::Pause()
 
 void MindPlaceState::Resume()
 {
-}
-
-void MindPlaceState::AddDetailSprite(const std::string &imagePath,
-                                     const Vec2 &visibleCenter,
-                                     float scaleX,
-                                     float scaleY)
-{
-    GameObject* detailGO = new GameObject();
-    SpriteRenderer* detailSR = new SpriteRenderer(*detailGO, imagePath);
-    detailSR->SetScale(scaleX, scaleY);
-    detailGO->AddComponent(detailSR);
-
-    const Vec2 hiddenCenter(visibleCenter.x, visibleCenter.y + 1200.0f);
-    detailGO->box.SetCenter(hiddenCenter);
-
-    DetailObjectEntry entry;
-    entry.object = AddObject(detailGO);
-    entry.visibleCenter = visibleCenter;
-    entry.hiddenCenter = hiddenCenter;
-    activeDetailObjects.push_back(entry);
-}
-
-void MindPlaceState::ShowFolderContent(const std::string &imagePath,
-                                       const Vec2 &visibleCenter,
-                                       float scaleX,
-                                       float scaleY)
-{
-    if (activeDetailObjects.empty())
-    {
-        AddDetailSprite(imagePath, visibleCenter, scaleX, scaleY);
-    }
-
-    detailVisible = true;
-
-    for (DetailObjectEntry &entry : activeDetailObjects)
-    {
-        std::shared_ptr<GameObject> object = entry.object.lock();
-        if (!object)
-        {
-            continue;
-        }
-
-        object->box.SetCenter(entry.visibleCenter);
-    }
-}
-
-void MindPlaceState::EnsureInteractFolderDetail()
-{
-    if (!activeDetailObjects.empty())
-    {
-        return;
-    }
-
-    AddDetailSprite("recursos/img/EsboçoMentalSelecionado.png",
-                    mindPlaceBackgroundCenter,
-                    mindPlaceBackgroundScale,
-                    mindPlaceBackgroundScale);
-}
-
-void MindPlaceState::OpenInteractFolderDetail()
-{
-    EnsureInteractFolderDetail();
-    ShowFolderContent("recursos/img/EsboçoMentalSelecionado.png",
-                      mindPlaceBackgroundCenter,
-                      mindPlaceBackgroundScale,
-                      mindPlaceBackgroundScale);
-}
-
-void MindPlaceState::CloseDetailPanel()
-{
-    detailVisible = false;
-
-    for (DetailObjectEntry &entry : activeDetailObjects)
-    {
-        std::shared_ptr<GameObject> object = entry.object.lock();
-        if (!object)
-        {
-            continue;
-        }
-
-        object->box.SetCenter(entry.hiddenCenter);
-    }
 }
