@@ -86,6 +86,7 @@ void MindPlaceState::LoadAssets()
 {
 }
 
+// criar pastas padrao que so mostram seu conteudo
 std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
                                                        float scale,
                                                        const std::string &spritePath)
@@ -96,6 +97,7 @@ std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
                         spritePath);
 }
 
+//interactible = nullptr para testar a funcao de arrastar, passar funcao lambda para interacoes especificas
 std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
                                                        std::function<void()> interactable,
                                                        float scale,
