@@ -61,10 +61,6 @@ void MindPlaceState::Start()
     backgroundGO->box.SetCenter(mindPlaceBackgroundCenter);
     AddObject(backgroundGO);
 
-    // --- tab system ---
-    const float offscreenY = 2000.0f;
-    const float folderScaleLocal = 0.65f;
-
     int tab0 = tabs.AddTab(Vec2(162.0f, 110.0f),
                            "recursos/img/abaPessoasDownEsboço.png",
                            "recursos/img/abaPessoasUpEsboço.png");
@@ -75,62 +71,10 @@ void MindPlaceState::Start()
                            "recursos/img/abaPessoasDownEsboço.png",
                            "recursos/img/abaPessoasUpEsboço.png");
 
-    {
-        Vec2 center(190.0f, 210.0f);
-        GameObject* dragFolder = new GameObject();
-        SpriteRenderer* sr = new SpriteRenderer(*dragFolder, "recursos/img/esboçoPasta.png");
-        sr->SetScale(folderScaleLocal, folderScaleLocal);
-        dragFolder->AddComponent(sr);
-        dragFolder->AddComponent(new Draggable(*dragFolder, true));
-        dragFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
-        dragFolder->GetComponent<Draggable>()->SetSpawnPosition(center);
-        tabs.AddContent(tab0, AddObject(dragFolder));
-    }
-    {
-        Vec2 center(340.0f, 210.0f);
-        GameObject* interactFolder = new GameObject();
-        SpriteRenderer* sr = new SpriteRenderer(*interactFolder, "recursos/img/esboçoPasta.png");
-        sr->SetScale(folderScaleLocal, folderScaleLocal);
-        interactFolder->AddComponent(sr);
-        interactFolder->AddComponent(new Interactable(
-            *interactFolder,
-            Interactable::CLICK_ONLY,
-            Interactable::NO_ACTOR,
-            0.0f,
-            [this]() { OpenInteractFolderDetail(); }
-        ));
-        interactFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
-        tabs.AddContent(tab0, AddObject(interactFolder));
-    }
-
-    {
-        Vec2 center(190.0f, 210.0f);
-        GameObject* dragFolder = new GameObject();
-        SpriteRenderer* sr = new SpriteRenderer(*dragFolder, "recursos/img/esboçoPasta.png");
-        sr->SetScale(folderScaleLocal, folderScaleLocal);
-        dragFolder->AddComponent(sr);
-        dragFolder->AddComponent(new Draggable(*dragFolder, true));
-        dragFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
-        dragFolder->GetComponent<Draggable>()->SetSpawnPosition(center);
-        tabs.AddContent(tab1, AddObject(dragFolder));
-    }
-
-    {
-        Vec2 center(190.0f, 210.0f);
-        GameObject* interactFolder = new GameObject();
-        SpriteRenderer* sr = new SpriteRenderer(*interactFolder, "recursos/img/esboçoPasta.png");
-        sr->SetScale(folderScaleLocal, folderScaleLocal);
-        interactFolder->AddComponent(sr);
-        interactFolder->AddComponent(new Interactable(
-            *interactFolder,
-            Interactable::CLICK_ONLY,
-            Interactable::NO_ACTOR,
-            0.0f,
-            [this]() { OpenInteractFolderDetail(); }
-        ));
-        interactFolder->box.SetCenter(Vec2(center.x, center.y + offscreenY));
-        tabs.AddContent(tab2, AddObject(interactFolder));
-    }
+    tabs.AddContent(tab0, CreateFolder(Vec2(190.0f, 210.0f), nullptr));
+    tabs.AddContent(tab0, CreateFolder(Vec2(340.0f, 210.0f)));
+    tabs.AddContent(tab1, CreateFolder(Vec2(190.0f, 210.0f), nullptr));
+    tabs.AddContent(tab2, CreateFolder(Vec2(190.0f, 210.0f)));
 
     tabs.SwitchTo(0);
 
@@ -140,6 +84,52 @@ void MindPlaceState::Start()
 
 void MindPlaceState::LoadAssets()
 {
+}
+
+std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
+                                                       float scale,
+                                                       const std::string &spritePath)
+{
+    return CreateFolder(center,
+                        [this]() { OpenInteractFolderDetail(); },
+                        scale,
+                        spritePath);
+}
+
+std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
+                                                       std::function<void()> interactable,
+                                                       float scale,
+                                                       const std::string &spritePath)
+{
+    const float offscreenY = 2000.0f;
+
+    GameObject *folderGO = new GameObject();
+    SpriteRenderer *sprite = new SpriteRenderer(*folderGO, spritePath);
+    sprite->SetScale(scale, scale);
+    folderGO->AddComponent(sprite);
+
+    if (!interactable)
+    {
+        folderGO->AddComponent(new Draggable(*folderGO, true));
+    }
+    else
+    {
+        folderGO->AddComponent(new Interactable(
+            *folderGO,
+            Interactable::CLICK_ONLY,
+            Interactable::NO_ACTOR,
+            0.0f,
+            interactable));
+    }
+
+    folderGO->box.SetCenter(Vec2(center.x, center.y + offscreenY));
+
+    if (!interactable)
+    {
+        folderGO->GetComponent<Draggable>()->SetSpawnPosition(center);
+    }
+
+    return AddObject(folderGO);
 }
 
 void MindPlaceState::Update(float dt)

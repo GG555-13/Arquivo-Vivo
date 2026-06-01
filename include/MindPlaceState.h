@@ -4,6 +4,7 @@
 #include "State.h"
 #include "TabGroup.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -42,6 +43,13 @@ private:
                            const Vec2 &visibleCenter,
                            float scaleX,
                            float scaleY);
+    std::weak_ptr<GameObject> CreateFolder(const Vec2 &center,
+                                           float scale = 0.65f,
+                                           const std::string &spritePath = "recursos/img/esboçoPasta.png");
+    std::weak_ptr<GameObject> CreateFolder(const Vec2 &center,
+                                           std::function<void()> interactable,
+                                           float scale = 0.65f,
+                                           const std::string &spritePath = "recursos/img/esboçoPasta.png");
     void EnsureInteractFolderDetail();
     void OpenInteractFolderDetail();
     void CloseDetailPanel();
