@@ -1,0 +1,53 @@
+#include "TransitionTrigger.h"
+#include "Character.h"
+#include "Game.h"
+#include "StageState.h"
+#include "InputManager.h" 
+#include "Camera.h"       
+
+TransitionTrigger::TransitionTrigger(GameObject& associated, std::string targetStageId) 
+    : Component(associated), targetStageId(targetStageId) {}
+
+void TransitionTrigger::Update(float dt) {}
+
+void TransitionTrigger::Render() {
+
+    SDL_Rect rect;
+    rect.x = associated.box.x - Camera::pos.x;
+    rect.y = associated.box.y - Camera::pos.y;
+    rect.w = associated.box.w;
+    rect.h = associated.box.h;
+
+    SDL_Renderer* renderer = Game::GetInstance().GetRenderer();
+
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+
+    SDL_RenderDrawRect(renderer, &rect);
+}
+
+
+void TransitionTrigger::NotifyCollision(GameObject& other) {
+
+    Character* interactingPlayer = other.GetComponent<Character>();
+    
+    if (interactingPlayer != nullptr) {
+        InputManager& input = InputManager::GetInstance();
+        
+        bool pressedSpace = input.KeyPress(SPACE_KEY);
+        
+        float mouseWorldX = input.GetMouseX() + Camera::pos.x;
+        float mouseWorldY = input.GetMouseY() + Camera::pos.y;
+        
+        bool clickedDoor = input.MousePress(LEFT_MOUSE_BUTTON) && 
+                           (mouseWorldX >= associated.box.x && mouseWorldX <= associated.box.x + associated.box.w &&
+                            mouseWorldY >= associated.box.y && mouseWorldY <= associated.box.y + associated.box.h);
+
+        if (pressedSpace || clickedDoor) {
+            StageState* currentStage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
+            if (currentStage != nullptr) {
+                currentStage->TransitionTo(targetStageId);
+            }
+        }
+    }
+}
+
