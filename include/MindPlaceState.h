@@ -1,8 +1,11 @@
 #ifndef MINDPLACESTATE_H
 #define MINDPLACESTATE_H
 
+#include "DetailPanel.h"
 #include "State.h"
+#include "TabGroup.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,27 +25,16 @@ public:
     void Resume();
 
 private:
-    struct DetailObjectEntry
-    {
-        std::weak_ptr<GameObject> object;
-        Vec2 visibleCenter;
-        Vec2 hiddenCenter;
-    };
+    TabGroup tabs;
+    DetailPanel detailPanel;
 
-    std::vector<DetailObjectEntry> activeDetailObjects;
-    bool detailVisible;
-
-    void AddDetailSprite(const std::string &imagePath,
-                         const Vec2 &visibleCenter,
-                         float scaleX,
-                         float scaleY);
-    void ShowFolderContent(const std::string &imagePath,
-                           const Vec2 &visibleCenter,
-                           float scaleX,
-                           float scaleY);
-    void EnsureInteractFolderDetail();
-    void OpenInteractFolderDetail();
-    void CloseDetailPanel();
+    std::weak_ptr<GameObject> CreateFolder(const Vec2 &center,
+                                           float scale = 0.65f,
+                                           const std::string &spritePath = "recursos/img/esboçoPasta.png");
+    std::weak_ptr<GameObject> CreateFolder(const Vec2 &center,
+                                           std::function<void()> interactable,
+                                           float scale = 0.65f,
+                                           const std::string &spritePath = "recursos/img/esboçoPasta.png");
 };
 
 #endif
