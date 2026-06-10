@@ -2,16 +2,17 @@
 #include "Character.h"
 #include "Game.h"
 #include "StageState.h"
-#include "InputManager.h" 
-#include "Camera.h"       
+#include "InputManager.h"
+#include "Camera.h"
+#include "GameData.h" 
+#include "EndState.h"
 
-TransitionTrigger::TransitionTrigger(GameObject& associated, std::string targetStageId) 
+TransitionTrigger::TransitionTrigger(GameObject &associated, std::string targetStageId)
     : Component(associated), targetStageId(targetStageId) {}
 
 void TransitionTrigger::Update(float dt) {}
-
 void TransitionTrigger::Render() {
-
+    // RENDERIZAR HITBOX
     SDL_Rect rect;
     rect.x = associated.box.x - Camera::pos.x;
     rect.y = associated.box.y - Camera::pos.y;
@@ -19,15 +20,11 @@ void TransitionTrigger::Render() {
     rect.h = associated.box.h;
 
     SDL_Renderer* renderer = Game::GetInstance().GetRenderer();
-
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Verde
     SDL_RenderDrawRect(renderer, &rect);
 }
 
-
 void TransitionTrigger::NotifyCollision(GameObject& other) {
-
     Character* interactingPlayer = other.GetComponent<Character>();
     
     if (interactingPlayer != nullptr) {
@@ -50,4 +47,3 @@ void TransitionTrigger::NotifyCollision(GameObject& other) {
         }
     }
 }
-

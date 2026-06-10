@@ -1,11 +1,11 @@
 #include "Collider.h"
 #include "GameObject.h"
+#include <SDL2/SDL.h>
 #include <cmath>
 
 #ifdef DEBUG
 #include "Camera.h"
 #include "Game.h"
-#include <SDL2/SDL.h>
 #endif
 
 Collider::Collider(GameObject &associated, Vec2 scale, Vec2 offset) : Component(associated), scale(scale), offset(offset)
@@ -19,7 +19,7 @@ void Collider::Update(float dt)
     box.w *= scale.x;
     box.h *= scale.y;
 
-    float angleRad = associated.angleDeg * (M_PI / 180.0);
+    float angleRad = associated.angleDeg * (M_PI / 180.0f);
 
     Vec2 rotatedOffset = offset.Rotated(angleRad);
 
@@ -32,7 +32,7 @@ void Collider::Render()
     Vec2 center(box.Center());
     SDL_Point points[5];
 
-    float angleRad = associated.angleDeg * (M_PI / 180.0);
+    float angleRad = associated.angleDeg * (M_PI / 180.0f);
 
     Vec2 point = (Vec2(box.x, box.y) - center).Rotated(angleRad) + center - Camera::pos;
     points[0] = {(int)point.x, (int)point.y};

@@ -6,7 +6,6 @@
 #include "Vec2.h"
 #include "SpriteRenderer.h"
 #include "Game.h"
-#include "State.h"
 
 PlayerController::PlayerController(GameObject &associated) : Component(associated) {}
 
@@ -14,17 +13,34 @@ void PlayerController::Start() {}
 
 void PlayerController::Update(float dt)
 {
+    (void)dt;
+
     Character *character = associated.GetComponent<Character>();
     if (!character) return;
 
     InputManager &input = InputManager::GetInstance();
+    State &currentState = Game::GetInstance().GetCurrentState();
+    const Vec2 playerPos = character->GetPosition();
+
+    if (input.KeyPress(SPACE_KEY))
+    {
+        if (currentState.ActivateActorInteractable(playerPos))
+        {
+            return;
+        }
+    }
 
     // Mouse
     if (input.MousePress(LEFT_MOUSE_BUTTON))
     {
-
         float mouseWorldX = input.GetMouseX() + Camera::pos.x;
         float mouseWorldY = input.GetMouseY() + Camera::pos.y;
+        Vec2 mouseWorldPoint(mouseWorldX, mouseWorldY);
+
+        if (currentState.ActivateInteractableAtPoint(mouseWorldPoint, playerPos))
+        {
+            return;
+        }
         
         // determina até aonde o protagonista anda, verificar o valor e mander constante nos cenário 
         // ter certeza que tem o mesmo valor que em character.cpp 

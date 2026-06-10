@@ -3,7 +3,6 @@
 #include "Game.h"
 #include "TileSet.h"
 #include "TileMap.h"
-#include "InputManager.h"
 #include "Camera.h"
 #include "Character.h"
 #include "PlayerController.h"
@@ -16,10 +15,9 @@
 #include "StageManager.h"
 #include "TransitionTrigger.h"
 #include "Resources.h"
+#include "InputManager.h"
 
-
-StageState::StageState(std::string stageId) : walkableState(), currentStageId(stageId) {
-}
+StageState::StageState(std::string stageId) : WalkableState(), currentStageId(stageId) {}
 
 void StageState::Start() {
     LoadAssets();
@@ -74,42 +72,45 @@ void StageState::LoadStage(const StageConfig& config) {
 }
 
 void StageState::TransitionTo(std::string targetStageId) {
-    popRequested = true;
-    Game::GetInstance().Push(new StageState(targetStageId));
+    popRequested = true; 
+
+    if (targetStageId == "WIN_GAME") {
+        GameData::playerVictory = true;
+        Game::GetInstance().Push(new EndState());
+    } 
+    else if (targetStageId == "LOSE_GAME") {
+        GameData::playerVictory = false;
+        Game::GetInstance().Push(new EndState());
+    } 
+    else {
+        Game::GetInstance().Push(new StageState(targetStageId));
+    }
 }
 
-void StageState::LoadAssets()
-{
-    music.Open("recursos/audio/BGM.wav");
-    music.Play(-1);
+void StageState::LoadAssets() {
+
 }
 
-void StageState::UpdateWalkable(float dt)
-{
-    if (InputManager::GetInstance().QuitRequested())
-    {
+void StageState::UpdateWalkable(float dt) {
+    if (InputManager::GetInstance().QuitRequested()) {
         quitRequested = true;
     }
-    if (InputManager::GetInstance().KeyPress(ESCAPE_KEY))
-    {
+    if (InputManager::GetInstance().KeyPress(ESCAPE_KEY)) {
         popRequested = true;
     }
 
     Camera::Update(dt);
     UpdateArray(dt);
 
-    for (unsigned i = 0; i < objectArray.size(); i++) 
-    {
+    for (unsigned i = 0; i < objectArray.size(); i++) {
         Collider* colA = objectArray[i]->GetComponent<Collider>();
         if (!colA) continue;
 
-        for (unsigned j = i + 1; j < objectArray.size(); j++) 
-        {
+        for (unsigned j = i + 1; j < objectArray.size(); j++) {
             Collider* colB = objectArray[j]->GetComponent<Collider>();
             if (!colB) continue; 
 
-            if (Collision::IsColliding(colA->box, colB->box, objectArray[i]->angleDeg, objectArray[j]->angleDeg)) 
-            {
+            if (Collision::IsColliding(colA->box, colB->box, objectArray[i]->angleDeg, objectArray[j]->angleDeg)) {
                 objectArray[i]->NotifyCollision(*objectArray[j]);
                 objectArray[j]->NotifyCollision(*objectArray[i]);
             }
@@ -117,27 +118,14 @@ void StageState::UpdateWalkable(float dt)
     }
 }
 
-void StageState::Render()
-{
-
+void StageState::Render() {
     RenderArray();
-
 }
 
-void StageState::Pause()
-{
-}
-
-void StageState::Resume()
-{
-}
-
-
-StageState::~StageState() {
-
-}
+void StageState::Pause() {}
+void StageState::Resume() {}
+StageState::~StageState() {}
 
 void StageState::Update(float dt) {
-
     UpdateWalkable(dt);
 }

@@ -1,5 +1,7 @@
 #include "State.h"
 
+#include <limits>
+
 State::State() : popRequested(false), quitRequested(false), started(false) {
 }
 
@@ -23,6 +25,76 @@ std::weak_ptr<GameObject> State::GetObjectPtr(GameObject* go) {
         }
     }
     return std::weak_ptr<GameObject>();
+}
+
+Interactable* State::GetInteractable(const Interactable::InteractionContext& context) {
+    Interactable* selectedInteractable = nullptr;
+    float shortestDistance = std::numeric_limits<float>::max();
+
+    for (auto& obj : objectArray) {
+        Interactable* interactable = obj->GetComponent<Interactable>();
+        if (!interactable || !interactable->CanActivate(context)) {
+            continue;
+        }
+
+        float distance = 0.0f;
+        if (context.hasActor) {
+            distance = obj->box.Center().Distance(context.actorPos);
+        } else if (context.hasInteractionPoint) {
+            distance = obj->box.Center().Distance(context.interactionPoint);
+        }
+
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            selectedInteractable = interactable;
+        }
+    }
+
+    return selectedInteractable;
+}
+
+bool State::ActivateActorInteractable(const Vec2& actorPos) {
+    Interactable::InteractionContext context;
+    context.hasActor = true;
+    context.actorPos = actorPos;
+
+    Interactable* interactable = GetInteractable(context);
+    if (!interactable) {
+        return false;
+    }
+
+    interactable->Activate();
+    return true;
+}
+
+bool State::ActivateInteractableAtPoint(const Vec2& worldPoint) {
+    Interactable::InteractionContext context;
+    context.hasInteractionPoint = true;
+    context.interactionPoint = worldPoint;
+
+    Interactable* interactable = GetInteractable(context);
+    if (!interactable) {
+        return false;
+    }
+
+    interactable->Activate();
+    return true;
+}
+
+bool State::ActivateInteractableAtPoint(const Vec2& worldPoint, const Vec2& actorPos) {
+    Interactable::InteractionContext context;
+    context.hasActor = true;
+    context.actorPos = actorPos;
+    context.hasInteractionPoint = true;
+    context.interactionPoint = worldPoint;
+
+    Interactable* interactable = GetInteractable(context);
+    if (!interactable) {
+        return false;
+    }
+
+    interactable->Activate();
+    return true;
 }
 
 bool State::PopRequested() {
