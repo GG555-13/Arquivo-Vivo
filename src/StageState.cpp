@@ -12,91 +12,112 @@
 #include <cmath>
 #include "GameData.h"
 #include "EndState.h"
+#include "StageManager.h"
 #include "TransitionTrigger.h"
+#include "Resources.h"
+#include "InputManager.h"
 
-StageState::StageState() : WalkableState()
-{
-}
+StageState::StageState(std::string stageId) : WalkableState(), currentStageId(stageId) {}
 
-StageState::~StageState()
-{
-}
-
-void StageState::Start()
-{
+void StageState::Start() {
     LoadAssets();
+    StageConfig config = StageManager::GetStage(currentStageId);
+    LoadStage(config);
+    started = true;
+    StartArray();
+}
 
-    // SKY
-    GameObject* skyGo = new GameObject(); 
-    SpriteRenderer* skySprite = new SpriteRenderer(*skyGo, "recursos/img/NightSky.png");
-    skySprite->SetParallax(Vec2(0.3f, 0.3f)); 
-    skyGo->AddComponent(skySprite);
-    skyGo->box.x = 0;
-    skyGo->box.y = 900.0f - skySprite->GetHeight(); 
-    AddObject(skyGo);
+void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers) {
+    for (const auto& layer : layers) {
+        GameObject* layerGo = new GameObject();
+        SpriteRenderer* layerSprite = new SpriteRenderer(*layerGo, layer.file);
+        layerSprite->SetScale(layer.scaleX, layer.scaleY);
+        layerSprite->SetParallax(Vec2(layer.parallaxX, layer.parallaxY));
+        layerGo->AddComponent(layerSprite);
+        layerGo->box.x = 0;
+        layerGo->box.y = 900.0f - layerSprite->GetHeight();
+        if (!layer.isSky) this->maxStageWidth = layerSprite->GetWidth(); 
+        AddObject(layerGo);
+    }
+}
 
-    // 2. MANSION (
-    GameObject* mansionGo = new GameObject();
-    SpriteRenderer* mansionSprite = new SpriteRenderer(*mansionGo, "recursos/img/Mansion.jpg");
-    mansionSprite->SetScale(0.7f, 0.7f);
-    mansionSprite->SetParallax(Vec2(1.0f, 1.0f)); 
-    mansionGo->AddComponent(mansionSprite);
-    mansionGo->box.x = 0;
-    mansionGo->box.y = 900.0f - mansionSprite->GetHeight(); 
-    AddObject(mansionGo);
+void StageState::LoadStage(const StageConfig& config) {
+    Resources::ClearImages();
+    Resources::ClearMusics();
+    LoadBackgroundLayers(config.layers);
 
-    // 3. DOOR WITH TRANSITION TRIGGER
-    GameObject* doorTriggerGo = new GameObject();
-    doorTriggerGo->box = Rect(1288.0f, 560.0f, 170.0f, 260.0f);
-    doorTriggerGo->AddComponent(new TransitionTrigger(
-        *doorTriggerGo,
-        TransitionTrigger::SPACE_OR_CLICK,
-        140.0f,
-        []()
-        {
-            GameData::playerVictory = true;
-            Game::GetInstance().Push(new EndState());
-        }
-    ));
-    AddObject(doorTriggerGo);
+    if (!config.musicFile.empty()) {
+        backgroundMusic.Open(config.musicFile);
+        backgroundMusic.Play(-1);
+    }
 
-    // 4. PLAYER
-    GameObject *playerGo = new GameObject();
-    playerGo->box.x = 200;
-    playerGo->box.y = 700; 
+    GameObject* playerGo = new GameObject();
+    playerGo->box.x = config.playerSpawn.x;
+    playerGo->box.y = config.playerSpawn.y;
     playerGo->AddComponent(new Character(*playerGo, "recursos/img/Player.png"));
     playerGo->AddComponent(new PlayerController(*playerGo));
     AddObject(playerGo);
-
     Camera::Follow(playerGo);
 
-    started = true;
-    StartArray();
+    for (const auto& triggerData : config.triggers) {
+        GameObject* triggerGo = new GameObject();
+        triggerGo->box.x = triggerData.x;
+        triggerGo->box.y = triggerData.y;
+        triggerGo->box.w = triggerData.width;
+        triggerGo->box.h = triggerData.height;
+        triggerGo->AddComponent(new Collider(*triggerGo));
+        triggerGo->AddComponent(new TransitionTrigger(*triggerGo, triggerData.targetStageId));
+        AddObject(triggerGo);
+    }
+}
+
+void StageState::TransitionTo(std::string targetStageId) {
+    popRequested = true; 
+
+    if (targetStageId == "WIN_GAME") {
+        GameData::playerVictory = true;
+        Game::GetInstance().Push(new EndState());
+    } 
+    else if (targetStageId == "LOSE_GAME") {
+        GameData::playerVictory = false;
+        Game::GetInstance().Push(new EndState());
+    } 
+    else {
+        Game::GetInstance().Push(new StageState(targetStageId));
+    }
+}
+
+void StageState::LoadAssets() {
 
 }
 
-void StageState::LoadAssets()
-{
-    music.Open("recursos/audio/Intro.mp3");
-    music.Play(-1);
-}
-
-void StageState::UpdateWalkable(float dt)
-{
+void StageState::UpdateWalkable(float dt) {
     (void)dt;
+
+    for (unsigned i = 0; i < objectArray.size(); i++) {
+        Collider* colA = objectArray[i]->GetComponent<Collider>();
+        if (!colA) continue;
+
+        for (unsigned j = i + 1; j < objectArray.size(); j++) {
+            Collider* colB = objectArray[j]->GetComponent<Collider>();
+            if (!colB) continue; 
+
+            if (Collision::IsColliding(colA->box, colB->box, objectArray[i]->angleDeg, objectArray[j]->angleDeg)) {
+                objectArray[i]->NotifyCollision(*objectArray[j]);
+                objectArray[j]->NotifyCollision(*objectArray[i]);
+            }
+        }
+    }
 }
 
-void StageState::Render()
-{
-
+void StageState::Render() {
     RenderArray();
-
 }
 
-void StageState::Pause()
-{
-}
+void StageState::Pause() {}
+void StageState::Resume() {}
+StageState::~StageState() {}
 
-void StageState::Resume()
-{
+void StageState::Update(float dt) {
+    WalkableState::Update(dt);
 }
