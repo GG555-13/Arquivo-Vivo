@@ -92,15 +92,7 @@ void StageState::LoadAssets() {
 }
 
 void StageState::UpdateWalkable(float dt) {
-    if (InputManager::GetInstance().QuitRequested()) {
-        quitRequested = true;
-    }
-    if (InputManager::GetInstance().KeyPress(ESCAPE_KEY)) {
-        popRequested = true;
-    }
-
-    Camera::Update(dt);
-    UpdateArray(dt);
+    (void)dt;
 
     for (unsigned i = 0; i < objectArray.size(); i++) {
         Collider* colA = objectArray[i]->GetComponent<Collider>();
@@ -127,5 +119,5 @@ void StageState::Resume() {}
 StageState::~StageState() {}
 
 void StageState::Update(float dt) {
-    UpdateWalkable(dt);
+    WalkableState::Update(dt);
 }
