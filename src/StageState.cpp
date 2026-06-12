@@ -16,6 +16,8 @@
 #include "TransitionTrigger.h"
 #include "Resources.h"
 #include "InputManager.h"
+#include "ClueBoardState.h"
+#include "Interactable.h"
 
 StageState::StageState(std::string stageId) : WalkableState(), currentStageId(stageId) {}
 
@@ -68,6 +70,26 @@ void StageState::LoadStage(const StageConfig& config) {
         triggerGo->AddComponent(new Collider(*triggerGo));
         triggerGo->AddComponent(new TransitionTrigger(*triggerGo, triggerData.targetStageId));
         AddObject(triggerGo);
+    }
+
+    // Clue board interactable — only inside the mansion
+    if (config.stageId == "mansion_interior") {
+        GameObject* clueBoardGo = new GameObject();
+        SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
+        boardSprite->SetScale(1.2f, 1.2f);
+        clueBoardGo->AddComponent(boardSprite);
+        clueBoardGo->box.SetCenter(Vec2(450.0f, 650.0f));
+
+        clueBoardGo->AddComponent(new Interactable(
+            *clueBoardGo,
+            Interactable::SPACE_OR_CLICK,
+            Interactable::REQUIRE_NEAR,
+            140.0f,
+            []() {
+                Game::GetInstance().Push(new ClueBoardState());
+            }
+        ));
+        AddObject(clueBoardGo);
     }
 }
 
