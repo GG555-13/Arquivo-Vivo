@@ -50,7 +50,7 @@ void PlayerController::Update(float dt)
         if (mouseWorldY < minY) mouseWorldY = minY;
         if (mouseWorldY > maxY) mouseWorldY = maxY;
 
-        if (input.GetMouseX() > 1150) mouseWorldX = 1926.0f; 
+        if (input.GetMouseX() > 1150) mouseWorldX = Camera::stageWidth; 
         if (input.GetMouseX() < 50) mouseWorldX = 0.0f;
 
         character->Issue(Character::Command(Character::Command::MOVE_TARGET, mouseWorldX, mouseWorldY));

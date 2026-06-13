@@ -122,7 +122,7 @@ void Character::Update(float dt)
 
     // MANTER AS COORDENADAS X dentro da imagem do fundo
     if (center.x < 0.0f) center.x = 0.0f;
-    if (center.x > 1926.0f) center.x = 1926.0f; 
+    if (center.x > Camera::stageWidth) center.x = Camera::stageWidth; 
 
     associated.box.SetCenter(center);
 

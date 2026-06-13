@@ -30,17 +30,28 @@ void StageState::Start() {
 }
 
 void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers) {
+    this->maxStageWidth = 0.0f;
     for (const auto& layer : layers) {
         GameObject* layerGo = new GameObject();
         SpriteRenderer* layerSprite = new SpriteRenderer(*layerGo, layer.file);
         layerSprite->SetScale(layer.scaleX, layer.scaleY);
         layerSprite->SetParallax(Vec2(layer.parallaxX, layer.parallaxY));
         layerGo->AddComponent(layerSprite);
-        layerGo->box.x = 0;
-        layerGo->box.y = 900.0f - layerSprite->GetHeight();
-        if (!layer.isSky) this->maxStageWidth = layerSprite->GetWidth(); 
+        // Compensa offsets
+        float spriteWidth = layerSprite->GetWidth();
+        float spriteHeight = layerSprite->GetHeight();
+        float centeringOffsetX = (spriteWidth / layer.scaleX) * (1.0f - layer.scaleX) / 2.0f;
+        float centeringOffsetY = (spriteHeight / layer.scaleY) * (1.0f - layer.scaleY) / 2.0f;
+        layerGo->box.x = layer.baseWidth * layer.scaleX - centeringOffsetX;
+        layerGo->box.y = 900.0f - spriteHeight - centeringOffsetY;
+        if (!layer.isSky) {
+            float layerRightEdge = layer.baseWidth * layer.scaleX + spriteWidth;
+            if (layerRightEdge > this->maxStageWidth)
+                this->maxStageWidth = layerRightEdge;
+        }
         AddObject(layerGo);
     }
+    Camera::stageWidth = this->maxStageWidth;
 }
 
 void StageState::LoadStage(const StageConfig& config) {
