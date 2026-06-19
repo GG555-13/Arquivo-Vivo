@@ -11,16 +11,27 @@ void StageManager::Initialize() {
     mansionExterior.playerSpawn = Vec2(200.0f, 700.0f);
     
     mansionExterior.layers.push_back({"recursos/img/NightSky.png", 1.0f, 1.0f, 0.3f, 0.3f, 0.0f, true});
-    mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte1.png", 0.35f, 0.35f, 1.0f, 1.0f, 0.0f, false});
-    mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte2.png", 0.35f, 0.35f, 1.0f, 1.0f, 10475.0f, false});
-    mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte3.png", 0.35f, 0.35f, 1.0f, 1.0f, 20950.0f, false});
     
+    // mansionExterior.layers.push_back({"recursos/img/NightSky.png", 1.0f, 1.0f, 0.3f, 0.3f, 0.0f, true});
+    // mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_01.png", 0.35f, 0.35f, 1.0f, 1.0f, 0.0f, false});
+    // mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_02.png", 0.35f, 0.35f, 1.0f, 1.0f, 7856.0f, false});
+    // mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_03.png", 0.35f, 0.35f, 1.0f, 1.0f, 15712.0f, false});
+    // mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_04.png", 0.35f, 0.35f, 1.0f, 1.0f, 23568.0f, false});
+
+    // mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte1.png", 0.35f, 0.35f, 1.0f, 1.0f, 0.0f, false});
+    // mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte2.png", 0.35f, 0.35f, 1.0f, 1.0f, 10475.0f, false});
+    // mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte3.png", 0.35f, 0.35f, 1.0f, 1.0f, 20950.0f, false});
+
+    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte1.png", 0.25f, 0.25f, 1.0f, 1.0f, 0.0f, false});
+    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte2.png", 0.25f, 0.25f, 1.0f, 1.0f, 10475.0f, false});
+    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte3.png", 0.25f, 0.25f, 1.0f, 1.0f, 20950.0f, false});
+
     // DOOR TRIGGER
     mansionExterior.triggers.push_back({1310.0f, 600.0f, 150.0f, 300.0f, "mansion_interior"});
     
     stages["colonial_mansion"] = mansionExterior;
 
-    
+     
 
     // INTERIOR MANSION
     StageConfig mansionInterior;

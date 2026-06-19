@@ -6,7 +6,7 @@ from PIL import Image
 import os
 
 # CONFIGURAÇÕES
-INPUT_PATH = "recursos/img/Cenario1_tentativa2.png"
+INPUT_PATH = "recursos/img/cidadearquivovivo.png"
 OUTPUT_DIR = "recursos/img/"
 NUM_PARTS = 3  # Quantas partes dividir
 
