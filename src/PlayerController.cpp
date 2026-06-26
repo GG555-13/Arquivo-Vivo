@@ -6,6 +6,7 @@
 #include "Vec2.h"
 #include "SpriteRenderer.h"
 #include "Game.h"
+#include "DialogueBox.h" 
 
 PlayerController::PlayerController(GameObject &associated) : Component(associated) {}
 
@@ -17,6 +18,11 @@ void PlayerController::Update(float dt)
 
     Character *character = associated.GetComponent<Character>();
     if (!character) return;
+
+    if (DialogueBox::isPlaying) 
+    {
+        return; 
+    }
 
     InputManager &input = InputManager::GetInstance();
     State &currentState = Game::GetInstance().GetCurrentState();

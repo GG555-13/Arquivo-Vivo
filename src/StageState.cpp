@@ -16,6 +16,8 @@
 #include "TransitionTrigger.h"
 #include "Resources.h"
 #include "InputManager.h"
+#include "Interactable.h"
+#include "DialogueBox.h"
 #include "ClueBoardState.h"
 #include "Interactable.h"
 
@@ -67,7 +69,7 @@ void StageState::LoadStage(const StageConfig& config) {
     GameObject* playerGo = new GameObject();
     playerGo->box.x = config.playerSpawn.x;
     playerGo->box.y = config.playerSpawn.y;
-    playerGo->AddComponent(new Character(*playerGo, "recursos/img/Crianca.png"));
+    playerGo->AddComponent(new Character(*playerGo, "recursos/img/Protagonista.png"));
     playerGo->AddComponent(new PlayerController(*playerGo));
     AddObject(playerGo);
     Camera::Follow(playerGo);
@@ -102,7 +104,27 @@ void StageState::LoadStage(const StageConfig& config) {
         ));
         AddObject(clueBoardGo);
     }
+
+    GameObject* npcGO = new GameObject();
+    
+    npcGO->box.x = config.playerSpawn.x + 200.0f; 
+    npcGO->box.y = config.playerSpawn.y;
+
+    npcGO->AddComponent(new SpriteRenderer(*npcGO, "recursos/img/NPC.png", 3, 4));
+
+    npcGO->AddComponent(new Collider(*npcGO));
+
+    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, []() {
+        if (DialogueBox::isPlaying) return; 
+        GameObject* dialogueController = new GameObject();
+        dialogueController->AddComponent(new DialogueBox(*dialogueController, "recursos/dialogos/clue01.json"));
+        Game::GetInstance().GetCurrentState().AddObject(dialogueController);
+    }));
+
+    AddObject(npcGO);
+
 }
+
 
 void StageState::TransitionTo(std::string targetStageId) {
     popRequested = true; 

@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Detetive",
+        "text": "Olá posso fazer algumas perguntas?",
+        "portrait": "recursos/img/Protagonista .png"
+    },
+    {
+        "name": "Suspeito",
+        "text": "claro, pode perguntar.",
+        "portrait": "recursos/img/Cultista.png"
+    },
+    {
+        "name": "Detetive",
+    "text": "Vamos come;car pela primeira pergunta",
+        "portrait": "recursos/img/Protagonista .png"
+    }
+]

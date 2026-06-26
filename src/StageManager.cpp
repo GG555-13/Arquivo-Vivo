@@ -1,4 +1,6 @@
 #include "StageManager.h"
+#include "Interactable.h"
+#include "DialogueBox.h"
 #include <iostream>
 
 std::unordered_map<std::string, StageConfig> StageManager::stages;
