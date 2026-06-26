@@ -56,6 +56,10 @@ void SpriteRenderer::SetFlip(SDL_RendererFlip flip) {
     sprite.SetFlip(flip); 
 }
 
+void SpriteRenderer::SetUseSourceFrameOffset(bool useOffset) {
+    sprite.SetUseSourceFrameOffset(useOffset);
+}
+
 void SpriteRenderer::SetParallax(Vec2 factor)
 {
     parallaxFactor = factor;

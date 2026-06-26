@@ -11,15 +11,22 @@ Character *Character::player = nullptr;
 Character::Character(GameObject &associated, const std::string &spritePath)
     : Component(associated), linearSpeed(450.0f), isMoving(false), flipped(false), isMovingToTarget(false) 
 {
-    SpriteRenderer* sr = new SpriteRenderer(associated, spritePath, 3, 4);
-    sr->SetScale(2.5f, 2.5f);
+    SpriteRenderer* sr = new SpriteRenderer(associated, spritePath, 3, 2);
+    sr->SetUseSourceFrameOffset(false);
+    // sr->SetScale(3.8f, 3.8f);
+    sr->SetScale(0.3f, 0.3f);
 
     associated.AddComponent(sr);
 
     Animator *animator = new Animator(associated);
 
-    animator->AddAnimation("idle", Animation(9, 9, 0));
-    animator->AddAnimation("walking", Animation(1, 8, 0.1f));
+    // animator->AddAnimation("idle", Animation(9, 9, 0));
+    // animator->AddAnimation("walking", Animation(1, 8, 0.1f));
+    // animator->SetAnimation("idle");
+    // associated.AddComponent(animator);
+
+    animator->AddAnimation("idle", Animation(4, 4, 0));
+    animator->AddAnimation("walking", Animation(0, 3, 0.1f));
     animator->SetAnimation("idle");
     associated.AddComponent(animator);
     
@@ -138,7 +145,7 @@ void Character::Update(float dt)
     }
 
     SpriteRenderer *sr = associated.GetComponent<SpriteRenderer>();
-    if (sr) sr->SetFlip(flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    if (sr) sr->SetFlip(flipped ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
 }
 
 void Character::SetTargetIndicator(std::weak_ptr<GameObject> indicator)

@@ -22,9 +22,9 @@ void StageManager::Initialize() {
     // mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte2.png", 0.35f, 0.35f, 1.0f, 1.0f, 10475.0f, false});
     // mansionExterior.layers.push_back({"recursos/img/Cenario1_tentativa2_parte3.png", 0.35f, 0.35f, 1.0f, 1.0f, 20950.0f, false});
 
-    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte1.png", 0.25f, 0.25f, 1.0f, 1.0f, 0.0f, false});
-    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte2.png", 0.25f, 0.25f, 1.0f, 1.0f, 10475.0f, false});
-    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte3.png", 0.25f, 0.25f, 1.0f, 1.0f, 20950.0f, false});
+    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte1.png", 0.42f, 0.42f, 1.0f, 1.0f, 0.0f, false});
+    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte2.png", 0.42f, 0.42f, 1.0f, 1.0f, 10475.0f, false});
+    mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte3.png", 0.42f, 0.42f, 1.0f, 1.0f, 20950.0f, false});
 
     // DOOR TRIGGER
     mansionExterior.triggers.push_back({1310.0f, 600.0f, 150.0f, 300.0f, "mansion_interior"});
@@ -39,7 +39,7 @@ void StageManager::Initialize() {
     mansionInterior.musicFile = "recursos/audio/endStateLose.ogg"; 
     mansionInterior.playerSpawn = Vec2(100.0f, 600.0f); 
     
-    mansionInterior.layers.push_back({"recursos/img/InsideMansion.png", 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, false});
+    mansionInterior.layers.push_back({"recursos/img/delegacia_interior.png", 0.42f, 0.42f, 1.0f, 1.0f, 0.0f, false});
     
     mansionInterior.triggers.push_back({1288.0f, 400.0f, 200.0f, 260.0f, "WIN_GAME"});
     

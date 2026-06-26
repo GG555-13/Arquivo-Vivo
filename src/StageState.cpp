@@ -67,7 +67,7 @@ void StageState::LoadStage(const StageConfig& config) {
     GameObject* playerGo = new GameObject();
     playerGo->box.x = config.playerSpawn.x;
     playerGo->box.y = config.playerSpawn.y;
-    playerGo->AddComponent(new Character(*playerGo, "recursos/img/Player.png"));
+    playerGo->AddComponent(new Character(*playerGo, "recursos/img/Crianca.png"));
     playerGo->AddComponent(new PlayerController(*playerGo));
     AddObject(playerGo);
     Camera::Follow(playerGo);
