@@ -5,10 +5,10 @@
 #include "Resources.h"
 #include "Camera.h"
 
-Sprite::Sprite() : texture(nullptr), width(0), height(0), clipRect({0, 0, 0, 0}), frameCountW(1), frameCountH(1), cameraFollower(false), useSourceFrameOffset(true), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE) {}
+Sprite::Sprite() : texture(nullptr), renderOffsetY(0), width(0), height(0), clipRect({0, 0, 0, 0}), frameCountW(1), frameCountH(1), cameraFollower(false), useSourceFrameOffset(true), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE) {}
 
 Sprite::Sprite(const std::string &file, int frameCountW, int frameCountH)
-    : texture(nullptr), width(0), height(0), clipRect({0, 0, 0, 0}), cameraFollower(false), useSourceFrameOffset(true), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE)
+    : texture(nullptr), renderOffsetY(0), width(0), height(0), clipRect({0, 0, 0, 0}), cameraFollower(false), useSourceFrameOffset(true), scale(1.0f, 1.0f), flip(SDL_FLIP_NONE)
 {
     this->frameCountW = frameCountW;
     this->frameCountH = frameCountH;
@@ -63,7 +63,7 @@ void Sprite::Render(int x, int y, float angle)
         dstRect.x += (clipRect.w - dstRect.w) / 2;
         dstRect.y += (clipRect.h - dstRect.h) / 2;
     } else {
-        dstRect.y -= 177;
+        dstRect.y += renderOffsetY;
     }
 
     SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstRect, angle, nullptr, flip);
@@ -141,4 +141,9 @@ void Sprite::SetFlip(SDL_RendererFlip flipValue)
 void Sprite::SetUseSourceFrameOffset(bool useOffset)
 {
     useSourceFrameOffset = useOffset;
+}
+
+void Sprite::SetRenderOffsetY(int offset)
+{
+    renderOffsetY = offset;
 }

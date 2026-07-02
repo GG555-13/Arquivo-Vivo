@@ -25,6 +25,7 @@ public:
     void Update(float dt) override;
     void Render() override;
     void SetParallax(Vec2 factor);
+    void SetRenderOffsetY(int offset);
 
 private:
     Sprite sprite;

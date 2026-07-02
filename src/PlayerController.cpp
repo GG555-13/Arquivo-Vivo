@@ -66,7 +66,9 @@ void PlayerController::Update(float dt)
         if (!existingMarker)
         {
             GameObject* clickFeedback = new GameObject();
-            SpriteRenderer* sprite = new SpriteRenderer(*clickFeedback, "recursos/img/Bullet.png");
+            SpriteRenderer* sprite = new SpriteRenderer(*clickFeedback, "recursos/img/interactible_indicator.png");
+            sprite->SetScale(0.1f, 0.1f);
+            sprite->SetUseSourceFrameOffset(false);
             clickFeedback->AddComponent(sprite);
             
             clickFeedback->box.w = sprite->GetWidth();

@@ -27,9 +27,11 @@ public:
     Vec2 GetScale() const;
     void SetFlip(SDL_RendererFlip flip);
     void SetUseSourceFrameOffset(bool useOffset);
+    void SetRenderOffsetY(int offset);
 
 private:
     std::shared_ptr<SDL_Texture> texture;
+    int renderOffsetY;
     int width;
     int height;
     SDL_Rect clipRect;

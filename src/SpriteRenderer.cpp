@@ -77,3 +77,8 @@ void SpriteRenderer::Render()
 
     sprite.Render(finalX, finalY); 
 }
+
+void SpriteRenderer::SetRenderOffsetY(int offset) 
+{
+    sprite.SetRenderOffsetY(offset);
+}

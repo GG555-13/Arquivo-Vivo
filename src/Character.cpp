@@ -15,6 +15,7 @@ Character::Character(GameObject &associated, const std::string &spritePath)
     sr->SetUseSourceFrameOffset(false);
     // sr->SetScale(3.8f, 3.8f);
     sr->SetScale(0.3f, 0.3f);
+    sr->SetRenderOffsetY(-177);
 
     associated.AddComponent(sr);
 

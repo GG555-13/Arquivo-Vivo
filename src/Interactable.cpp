@@ -23,7 +23,9 @@ Interactable::Interactable(GameObject &associated,
 void Interactable::Start()
 {
     GameObject *markerGo = new GameObject();
-    SpriteRenderer *sprite = new SpriteRenderer(*markerGo, "recursos/img/Bullet.png");
+    SpriteRenderer *sprite = new SpriteRenderer(*markerGo, "recursos/img/interactible_indicator.png");
+    sprite->SetScale(0.1f, 0.1f);
+    sprite->SetUseSourceFrameOffset(false);
     markerGo->AddComponent(sprite);
     markerGo->box.w = sprite->GetWidth();
     markerGo->box.h = sprite->GetHeight();
@@ -224,5 +226,5 @@ void Interactable::UpdateAreaMarker(const InteractionContext &context)
     }
 
     marker->box.x = associated.box.Center().x - marker->box.w / 2.0f;
-    marker->box.y = associated.box.y - marker->box.h - 12.0f;
+    marker->box.y = associated.box.Center().y - interactionRadius - marker->box.h - 8.0f;
 }
