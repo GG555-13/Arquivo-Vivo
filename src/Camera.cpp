@@ -5,6 +5,7 @@
 
 Vec2 Camera::pos(0, 0);
 Vec2 Camera::speed(0, 0);
+float Camera::stageWidth = 1926.0f;
 GameObject *Camera::focus = nullptr;
 
 void Camera::Follow(GameObject *newFocus)
@@ -25,9 +26,8 @@ void Camera::Update(float dt)
         pos.y = 0.0f; 
 
         //configurar a dimensão do fundo
-        float bgWidth = 1926.0f;   
         float windowWidth = 1200.0f; 
-        float maxCameraX = bgWidth - windowWidth;
+        float maxCameraX = stageWidth - windowWidth;
 
         if (pos.x < 0) 
         {

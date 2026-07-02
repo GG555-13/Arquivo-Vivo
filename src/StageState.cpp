@@ -16,6 +16,10 @@
 #include "TransitionTrigger.h"
 #include "Resources.h"
 #include "InputManager.h"
+#include "Interactable.h"
+#include "DialogueBox.h"
+#include "ClueBoardState.h"
+#include "Interactable.h"
 
 StageState::StageState(std::string stageId) : WalkableState(), currentStageId(stageId) {}
 
@@ -28,17 +32,28 @@ void StageState::Start() {
 }
 
 void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers) {
+    this->maxStageWidth = 0.0f;
     for (const auto& layer : layers) {
         GameObject* layerGo = new GameObject();
         SpriteRenderer* layerSprite = new SpriteRenderer(*layerGo, layer.file);
         layerSprite->SetScale(layer.scaleX, layer.scaleY);
         layerSprite->SetParallax(Vec2(layer.parallaxX, layer.parallaxY));
         layerGo->AddComponent(layerSprite);
-        layerGo->box.x = 0;
-        layerGo->box.y = 900.0f - layerSprite->GetHeight();
-        if (!layer.isSky) this->maxStageWidth = layerSprite->GetWidth(); 
+        // Compensa offsets
+        float spriteWidth = layerSprite->GetWidth();
+        float spriteHeight = layerSprite->GetHeight();
+        float centeringOffsetX = (spriteWidth / layer.scaleX) * (1.0f - layer.scaleX) / 2.0f;
+        float centeringOffsetY = (spriteHeight / layer.scaleY) * (1.0f - layer.scaleY) / 2.0f;
+        layerGo->box.x = layer.baseWidth * layer.scaleX - centeringOffsetX;
+        layerGo->box.y = 900.0f - spriteHeight - centeringOffsetY;
+        if (!layer.isSky) {
+            float layerRightEdge = layer.baseWidth * layer.scaleX + spriteWidth;
+            if (layerRightEdge > this->maxStageWidth)
+                this->maxStageWidth = layerRightEdge;
+        }
         AddObject(layerGo);
     }
+    Camera::stageWidth = this->maxStageWidth;
 }
 
 void StageState::LoadStage(const StageConfig& config) {
@@ -54,7 +69,7 @@ void StageState::LoadStage(const StageConfig& config) {
     GameObject* playerGo = new GameObject();
     playerGo->box.x = config.playerSpawn.x;
     playerGo->box.y = config.playerSpawn.y;
-    playerGo->AddComponent(new Character(*playerGo, "recursos/img/Player.png"));
+    playerGo->AddComponent(new Character(*playerGo, "recursos/img/Protagonista.png"));
     playerGo->AddComponent(new PlayerController(*playerGo));
     AddObject(playerGo);
     Camera::Follow(playerGo);
@@ -69,7 +84,47 @@ void StageState::LoadStage(const StageConfig& config) {
         triggerGo->AddComponent(new TransitionTrigger(*triggerGo, triggerData.targetStageId));
         AddObject(triggerGo);
     }
+
+    // Clue board interactable — only inside the mansion
+    if (config.stageId == "mansion_interior") {
+        GameObject* clueBoardGo = new GameObject();
+        SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
+        boardSprite->SetScale(1.2f, 1.2f);
+        clueBoardGo->AddComponent(boardSprite);
+        clueBoardGo->box.SetCenter(Vec2(450.0f, 650.0f));
+
+        clueBoardGo->AddComponent(new Interactable(
+            *clueBoardGo,
+            Interactable::SPACE_OR_CLICK,
+            Interactable::REQUIRE_NEAR,
+            140.0f,
+            []() {
+                Game::GetInstance().Push(new ClueBoardState());
+            }
+        ));
+        AddObject(clueBoardGo);
+    }
+
+    GameObject* npcGO = new GameObject();
+    
+    npcGO->box.x = config.playerSpawn.x + 200.0f; 
+    npcGO->box.y = config.playerSpawn.y;
+
+    npcGO->AddComponent(new SpriteRenderer(*npcGO, "recursos/img/NPC.png", 3, 4));
+
+    npcGO->AddComponent(new Collider(*npcGO));
+
+    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, []() {
+        if (DialogueBox::isPlaying) return; 
+        GameObject* dialogueController = new GameObject();
+        dialogueController->AddComponent(new DialogueBox(*dialogueController, "recursos/dialogos/clue01.json"));
+        Game::GetInstance().GetCurrentState().AddObject(dialogueController);
+    }));
+
+    AddObject(npcGO);
+
 }
+
 
 void StageState::TransitionTo(std::string targetStageId) {
     popRequested = true; 

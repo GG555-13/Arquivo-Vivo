@@ -26,6 +26,7 @@ public:
     void SetScale(float scaleX, float scaleY);
     Vec2 GetScale() const;
     void SetFlip(SDL_RendererFlip flip);
+    void SetUseSourceFrameOffset(bool useOffset);
 
 private:
     std::shared_ptr<SDL_Texture> texture;
@@ -36,6 +37,7 @@ private:
     int frameCountW;
     int frameCountH;
     bool cameraFollower;
+    bool useSourceFrameOffset;
 
     Vec2 scale;
     SDL_RendererFlip flip;

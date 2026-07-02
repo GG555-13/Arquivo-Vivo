@@ -6,6 +6,7 @@
 #include "Vec2.h"
 #include "SpriteRenderer.h"
 #include "Game.h"
+#include "DialogueBox.h" 
 
 PlayerController::PlayerController(GameObject &associated) : Component(associated) {}
 
@@ -17,6 +18,11 @@ void PlayerController::Update(float dt)
 
     Character *character = associated.GetComponent<Character>();
     if (!character) return;
+
+    if (DialogueBox::isPlaying) 
+    {
+        return; 
+    }
 
     InputManager &input = InputManager::GetInstance();
     State &currentState = Game::GetInstance().GetCurrentState();
@@ -50,7 +56,7 @@ void PlayerController::Update(float dt)
         if (mouseWorldY < minY) mouseWorldY = minY;
         if (mouseWorldY > maxY) mouseWorldY = maxY;
 
-        if (input.GetMouseX() > 1150) mouseWorldX = 1926.0f; 
+        if (input.GetMouseX() > 1150) mouseWorldX = Camera::stageWidth; 
         if (input.GetMouseX() < 50) mouseWorldX = 0.0f;
 
         character->Issue(Character::Command(Character::Command::MOVE_TARGET, mouseWorldX, mouseWorldY));

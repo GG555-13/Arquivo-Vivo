@@ -21,6 +21,7 @@ public:
     int GetHeight() const;
     void SetScale(float scaleX, float scaleY);
     void SetFlip(SDL_RendererFlip flip);
+    void SetUseSourceFrameOffset(bool useOffset);
     void Update(float dt) override;
     void Render() override;
     void SetParallax(Vec2 factor);
