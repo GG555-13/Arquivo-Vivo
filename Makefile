@@ -9,7 +9,7 @@ OBJDIR = obj
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
 OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
 
-CXXFLAGS = -std=c++11 -Wall -g -Iinclude
+CXXFLAGS = -std=c++14 -Wall -g -Iinclude
 LDFLAGS =
 LIBS =
 

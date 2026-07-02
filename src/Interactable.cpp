@@ -9,14 +9,16 @@ Interactable::Interactable(GameObject &associated,
                            ActivationType activationType,
                                                      Requirement requirement,
                            float interactionRadius,
-                           std::function<void()> onInteract)
+                           std::function<void()> onInteract,
+                           float markerOffsetY)
     : Component(associated),
       activationType(activationType),
             requirement(requirement),
       interactionRadius(interactionRadius),
       enabled(true),
       wasPlayerNearLastFrame(false),
-      onInteract(onInteract)
+      onInteract(onInteract),
+      markerOffsetY(markerOffsetY)
 {
 }
 
@@ -226,5 +228,12 @@ void Interactable::UpdateAreaMarker(const InteractionContext &context)
     }
 
     marker->box.x = associated.box.Center().x - marker->box.w / 2.0f;
-    marker->box.y = associated.box.Center().y - interactionRadius - marker->box.h - 8.0f;
+    if (requirement == REQUIRE_INSIDE_AREA) 
+    {
+        marker->box.y = associated.box.y - marker->box.h + markerOffsetY;
+    } 
+    else 
+    {
+        marker->box.y = associated.box.Center().y - interactionRadius - marker->box.h + markerOffsetY;
+    }
 }

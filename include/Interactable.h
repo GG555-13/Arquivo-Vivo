@@ -42,7 +42,8 @@ public:
                  ActivationType activationType,
                  Requirement requirement,
                  float interactionRadius,
-                 std::function<void()> onInteract);
+                 std::function<void()> onInteract,
+                 float markerOffsetY = 0.0f);
 
     void Start() override;
     void Update(float dt) override;
@@ -70,6 +71,7 @@ protected:
     bool wasPlayerNearLastFrame;
     std::weak_ptr<GameObject> areaMarker;
     std::function<void()> onInteract;
+    float markerOffsetY;
 
     bool MeetsRequirement(const InteractionContext &context) const;
     void UpdateAreaMarker(const InteractionContext &context);

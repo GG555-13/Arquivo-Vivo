@@ -17,6 +17,8 @@ struct TriggerConfig {
     float x, y;
     float width, height;
     std::string targetStageId;
+    float targetSpawnX = -1.0f;
+    float targetSpawnY = -1.0f;
 };
 
 struct StageConfig {

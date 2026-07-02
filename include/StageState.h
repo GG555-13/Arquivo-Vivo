@@ -6,11 +6,12 @@
 #include "TileSet.h"
 #include "Timer.h"
 #include "StageConfig.h"
+#include "Text.h"
 
 
 class StageState : public WalkableState {
 public:
-    StageState(std::string stageId = "colonial_mansion");
+    StageState(std::string stageId = "colonial_mansion", float overrideSpawnX = -1.0f, float overrideSpawnY = -1.0f);
     ~StageState();
 
     void LoadAssets();
@@ -23,7 +24,7 @@ public:
     
     void LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers);
     void LoadStage(const StageConfig& config);
-    void TransitionTo(std::string targetStageId);
+    void TransitionTo(std::string targetStageId, float spawnX = -1.0f, float spawnY = -1.0f);
 
 protected:
     void UpdateWalkable(float dt) override;
@@ -32,11 +33,14 @@ private:
     TileSet* tileSet;
     Timer endGameTimer;
     bool endGameStarted;
-    bool playerWon; 
+    bool playerWon;
+    GameObject* debugPosText; 
     
     std::string currentStageId;
     float maxStageWidth;
     Music backgroundMusic;
+    float overrideSpawnX;
+    float overrideSpawnY;
 };
 
 #endif

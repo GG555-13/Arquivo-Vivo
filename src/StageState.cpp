@@ -21,7 +21,10 @@
 #include "ClueBoardState.h"
 #include "Interactable.h"
 
-StageState::StageState(std::string stageId) : WalkableState(), currentStageId(stageId) {}
+StageState::StageState(std::string stageId, float spawnX, float spawnY) : WalkableState(), 
+                                                                          currentStageId(stageId), 
+                                                                          overrideSpawnX(spawnX), 
+                                                                          overrideSpawnY(spawnY) {}
 
 void StageState::Start() {
     LoadAssets();
@@ -67,12 +70,26 @@ void StageState::LoadStage(const StageConfig& config) {
     }
 
     GameObject* playerGo = new GameObject();
-    playerGo->box.x = config.playerSpawn.x;
-    playerGo->box.y = config.playerSpawn.y;
+    playerGo->box.x = (overrideSpawnX >= 0.0f) ? overrideSpawnX : config.playerSpawn.x;
+    playerGo->box.y = (overrideSpawnY >= 0.0f) ? overrideSpawnY : config.playerSpawn.y;
     playerGo->AddComponent(new Character(*playerGo, "recursos/img/Protagonista.png"));
     playerGo->AddComponent(new PlayerController(*playerGo));
+
+    float sx = (overrideSpawnX >= 0.0f) ? overrideSpawnX : config.playerSpawn.x;
+    float sy = (overrideSpawnY >= 0.0f) ? overrideSpawnY : config.playerSpawn.y;
+    playerGo->box.SetCenter(Vec2(sx, sy));
+
     AddObject(playerGo);
     Camera::Follow(playerGo);
+
+    // Debug: player position display
+    debugPosText = new GameObject();
+    Text* posText = new Text(*debugPosText,
+        "recursos/font/neodgm.ttf", 16, Text::SOLID,
+        "Pos: (0, 0)",
+        {255, 255, 0, 255});  // yellow
+    debugPosText->AddComponent(posText);
+    AddObject(debugPosText);
 
     for (const auto& triggerData : config.triggers) {
         GameObject* triggerGo = new GameObject();
@@ -80,27 +97,52 @@ void StageState::LoadStage(const StageConfig& config) {
         triggerGo->box.y = triggerData.y;
         triggerGo->box.w = triggerData.width;
         triggerGo->box.h = triggerData.height;
-        triggerGo->AddComponent(new Collider(*triggerGo));
-        triggerGo->AddComponent(new TransitionTrigger(*triggerGo, triggerData.targetStageId));
+        // triggerGo->AddComponent(new Collider(*triggerGo));
+        // triggerGo->AddComponent(new TransitionTrigger(*triggerGo, triggerData.targetStageId));
+
+        // triggerGo->AddComponent(new Interactable(*triggerGo,
+        //                                          Interactable::SPACE_OR_CLICK,
+        //                                          Interactable::REQUIRE_INSIDE_AREA,
+        //                                          0.0f,
+        //                                          [targetId = triggerData.targetStageId]() {
+        //                                             auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
+        //                                             if (stage) stage->TransitionTo(targetId);
+        //                                          },
+        //                                          -28.0f
+        // ));
+
+        triggerGo->AddComponent(new Interactable(*triggerGo,
+                                                 Interactable::SPACE_OR_CLICK,
+                                                 Interactable::REQUIRE_NEAR,                             // ← changed
+                                                 std::max(triggerData.width, triggerData.height) * 0.7f,   // ← radius
+                                                 [targetId = triggerData.targetStageId,
+                                                  sx = triggerData.targetSpawnX,
+                                                  sy = triggerData.targetSpawnY]() {
+                                                     auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
+                                                     if (stage) stage->TransitionTo(targetId, sx, sy);
+                                                 }
+        ));
+
         AddObject(triggerGo);
     }
 
     // Clue board interactable — only inside the mansion
     if (config.stageId == "mansion_interior") {
         GameObject* clueBoardGo = new GameObject();
-        SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
-        boardSprite->SetScale(1.2f, 1.2f);
-        clueBoardGo->AddComponent(boardSprite);
-        clueBoardGo->box.SetCenter(Vec2(450.0f, 650.0f));
+        // SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
+        // boardSprite->SetScale(1.2f, 1.2f);
+        // clueBoardGo->AddComponent(boardSprite);
+        clueBoardGo->box.SetCenter(Vec2(2400.0f, 750.0f));
 
         clueBoardGo->AddComponent(new Interactable(
             *clueBoardGo,
             Interactable::SPACE_OR_CLICK,
             Interactable::REQUIRE_NEAR,
-            140.0f,
+            250.0f,
             []() {
                 Game::GetInstance().Push(new ClueBoardState());
-            }
+            },
+            -110.0f
         ));
         AddObject(clueBoardGo);
     }
@@ -108,7 +150,7 @@ void StageState::LoadStage(const StageConfig& config) {
     GameObject* npcGO = new GameObject();
     
     npcGO->box.x = config.playerSpawn.x + 200.0f; 
-    npcGO->box.y = config.playerSpawn.y;
+    npcGO->box.y = 750.0f;
 
     npcGO->AddComponent(new SpriteRenderer(*npcGO, "recursos/img/NPC.png", 3, 4));
 
@@ -126,7 +168,7 @@ void StageState::LoadStage(const StageConfig& config) {
 }
 
 
-void StageState::TransitionTo(std::string targetStageId) {
+void StageState::TransitionTo(std::string targetStageId, float spawnX, float spawnY) {
     popRequested = true; 
 
     if (targetStageId == "WIN_GAME") {
@@ -138,7 +180,7 @@ void StageState::TransitionTo(std::string targetStageId) {
         Game::GetInstance().Push(new EndState());
     } 
     else {
-        Game::GetInstance().Push(new StageState(targetStageId));
+        Game::GetInstance().Push(new StageState(targetStageId, spawnX, spawnY));
     }
 }
 
@@ -175,4 +217,18 @@ StageState::~StageState() {}
 
 void StageState::Update(float dt) {
     WalkableState::Update(dt);
+
+    // Update debug position display
+    if (debugPosText && Character::player) {
+        Vec2 pos = Character::player->GetPosition();
+        auto* text = debugPosText->GetComponent<Text>();
+        if (text) {
+            text->SetText(
+                "Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ")"
+            );
+        }
+        // Pin to top-left of screen
+        debugPosText->box.x = Camera::pos.x + 10.0f;
+        debugPosText->box.y = Camera::pos.y + 10.0f;
+    }
 }

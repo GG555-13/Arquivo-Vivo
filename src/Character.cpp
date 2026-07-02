@@ -7,9 +7,9 @@
 #include "Camera.h"
 
 Character *Character::player = nullptr;
-
+// normal speed 450.0f
 Character::Character(GameObject &associated, const std::string &spritePath)
-    : Component(associated), linearSpeed(450.0f), isMoving(false), flipped(false), isMovingToTarget(false) 
+    : Component(associated), linearSpeed(1450.0f), isMoving(false), flipped(false), isMovingToTarget(false) 
 {
     SpriteRenderer* sr = new SpriteRenderer(associated, spritePath, 3, 2);
     sr->SetUseSourceFrameOffset(false);
