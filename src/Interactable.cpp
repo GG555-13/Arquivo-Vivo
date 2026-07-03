@@ -1,6 +1,6 @@
 #include "Interactable.h"
 
-#include "Character.h"
+#include "Player.h"
 #include "Game.h"
 #include "GameObject.h"
 #include "SpriteRenderer.h"
@@ -48,10 +48,10 @@ void Interactable::Update(float dt)
     }
 
     InteractionContext context;
-    if (Character::player != nullptr)
+    if (Player::player != nullptr)
     {
         context.hasActor = true;
-        context.actorPos = Character::player->GetPosition();
+        context.actorPos = Player::player->GetPosition();
     }
 
     UpdateAreaMarker(context);

@@ -6,49 +6,15 @@
 #include "Collider.h"
 #include "Camera.h"
 
-Character *Character::player = nullptr;
-// normal speed 450.0f
-Character::Character(GameObject &associated, const std::string &spritePath)
+Character::Character(GameObject &associated)
     : Component(associated), linearSpeed(1450.0f), isMoving(false), flipped(false), isMovingToTarget(false) 
 {
-    SpriteRenderer* sr = new SpriteRenderer(associated, spritePath, 3, 2);
-    sr->SetUseSourceFrameOffset(false);
-    // sr->SetScale(3.8f, 3.8f);
-    sr->SetScale(0.3f, 0.3f);
-    sr->SetRenderOffsetY(-177);
-
-    associated.AddComponent(sr);
-
-    Animator *animator = new Animator(associated);
-
-    // animator->AddAnimation("idle", Animation(9, 9, 0));
-    // animator->AddAnimation("walking", Animation(1, 8, 0.1f));
-    // animator->SetAnimation("idle");
-    // associated.AddComponent(animator);
-
-    animator->AddAnimation("idle", Animation(4, 4, 0));
-    animator->AddAnimation("walking", Animation(0, 3, 0.1f));
-    animator->SetAnimation("idle");
-    associated.AddComponent(animator);
-    
-    currentAnim = "idle"; 
-
-    if (player == nullptr)
-    {
-        player = this;
-    }
-    
-    associated.box.w = associated.GetComponent<SpriteRenderer>()->GetWidth();
-    associated.box.h = associated.GetComponent<SpriteRenderer>()->GetHeight();
+    currentAnim = "idle";
     associated.AddComponent(new Collider(associated));
 }
 
 Character::~Character()
 {
-    if (player == this)
-    {
-        player = nullptr;
-    }
 }
 
 void Character::Start()
@@ -72,12 +38,7 @@ void Character::Update(float dt)
         else if (currentTask.type == Command::MOVE_DIR)
         {
             isMovingToTarget = false; 
-            
-            if (std::shared_ptr<GameObject> ind = targetIndicator.lock()) {
-                ind->box.x = -10000; 
-                ind->box.y = -10000;
-            }
-
+            OnDirectionInput();
             speed.x += currentTask.pos.x * linearSpeed;
             if (currentTask.pos.x != 0) isMoving = true;
         }
@@ -94,11 +55,7 @@ void Character::Update(float dt)
             associated.box.x = targetPos.x - associated.box.w / 2;
             associated.box.y = targetPos.y - associated.box.h / 2;
             isMovingToTarget = false;
-
-            if (std::shared_ptr<GameObject> ind = targetIndicator.lock()) {
-                ind->box.x = -10000;
-                ind->box.y = -10000;
-            }
+            OnArrivedAtTarget();
         }
         else
         {
@@ -118,25 +75,19 @@ void Character::Update(float dt)
     if (speed.x < 0) flipped = true;
     else if (speed.x > 0) flipped = false;
 
-    // ter certeza que os valores são os mesmos no PlayerController 
-    float floorMinY = 700.0f;
-    float floorMaxY = 850.0f;
-
-    Vec2 center = associated.box.Center();
-
-    // MANTER AS COORDENADAS Y dentro da imagem do fundo
-    if (center.y < floorMinY) center.y = floorMinY;
-    if (center.y > floorMaxY) center.y = floorMaxY;
-
-    // MANTER AS COORDENADAS X dentro da imagem do fundo
-    if (center.x < 0.0f) center.x = 0.0f;
-    if (center.x > Camera::stageWidth) center.x = Camera::stageWidth; 
-
-    associated.box.SetCenter(center);
+    ConstrainPosition();
 
     if (speed.x < 0) flipped = true;
     else if (speed.x > 0) flipped = false;
 
+    UpdateAnimation();
+
+    SpriteRenderer *sr = associated.GetComponent<SpriteRenderer>();
+    if (sr) sr->SetFlip(flipped ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
+}
+
+void Character::UpdateAnimation()
+{
     std::string expectedAnim = isMoving ? "walking" : "idle";
     if (expectedAnim != currentAnim)
     {
@@ -144,19 +95,44 @@ void Character::Update(float dt)
         Animator *animator = associated.GetComponent<Animator>();
         if (animator) animator->SetAnimation(currentAnim);
     }
-
-    SpriteRenderer *sr = associated.GetComponent<SpriteRenderer>();
-    if (sr) sr->SetFlip(flipped ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
 }
 
-void Character::SetTargetIndicator(std::weak_ptr<GameObject> indicator)
+void Character::ConstrainPosition()
 {
-    targetIndicator = indicator;
+    if (!boundsEnabled) return;
+
+    Vec2 center = associated.box.Center();
+
+    // MANTER AS COORDENADAS Y dentro da imagem do fundo
+    if (floorMinY > 0.0f && center.y < floorMinY) center.y = floorMinY;
+    if (floorMaxY > 0.0f && center.y > floorMaxY) center.y = floorMaxY;
+
+    // MANTER AS COORDENADAS X dentro da imagem do fundo
+    if (boundMinX > 0.0f && center.x < boundMinX) center.x = boundMinX;
+    if (boundMaxX > 0.0f && center.x > boundMaxX) center.x = boundMaxX;
+
+    associated.box.SetCenter(center);
 }
 
-std::weak_ptr<GameObject> Character::GetTargetIndicator() const
+void Character::OnDirectionInput()
 {
-    return targetIndicator;
+}
+
+void Character::OnArrivedAtTarget()
+{
+}
+
+void Character::SetBounds(float minY, float maxY, float minX, float maxX)
+{
+    floorMinY = minY;
+    floorMaxY = maxY;
+    boundMinX = minX;
+    boundMaxX = maxX;
+}
+
+void Character::EnableBounds(bool enable)
+{
+    boundsEnabled = enable;
 }
 
 void Character::NotifyCollision(GameObject & other)
@@ -176,6 +152,11 @@ void Character::Issue(Command task)
 void Character::SetFlip(bool flipState)
 {
     flipped = flipState;
+}
+
+bool Character::IsFlipped() const
+{
+    return flipped;
 }
 
 Vec2 Character::GetPosition() const

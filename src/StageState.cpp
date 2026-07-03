@@ -4,7 +4,8 @@
 #include "TileSet.h"
 #include "TileMap.h"
 #include "Camera.h"
-#include "Character.h"
+#include "Player.h"
+#include "NPC.h"
 #include "PlayerController.h"
 #include "Collision.h"
 #include "Collider.h"
@@ -72,7 +73,7 @@ void StageState::LoadStage(const StageConfig& config) {
     GameObject* playerGo = new GameObject();
     playerGo->box.x = (overrideSpawnX >= 0.0f) ? overrideSpawnX : config.playerSpawn.x;
     playerGo->box.y = (overrideSpawnY >= 0.0f) ? overrideSpawnY : config.playerSpawn.y;
-    playerGo->AddComponent(new Character(*playerGo, "recursos/img/Protagonista.png"));
+    playerGo->AddComponent(new Player(*playerGo));
     playerGo->AddComponent(new PlayerController(*playerGo));
 
     float sx = (overrideSpawnX >= 0.0f) ? overrideSpawnX : config.playerSpawn.x;
@@ -152,9 +153,7 @@ void StageState::LoadStage(const StageConfig& config) {
     npcGO->box.x = config.playerSpawn.x + 200.0f; 
     npcGO->box.y = 750.0f;
 
-    npcGO->AddComponent(new SpriteRenderer(*npcGO, "recursos/img/NPC.png", 3, 4));
-
-    npcGO->AddComponent(new Collider(*npcGO));
+    npcGO->AddComponent(new NPC(*npcGO, "recursos/img/NPC.png", 3, 4));
 
     npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, []() {
         if (DialogueBox::isPlaying) return; 
@@ -219,8 +218,8 @@ void StageState::Update(float dt) {
     WalkableState::Update(dt);
 
     // Update debug position display
-    if (debugPosText && Character::player) {
-        Vec2 pos = Character::player->GetPosition();
+    if (debugPosText && Player::player) {
+        Vec2 pos = Player::player->GetPosition();
         auto* text = debugPosText->GetComponent<Text>();
         if (text) {
             text->SetText(

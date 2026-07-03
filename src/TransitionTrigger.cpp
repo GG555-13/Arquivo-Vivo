@@ -1,5 +1,5 @@
 #include "TransitionTrigger.h"
-#include "Character.h"
+#include "Player.h"
 #include "Game.h"
 #include "StageState.h"
 #include "InputManager.h"
@@ -25,7 +25,7 @@ void TransitionTrigger::Render() {
 }
 
 void TransitionTrigger::NotifyCollision(GameObject& other) {
-    Character* interactingPlayer = other.GetComponent<Character>();
+    Player* interactingPlayer = other.GetComponent<Player>();
     
     if (interactingPlayer != nullptr) {
         InputManager& input = InputManager::GetInstance();
