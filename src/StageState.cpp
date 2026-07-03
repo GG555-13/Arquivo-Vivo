@@ -32,6 +32,11 @@ void StageState::Start() {
     LoadStage(config);
     started = true;
     StartArray();
+
+    auto pf = Game::GetInstance().ConsumePendingFadeIn();
+    if (pf.active) {
+        screenFade.FadeIn(pf.duration, pf.color);
+    }
 }
 
 void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers) {
@@ -113,13 +118,14 @@ void StageState::LoadStage(const StageConfig& config) {
 
         triggerGo->AddComponent(new Interactable(*triggerGo,
                                                  Interactable::SPACE_OR_CLICK,
-                                                 Interactable::REQUIRE_NEAR,                             // ← changed
-                                                 std::max(triggerData.width, triggerData.height) * 0.7f,   // ← radius
+                                                 Interactable::REQUIRE_NEAR,
+                                                 std::max(triggerData.width, triggerData.height) * 0.7f,
                                                  [targetId = triggerData.targetStageId,
                                                   sx = triggerData.targetSpawnX,
-                                                  sy = triggerData.targetSpawnY]() {
+                                                  sy = triggerData.targetSpawnY,
+                                                  fadeCfg = triggerData.fade]() {
                                                      auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
-                                                     if (stage) stage->TransitionTo(targetId, sx, sy);
+                                                     if (stage) stage->TransitionTo(targetId, sx, sy, fadeCfg);
                                                  }
         ));
 
@@ -168,19 +174,37 @@ void StageState::LoadStage(const StageConfig& config) {
 }
 
 
-void StageState::TransitionTo(std::string targetStageId, float spawnX, float spawnY) {
-    popRequested = true; 
+void StageState::PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY) {
+    popRequested = true;
 
     if (targetStageId == "WIN_GAME") {
         GameData::playerVictory = true;
         Game::GetInstance().Push(new EndState());
-    } 
+    }
     else if (targetStageId == "LOSE_GAME") {
         GameData::playerVictory = false;
         Game::GetInstance().Push(new EndState());
-    } 
+    }
     else {
         Game::GetInstance().Push(new StageState(targetStageId, spawnX, spawnY));
+    }
+}
+
+void StageState::TransitionTo(std::string targetStageId, float spawnX, float spawnY,
+                               const FadeTransitionConfig& fadeConfig) {
+    if (screenFade.IsActive()) return;  // block double-trigger while fading
+
+    if (fadeConfig.fadeIn) {
+        Game::GetInstance().SetPendingFadeIn({true, fadeConfig.fadeInDuration, fadeConfig.fadeInColor});
+    }
+
+    if (fadeConfig.fadeOut) {
+        screenFade.FadeOut(fadeConfig.fadeOutDuration, fadeConfig.fadeOutColor, [=]() {
+            PerformTransitionTo(targetStageId, spawnX, spawnY);
+        });
+        // do NOT pop yet — callback handles it when fade completes
+    } else {
+        PerformTransitionTo(targetStageId, spawnX, spawnY);
     }
 }
 
@@ -209,6 +233,7 @@ void StageState::UpdateWalkable(float dt) {
 
 void StageState::Render() {
     RenderArray();
+    screenFade.Render();
 }
 
 void StageState::Pause() {}
@@ -216,6 +241,12 @@ void StageState::Resume() {}
 StageState::~StageState() {}
 
 void StageState::Update(float dt) {
+    screenFade.Update(dt);
+
+    if (screenFade.IsActive()) {
+        return;  // block game logic + input during fade
+    }
+
     WalkableState::Update(dt);
 
     // Update debug position display

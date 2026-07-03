@@ -6,6 +6,7 @@
 #include <memory> 
 #include "SDL_include.h"
 #include "State.h"
+#include "FadeTypes.h"
 
 class Game
 {
@@ -21,6 +22,9 @@ public:
 
     void Push(State* state);
 
+    void SetPendingFadeIn(const PendingFadeIn& pf);
+    PendingFadeIn ConsumePendingFadeIn();
+
     int GetWidth() const;
     int GetHeight() const;
 
@@ -33,7 +37,8 @@ private:
     SDL_Renderer *renderer;
 
     State* storedState;
-    std::stack<std::unique_ptr<State>> stateStack; 
+    std::stack<std::unique_ptr<State>> stateStack;
+    PendingFadeIn pendingFadeIn;
 
     int frameStart;
     float dt;
