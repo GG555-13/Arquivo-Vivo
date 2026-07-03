@@ -202,7 +202,6 @@ void StageState::TransitionTo(std::string targetStageId, float spawnX, float spa
         screenFade.FadeOut(fadeConfig.fadeOutDuration, fadeConfig.fadeOutColor, [=]() {
             PerformTransitionTo(targetStageId, spawnX, spawnY);
         });
-        // do NOT pop yet — callback handles it when fade completes
     } else {
         PerformTransitionTo(targetStageId, spawnX, spawnY);
     }
