@@ -61,9 +61,20 @@ void StageManager::Initialize() {
     residentialArea.layers.push_back({"recursos/img/residencial_externo.png", 0.42f, 0.42f, 1.0f, 1.0f, 0.0f, false});
 
     residentialArea.triggers.push_back({2821.0f, 600.0f, 150.0f, 300.0f, "colonial_mansion", 10721.0f, 850.0f});
-
+    residentialArea.triggers.push_back({1655.0f, 600.0f, 150.0f, 300.0f, "missing_family", 200.0f, 850.0f});
     stages["residential_area"] = residentialArea;
 
+    // casa da familia desaparecida
+    StageConfig missingFamily;
+    missingFamily.stageId = "missing_family";
+    missingFamily.musicFile = "recursos/audio/Intro.mp3";
+    missingFamily.playerSpawn = Vec2(200.0f, 850.0f);
+
+    missingFamily.layers.push_back({"recursos/img/casa_familia_sumida.png", 0.42f, 0.42f, 1.0f, 1.0f, 0.0f, false});
+    
+    missingFamily.triggers.push_back({85.0f, 600.0f, 150.0f, 300.0f, "residential_area", 1655.0f, 850.0f});
+
+    stages["missing_family"] = missingFamily;
 }
 
 StageConfig StageManager::GetStage(const std::string& stageId) {
