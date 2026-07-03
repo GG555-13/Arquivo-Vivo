@@ -1,7 +1,7 @@
 #include "PlayerController.h"
 #include "GameObject.h"
 #include "InputManager.h"
-#include "Character.h"
+#include "Player.h"
 #include "Camera.h"
 #include "Vec2.h"
 #include "SpriteRenderer.h"
@@ -16,7 +16,7 @@ void PlayerController::Update(float dt)
 {
     (void)dt;
 
-    Character *character = associated.GetComponent<Character>();
+    Player *character = associated.GetComponent<Player>();
     if (!character) return;
 
     if (DialogueBox::isPlaying) 
