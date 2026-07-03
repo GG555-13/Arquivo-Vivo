@@ -50,6 +50,11 @@ void EndState::Start()
 
     StartArray();
     started = true;
+
+    auto pf = Game::GetInstance().ConsumePendingFadeIn();
+    if (pf.active) {
+        screenFade.FadeIn(pf.duration, pf.color);
+    }
 }
 
 void EndState::LoadAssets()
@@ -58,6 +63,10 @@ void EndState::LoadAssets()
 
 void EndState::Update(float dt)
 {
+    screenFade.Update(dt);
+
+    if (screenFade.IsActive()) return;  // block input during fade-in
+
     UpdateArray(dt);
 
     if (InputManager::GetInstance().QuitRequested() || InputManager::GetInstance().KeyPress(ESCAPE_KEY))
@@ -74,6 +83,7 @@ void EndState::Update(float dt)
 void EndState::Render()
 {
     RenderArray();
+    screenFade.Render();
 }
 
 void EndState::Pause() {}

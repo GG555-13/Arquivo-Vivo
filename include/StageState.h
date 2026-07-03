@@ -24,12 +24,15 @@ public:
     
     void LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers);
     void LoadStage(const StageConfig& config);
-    void TransitionTo(std::string targetStageId, float spawnX = -1.0f, float spawnY = -1.0f);
+    void TransitionTo(std::string targetStageId, float spawnX = -1.0f, float spawnY = -1.0f,
+                      const FadeTransitionConfig& fadeConfig = {});
 
 protected:
     void UpdateWalkable(float dt) override;
 
 private:
+    void PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY);
+
     TileSet* tileSet;
     Timer endGameTimer;
     bool endGameStarted;

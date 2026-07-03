@@ -133,6 +133,16 @@ void Game::Push(State *state)
     storedState = state;
 }
 
+void Game::SetPendingFadeIn(const PendingFadeIn& pf) {
+    pendingFadeIn = pf;
+}
+
+PendingFadeIn Game::ConsumePendingFadeIn() {
+    PendingFadeIn result = pendingFadeIn;
+    pendingFadeIn = {false, 0.0f, FadeColor::Black};
+    return result;
+}
+
 void Game::Run()
 {
     if (storedState != nullptr)

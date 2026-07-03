@@ -3,6 +3,7 @@
 
 #include "GameObject.h"
 #include "Interactable.h"
+#include "ScreenFade.h"
 #include <vector>
 #include <memory>
 
@@ -39,6 +40,8 @@ protected:
     bool started;
 
     std::vector<std::shared_ptr<GameObject>> objectArray;
+
+    ScreenFade screenFade;
 };
 
 #endif
