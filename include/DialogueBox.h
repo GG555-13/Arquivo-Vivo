@@ -5,10 +5,11 @@
 #include "GameObject.h"
 #include "Text.h"
 #include "SpriteRenderer.h"
-#include "Timer.h" // 1. ADICIONE ISTO!
+#include "Timer.h"
 #include <vector>
 #include <string>
 #include <memory>
+#include <functional>
 
 struct DialogueSegment {
     std::string speakerName;
@@ -20,7 +21,9 @@ class DialogueBox : public Component {
 public:
     static bool isPlaying;
 
-    DialogueBox(GameObject& associated, std::string jsonFilePath);
+    DialogueBox(GameObject& associated,
+                std::string jsonFilePath,
+                std::function<void()> onComplete = {});
     ~DialogueBox();
 
     void Start() override;
@@ -36,6 +39,8 @@ private:
     Timer endTimer;
     bool uiCreated;
     bool hasRequestedDelete;  
+    bool completionInvoked;
+    std::function<void()> onComplete;
 
     std::weak_ptr<GameObject> boxGO;
     std::weak_ptr<GameObject> portraitGO;

@@ -10,8 +10,12 @@ using json = nlohmann::json;
 
 bool DialogueBox::isPlaying = false;
 
-DialogueBox::DialogueBox(GameObject& associated, std::string jsonFilePath)
-    : Component(associated), currentSegment(0), firstFrame(true), isFinished(false), uiCreated(false), hasRequestedDelete(false) 
+DialogueBox::DialogueBox(GameObject& associated,
+                         std::string jsonFilePath,
+                         std::function<void()> onComplete)
+    : Component(associated), currentSegment(0), firstFrame(true), isFinished(false),
+      uiCreated(false), hasRequestedDelete(false), completionInvoked(false),
+      onComplete(onComplete)
 {
     DialogueBox::isPlaying = true;
     LoadJSON(jsonFilePath);
@@ -149,6 +153,10 @@ void DialogueBox::Update(float dt) {
         } else {
             isFinished = true;
             DestroyUI();
+            if (!completionInvoked) {
+                completionInvoked = true;
+                if (onComplete) onComplete();
+            }
         }
     }
 }
