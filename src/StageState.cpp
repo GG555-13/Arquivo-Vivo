@@ -11,6 +11,7 @@
 #include "Collider.h"
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include "GameData.h"
 #include "EndState.h"
 #include "StageManager.h"
@@ -134,6 +135,7 @@ void StageState::LoadStage(const StageConfig& config) {
     }
 
     // Clue board interactable — only inside the mansion
+    Interactable* clueBoardInteractable = nullptr;
     if (config.stageId == "mansion_interior") {
         GameObject* clueBoardGo = new GameObject();
         // SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
@@ -141,7 +143,7 @@ void StageState::LoadStage(const StageConfig& config) {
         // clueBoardGo->AddComponent(boardSprite);
         clueBoardGo->box.SetCenter(Vec2(2400.0f, 750.0f));
 
-        clueBoardGo->AddComponent(new Interactable(
+        clueBoardInteractable = new Interactable(
             *clueBoardGo,
             Interactable::SPACE_OR_CLICK,
             Interactable::REQUIRE_NEAR,
@@ -150,7 +152,11 @@ void StageState::LoadStage(const StageConfig& config) {
                 Game::GetInstance().Push(new ClueBoardState());
             },
             -110.0f
-        ));
+        );
+        clueBoardInteractable->SetEnabled(
+            GameData::GetTutorialStep() != TutorialStep::TalkToBoss
+        );
+        clueBoardGo->AddComponent(clueBoardInteractable);
         AddObject(clueBoardGo);
     }
 
@@ -161,10 +167,30 @@ void StageState::LoadStage(const StageConfig& config) {
 
     npcGO->AddComponent(new NPC(*npcGO, "recursos/img/NPC.png", 3, 4));
 
-    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, []() {
+    const bool isTutorialBoss = config.stageId == "mansion_interior";
+    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, [isTutorialBoss, clueBoardInteractable]() {
         if (DialogueBox::isPlaying) return; 
+
+        if (isTutorialBoss && GameData::GetTutorialStep() != TutorialStep::TalkToBoss) {
+            return;
+        }
+
         GameObject* dialogueController = new GameObject();
-        dialogueController->AddComponent(new DialogueBox(*dialogueController, "recursos/dialogos/clue01.json"));
+        std::function<void()> onComplete;
+        if (isTutorialBoss) {
+            onComplete = [clueBoardInteractable]() {
+                if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
+                    clueBoardInteractable != nullptr) {
+                    clueBoardInteractable->SetEnabled(true);
+                }
+            };
+        }
+
+        dialogueController->AddComponent(new DialogueBox(
+            *dialogueController,
+            "recursos/dialogos/clue01.json",
+            onComplete
+        ));
         Game::GetInstance().GetCurrentState().AddObject(dialogueController);
     }));
 
@@ -253,7 +279,8 @@ void StageState::Update(float dt) {
         auto* text = debugPosText->GetComponent<Text>();
         if (text) {
             text->SetText(
-                "Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ")"
+                "Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ") | Tutorial: " +
+                GameData::GetTutorialStepName()
             );
         }
         // Pin to top-left of screen
