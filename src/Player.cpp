@@ -36,8 +36,8 @@ void Player::SetupSprite()
 {
     SpriteRenderer* sr = new SpriteRenderer(associated, "recursos/img/Protagonista.png", 3, 2);
     sr->SetUseSourceFrameOffset(false);
-    sr->SetScale(0.3f, 0.3f);
-    sr->SetRenderOffsetY(-177);
+    sr->SetScale(0.35f, 0.35f);
+    sr->SetRenderOffsetY(-200);
     associated.AddComponent(sr);
 
     Animator *animator = new Animator(associated);
