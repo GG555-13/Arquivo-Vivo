@@ -57,10 +57,10 @@ void ClueBoardState::Start()
 
     // Board background
     GameObject* boardGO = new GameObject();
-    SpriteRenderer* boardSR = new SpriteRenderer(*boardGO, "recursos/img/quadro_pistas.png");
-    boardSR->SetScale(0.9f, 0.9f);
+    SpriteRenderer* boardSR = new SpriteRenderer(*boardGO, "recursos/img/estrutura_quadro.png");
+    boardSR->SetScale(1.4f, 1.4f);
     boardGO->AddComponent(boardSR);
-    boardGO->box.SetCenter(Vec2(430.0f, 290.0f));
+    boardGO->box.SetCenter(Vec2(775.0f, 610.0f));
     AddObject(boardGO);
 
     // Load persisted clue positions, or use defaults on first open
@@ -82,8 +82,9 @@ void ClueBoardState::Start()
 std::weak_ptr<GameObject> ClueBoardState::AddClue(const Vec2& center)
 {
     GameObject* clueGO = new GameObject();
-    SpriteRenderer* sprite = new SpriteRenderer(*clueGO, "recursos/img/esboçoPasta.png");
-    sprite->SetScale(0.65f, 0.65f);
+    SpriteRenderer* sprite = new SpriteRenderer(*clueGO, "recursos/img/papel_quadro.png");
+    sprite->SetScale(0.40f, 0.40f);
+    sprite->SetUseSourceFrameOffset(false);
     clueGO->AddComponent(sprite);
     clueGO->box.SetCenter(center);
 

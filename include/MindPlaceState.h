@@ -29,12 +29,12 @@ private:
     DetailPanel detailPanel;
 
     std::weak_ptr<GameObject> CreateFolder(const Vec2 &center,
-                                           float scale = 0.65f,
-                                           const std::string &spritePath = "recursos/img/esboçoPasta.png");
+                                           float scale = 0.22f,
+                                           const std::string &spritePath = "recursos/img/Pasta.png");
     std::weak_ptr<GameObject> CreateFolder(const Vec2 &center,
                                            std::function<void()> interactable,
-                                           float scale = 0.65f,
-                                           const std::string &spritePath = "recursos/img/esboçoPasta.png");
+                                           float scale = 0.22f,
+                                           const std::string &spritePath = "recursos/img/Pasta.png");
 };
 
 #endif

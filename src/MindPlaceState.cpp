@@ -77,10 +77,10 @@ void MindPlaceState::Start()
                            "recursos/img/abaPessoasDownEsboço.png",
                            "recursos/img/abaPessoasUpEsboço.png");
 
-    tabs.AddContent(tab0, CreateFolder(Vec2(190.0f, 210.0f), nullptr));
-    tabs.AddContent(tab0, CreateFolder(Vec2(340.0f, 210.0f)));
-    tabs.AddContent(tab1, CreateFolder(Vec2(190.0f, 210.0f), nullptr));
-    tabs.AddContent(tab2, CreateFolder(Vec2(190.0f, 210.0f)));
+    tabs.AddContent(tab0, CreateFolder(Vec2(245.0f, 245.0f), nullptr));
+    tabs.AddContent(tab0, CreateFolder(Vec2(405.0f, 245.0f)));
+    tabs.AddContent(tab1, CreateFolder(Vec2(245.0f, 245.0f), nullptr));
+    tabs.AddContent(tab2, CreateFolder(Vec2(245.0f, 245.0f)));
 
     tabs.SwitchTo(0);
 
@@ -114,6 +114,7 @@ std::weak_ptr<GameObject> MindPlaceState::CreateFolder(const Vec2 &center,
     GameObject *folderGO = new GameObject();
     SpriteRenderer *sprite = new SpriteRenderer(*folderGO, spritePath);
     sprite->SetScale(scale, scale);
+    sprite->SetUseSourceFrameOffset(false);
     folderGO->AddComponent(sprite);
 
     if (!interactable)

@@ -39,12 +39,11 @@ public:
     
     Vec2 GetPosition() const;
 
-    // Bounds (configurable by subclasses)
     void SetBounds(float minY, float maxY, float minX, float maxX);
     void EnableBounds(bool enable);
 
 protected:
-    // Subclasses must implement their own sprite/animation setup
+
     virtual void SetupSprite() = 0;
     virtual void UpdateAnimation();
     virtual void ConstrainPosition();
@@ -60,7 +59,6 @@ protected:
     bool isMovingToTarget; 
     Vec2 targetPos;
 
-    // Bounds configuration (default: none)
     float floorMinY = 0.0f;
     float floorMaxY = 0.0f;
     float boundMinX = 0.0f;

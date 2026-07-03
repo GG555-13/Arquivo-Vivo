@@ -15,7 +15,6 @@ NPC::NPC(GameObject &associated,
       scale(scale),
       renderOffsetY(renderOffsetY)
 {
-    // NPCs have no bounds by default (they stay where placed)
     boundsEnabled = false;
 
     SetupSprite();
@@ -30,7 +29,6 @@ void NPC::SetupSprite()
         sr->SetRenderOffsetY(renderOffsetY);
     associated.AddComponent(sr);
 
-    // If the sheet has multiple frames, add a basic animator
     if (frameCols > 1 || frameRows > 1)
     {
         Animator *animator = new Animator(associated);
