@@ -7,6 +7,10 @@
 #include "InputManager.h"
 #include "SpriteRenderer.h"
 #include "Text.h"
+#include "DetailContent.h"
+#include "Inventory.h"
+#include "InventoryCatalog.h"
+#include "InventoryEntryDefinition.h"
 
 namespace
 {
@@ -77,15 +81,56 @@ void MindPlaceState::Start()
                            "recursos/img/abaPessoasDownEsboço.png",
                            "recursos/img/abaPessoasUpEsboço.png");
 
-    tabs.AddContent(tab0, CreateFolder(Vec2(245.0f, 245.0f), nullptr));
-    tabs.AddContent(tab0, CreateFolder(Vec2(405.0f, 245.0f)));
-    tabs.AddContent(tab1, CreateFolder(Vec2(245.0f, 245.0f), nullptr));
-    tabs.AddContent(tab2, CreateFolder(Vec2(245.0f, 245.0f)));
+    int counts[] = {0, 0, 0};
+    for (const std::string &entryId : Inventory::GetEntries()) {
+        const InventoryEntryDefinition *definition = InventoryCatalog::Find(entryId);
+        if (!definition) continue;
+        int tab = definition->category == MindPlaceCategory::People ? tab0
+                : definition->category == MindPlaceCategory::Documents ? tab1 : tab2;
+        const int categoryIndex = tab == tab0 ? 0 : tab == tab1 ? 1 : 2;
+        const int index = counts[categoryIndex]++;
+        Vec2 center(245.0f + (index % 3) * 160.0f, 245.0f + (index / 3) * 130.0f);
+        tabs.AddContent(tab, CreateInventoryEntry(center, entryId));
+    }
 
     tabs.SwitchTo(0);
 
     StartArray();
     started = true;
+}
+
+std::weak_ptr<GameObject> MindPlaceState::CreateEntry(const Vec2 &center,
+                                                       const std::string &iconPath,
+                                                       std::function<void()> callback,
+                                                       float scale)
+{
+    const float offscreenY = 2000.0f;
+    GameObject *entry = new GameObject();
+    SpriteRenderer *sprite = new SpriteRenderer(*entry, iconPath);
+    sprite->SetScale(scale, scale);
+    sprite->SetUseSourceFrameOffset(false);
+    entry->AddComponent(sprite);
+    entry->AddComponent(new Interactable(*entry, Interactable::CLICK_ONLY,
+                                          Interactable::NO_ACTOR, 0.0f, callback));
+    entry->box.SetCenter(Vec2(center.x, center.y + offscreenY));
+    return AddObject(entry);
+}
+
+std::weak_ptr<GameObject> MindPlaceState::CreateInventoryEntry(const Vec2 &center,
+                                                                const std::string &entryId)
+{
+    const InventoryEntryDefinition *definition = InventoryCatalog::Find(entryId);
+    if (!definition) return std::weak_ptr<GameObject>();
+    const std::string icon = definition->mindPlaceImage;
+    return CreateEntry(center, icon, [this, entryId]() {
+        const InventoryEntryDefinition *current = InventoryCatalog::Find(entryId);
+        if (!current) return;
+        DetailContent content{current->name, current->description, current->detailImage};
+        if (current->kind == InventoryEntryKind::DialogueFolder) {
+            content.description = Inventory::GetDialogueHistory(current->characterId);
+        }
+        detailPanel.Open(content);
+    });
 }
 
 void MindPlaceState::LoadAssets()

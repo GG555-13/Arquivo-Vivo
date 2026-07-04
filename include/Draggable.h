@@ -21,6 +21,7 @@ public:
     Vec2 GetSpawnPosition() const;
     void ResetToSpawn();
     void SetOnRelease(std::function<bool(const Vec2 &releasePoint)> callback);
+    void SetEnabled(bool value);
 
 private:
     static Draggable *activeDraggable;
@@ -32,6 +33,7 @@ private:
     Vec2 spawnPosition;
     Vec2 dragOffset;
     std::function<bool(const Vec2 &releasePoint)> onRelease;
+    bool enabled;
 };
 
 #endif

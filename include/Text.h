@@ -11,6 +11,8 @@ public:
     enum TextStyle { SOLID, SHADED, BLENDED };
 
     Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color);
+    Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style,
+         std::string text, SDL_Color color, int wrapWidth);
     ~Text();
 
     void Update(float dt) override;
@@ -21,6 +23,7 @@ public:
     void SetStyle(TextStyle style);
     void SetFontFile(std::string fontFile);
     void SetFontSize(int fontSize);
+    void SetWrapWidth(int width);
 
 private:
     void RemakeTexture();
@@ -33,6 +36,7 @@ private:
     std::string fontFile;
     int fontSize;
     SDL_Color color;
+    int wrapWidth = 0;
 };
 
 #endif

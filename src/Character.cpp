@@ -7,8 +7,8 @@
 #include "Camera.h"
 
 Character::Character(GameObject &associated)
-    : Component(associated), linearSpeed(1450.0f), isMoving(false), flipped(false), isMovingToTarget(false) 
-{
+    : Component(associated), linearSpeed(2450.0f), isMoving(false), flipped(false), isMovingToTarget(false) 
+{                                       // padrão 450
     currentAnim = "idle";
     associated.AddComponent(new Collider(associated));
 }

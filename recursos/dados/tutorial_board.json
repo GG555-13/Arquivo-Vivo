@@ -1,0 +1,6 @@
+{
+  "slots": [
+    { "entryId": "case_document", "target": { "x": 620, "y": 310 }, "snapRadius": 80 },
+    { "entryId": "family_photo", "target": { "x": 850, "y": 410 }, "snapRadius": 80 }
+  ]
+}

@@ -12,7 +12,8 @@ Draggable::Draggable(GameObject &associated, bool returnToSpawnOnRelease)
       returnToSpawnOnRelease(returnToSpawnOnRelease),
     spawnPosition(associated.box.Center()),
       dragOffset(),
-      onRelease()
+      onRelease(),
+      enabled(true)
 {
 }
 
@@ -27,6 +28,8 @@ Draggable::~Draggable()
 void Draggable::Update(float dt)
 {
     (void)dt;
+
+    if (!enabled) return;
 
     InputManager &input = InputManager::GetInstance();
     Vec2 mouseWorldPoint(input.GetMouseX() + Camera::pos.x,
@@ -93,6 +96,12 @@ void Draggable::ResetToSpawn()
 void Draggable::SetOnRelease(std::function<bool(const Vec2 &releasePoint)> callback)
 {
     onRelease = callback;
+}
+
+void Draggable::SetEnabled(bool value)
+{
+    enabled = value;
+    if (!enabled && dragging) FinishDrag();
 }
 
 void Draggable::FinishDrag()

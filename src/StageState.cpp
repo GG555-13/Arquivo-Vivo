@@ -20,6 +20,7 @@
 #include "InputManager.h"
 #include "Interactable.h"
 #include "DialogueBox.h"
+#include "Inventory.h"
 #include "ClueBoardState.h"
 #include "Interactable.h"
 
@@ -160,6 +161,22 @@ void StageState::LoadStage(const StageConfig& config) {
         AddObject(clueBoardGo);
     }
 
+    // Example world pickup. Inventory ownership prevents it from respawning after revisiting the stage.
+    if (config.stageId == "missing_family" && !Inventory::Has("family_photo")) {
+        GameObject *pickup = new GameObject();
+        SpriteRenderer *pickupSprite = new SpriteRenderer(*pickup, "recursos/img/papel_quadro.png");
+        pickupSprite->SetScale(0.18f, 0.18f);
+        pickupSprite->SetUseSourceFrameOffset(false);
+        pickup->AddComponent(pickupSprite);
+        pickup->box.SetCenter(Vec2(1000.0f, 760.0f));
+        pickup->AddComponent(new Interactable(*pickup, Interactable::SPACE_OR_CLICK,
+                                               Interactable::REQUIRE_NEAR, 120.0f,
+                                               [pickup]() {
+                                                   if (Inventory::Add("family_photo")) pickup->RequestDelete();
+                                               }));
+        AddObject(pickup);
+    }
+
     GameObject* npcGO = new GameObject();
     
     npcGO->box.x = config.playerSpawn.x + 200.0f; 
@@ -179,6 +196,8 @@ void StageState::LoadStage(const StageConfig& config) {
         std::function<void()> onComplete;
         if (isTutorialBoss) {
             onComplete = [clueBoardInteractable]() {
+                Inventory::Add("case_document");
+                Inventory::Add("chief_dialogues");
                 if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
                     clueBoardInteractable != nullptr) {
                     clueBoardInteractable->SetEnabled(true);
@@ -189,7 +208,8 @@ void StageState::LoadStage(const StageConfig& config) {
         dialogueController->AddComponent(new DialogueBox(
             *dialogueController,
             "recursos/dialogos/clue01.json",
-            onComplete
+            onComplete,
+            isTutorialBoss ? "chief" : ""
         ));
         Game::GetInstance().GetCurrentState().AddObject(dialogueController);
     }));

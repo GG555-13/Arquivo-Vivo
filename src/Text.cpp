@@ -4,7 +4,13 @@
 #include "Camera.h"
 
 Text::Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color)
-    : Component(associated), texture(nullptr), text(text), style(style), fontFile(fontFile), fontSize(fontSize), color(color) {
+    : Component(associated), texture(nullptr), text(text), style(style), fontFile(fontFile), fontSize(fontSize), color(color), wrapWidth(0) {
+    RemakeTexture();
+}
+
+Text::Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style,
+           std::string text, SDL_Color color, int wrapWidth)
+    : Component(associated), texture(nullptr), text(text), style(style), fontFile(fontFile), fontSize(fontSize), color(color), wrapWidth(wrapWidth) {
     RemakeTexture();
 }
 
@@ -54,6 +60,11 @@ void Text::SetFontSize(int fontSize) {
     RemakeTexture();
 }
 
+void Text::SetWrapWidth(int width) {
+    wrapWidth = width;
+    RemakeTexture();
+}
+
 void Text::RemakeTexture() {
     if (texture != nullptr) {
         SDL_DestroyTexture(texture);
@@ -73,7 +84,9 @@ void Text::RemakeTexture() {
             surface = TTF_RenderText_Shaded(font.get(), text.c_str(), color, {0, 0, 0, 255}); // Fundo preto
             break;
         case BLENDED:
-            surface = TTF_RenderText_Blended(font.get(), text.c_str(), color);
+            surface = wrapWidth > 0
+                ? TTF_RenderText_Blended_Wrapped(font.get(), text.c_str(), color, static_cast<Uint32>(wrapWidth))
+                : TTF_RenderText_Blended(font.get(), text.c_str(), color);
             break;
     }
 

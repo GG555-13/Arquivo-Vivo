@@ -8,6 +8,7 @@
 
 class GameObject;
 class State;
+struct DetailContent;
 
 class DetailPanel
 {
@@ -19,6 +20,7 @@ public:
 
     bool IsVisible() const;
     void Open();
+    void Open(const DetailContent &content);
     void Close();
 
 private:
@@ -26,6 +28,9 @@ private:
 
     State &state;
     std::weak_ptr<GameObject> overlayObject;
+    std::weak_ptr<GameObject> contentImageObject;
+    std::weak_ptr<GameObject> titleObject;
+    std::weak_ptr<GameObject> descriptionObject;
     Vec2 visibleCenter;
     Vec2 hiddenCenter;
     bool visible;

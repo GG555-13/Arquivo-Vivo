@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include "json.hpp"
+#include "Inventory.h"
 
 using json = nlohmann::json;
 
@@ -12,10 +13,11 @@ bool DialogueBox::isPlaying = false;
 
 DialogueBox::DialogueBox(GameObject& associated,
                          std::string jsonFilePath,
-                         std::function<void()> onComplete)
+                         std::function<void()> onComplete,
+                         std::string historyCharacterId)
     : Component(associated), currentSegment(0), firstFrame(true), isFinished(false),
       uiCreated(false), hasRequestedDelete(false), completionInvoked(false),
-      onComplete(onComplete)
+      onComplete(onComplete), historyCharacterId(historyCharacterId)
 {
     DialogueBox::isPlaying = true;
     LoadJSON(jsonFilePath);
@@ -155,6 +157,14 @@ void DialogueBox::Update(float dt) {
             DestroyUI();
             if (!completionInvoked) {
                 completionInvoked = true;
+                if (!historyCharacterId.empty()) {
+                    std::string transcript;
+                    for (const DialogueSegment &segment : segments) {
+                        if (!transcript.empty()) transcript += "\n";
+                        transcript += segment.speakerName + ": " + segment.text;
+                    }
+                    Inventory::AddDialogueHistory(historyCharacterId, transcript);
+                }
                 if (onComplete) onComplete();
             }
         }

@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "id": "case_document",
+      "kind": "evidence",
+      "name": "Documento do caso",
+      "description": "Documento entregue pelo chefe com as primeiras informações do desaparecimento.",
+      "category": "documents",
+      "mindPlaceImage": "recursos/img/papel_quadro.png",
+      "detailImage": "recursos/img/esboçoPasta.png",
+      "usableOnClueBoard": true
+    },
+    {
+      "id": "chief_dialogues",
+      "kind": "dialogueFolder",
+      "characterId": "chief",
+      "name": "Chefe",
+      "description": "Histórico das conversas com o chefe.",
+      "category": "people",
+      "mindPlaceImage": "recursos/img/Pasta.png",
+      "detailImage": "recursos/img/esboçoPasta.png",
+      "usableOnClueBoard": false
+    },
+    {
+      "id": "family_photo",
+      "kind": "evidence",
+      "name": "Fotografia da família",
+      "description": "Uma fotografia encontrada na casa da família desaparecida.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/papel_quadro.png",
+      "detailImage": "recursos/img/esboçoPasta.png",
+      "usableOnClueBoard": true
+    }
+  ]
+}
