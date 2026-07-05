@@ -1,7 +1,7 @@
 [
     {
         "name": "Detetive",
-        "text": "Olá posso fazer algumas perguntas?",
+        "text": "   Bom dia, posso fazer algumas perguntas?",
         "portrait": "recursos/img/Protagonista .png"
     },
     {
@@ -11,7 +11,7 @@
     },
     {
         "name": "Detetive",
-    "text": "Vamos come;car pela primeira pergunta",
+    "text": "Vamos começar pela primeira pergunta",
         "portrait": "recursos/img/Protagonista .png"
     }
 ]

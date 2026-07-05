@@ -6,6 +6,7 @@
 #include "Text.h"
 #include "SpriteRenderer.h"
 #include "Timer.h"
+#include "Sound.h" 
 #include <vector>
 #include <string>
 #include <memory>
@@ -41,6 +42,15 @@ private:
     bool hasRequestedDelete;  
     bool completionInvoked;
     std::function<void()> onComplete;
+
+    Timer typeTimer;
+    unsigned int visibleChars;
+    std::string currentFullText;
+    bool isTyping;
+
+    Sound typeSound;
+    Sound dingSound;
+    Sound paperSound;
 
     std::weak_ptr<GameObject> boxGO;
     std::weak_ptr<GameObject> portraitGO;

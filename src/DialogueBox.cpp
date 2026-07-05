@@ -15,7 +15,10 @@ DialogueBox::DialogueBox(GameObject& associated,
                          std::function<void()> onComplete)
     : Component(associated), currentSegment(0), firstFrame(true), isFinished(false),
       uiCreated(false), hasRequestedDelete(false), completionInvoked(false),
-      onComplete(onComplete)
+      onComplete(onComplete), visibleChars(0), isTyping(false),
+      typeSound("recursos/audio/tecla.wav"), 
+      dingSound("recursos/audio/sino.wav"),  
+      paperSound("recursos/audio/papel.wav") 
 {
     DialogueBox::isPlaying = true;
     LoadJSON(jsonFilePath);
@@ -69,12 +72,12 @@ void DialogueBox::CreateUI() {
 
     // NOME 
     GameObject* nGO = new GameObject();
-    nGO->AddComponent(new Text(*nGO, "recursos/font/neodgm.ttf", 32, Text::BLENDED, "", {255, 200, 0, 255}));
+    nGO->AddComponent(new Text(*nGO, "recursos/font/SpecialElite-Regular.ttf", 32, Text::BLENDED, "", {255, 200, 0, 255}));
     nameGO = state.AddObject(nGO);
 
     // 4. TEXTO
     GameObject* tGO = new GameObject();
-    tGO->AddComponent(new Text(*tGO, "recursos/font/neodgm.ttf", 24, Text::BLENDED, "", {255, 255, 255, 255}));
+    tGO->AddComponent(new Text(*tGO, "recursos/font/SpecialElite-Regular.ttf", 24, Text::BLENDED, "", {255, 255, 255, 255}));
     textGO = state.AddObject(tGO);
 }
 
@@ -83,11 +86,16 @@ void DialogueBox::UpdateUI() {
 
     DialogueSegment& seg = segments[currentSegment];
 
+    currentFullText = seg.text;
+    visibleChars = 0;
+    isTyping = true;
+    typeTimer.Restart();
+
     if (auto nGO = nameGO.lock()) {
         nGO->GetComponent<Text>()->SetText(seg.speakerName);
     }
     if (auto tGO = textGO.lock()) {
-        tGO->GetComponent<Text>()->SetText(seg.text);
+        tGO->GetComponent<Text>()->SetText(""); 
     }
     if (auto pGO = portraitGO.lock()) {
         if (SpriteRenderer* sr = pGO->GetComponent<SpriteRenderer>()) pGO->RemoveComponent(sr);
@@ -144,18 +152,56 @@ void DialogueBox::Update(float dt) {
         return; 
     }
 
+    if (isTyping) {
+        typeTimer.Update(dt);
+        if (typeTimer.Get() > 0.04f) {
+            visibleChars++;
+
+            while (visibleChars < currentFullText.size() && (currentFullText[visibleChars] & 0xC0) == 0x80) {
+                visibleChars++;
+            }
+
+            typeTimer.Restart();
+
+            if (auto tGO = textGO.lock()) {
+                tGO->GetComponent<Text>()->SetText(currentFullText.substr(0, visibleChars));
+            }
+
+            if (currentFullText[visibleChars - 1] != ' ') {
+                typeSound.Play(1);
+            }
+
+            if (visibleChars >= currentFullText.size()) {
+                isTyping = false; 
+                dingSound.Play(1); 
+            }
+        }
+    }
+
     InputManager& input = InputManager::GetInstance();
     
     if (input.KeyPress(SPACE_KEY) || input.MousePress(LEFT_MOUSE_BUTTON)) {
-        if (currentSegment < segments.size() - 1) {
-            currentSegment++;
-            UpdateUI();
-        } else {
-            isFinished = true;
-            DestroyUI();
-            if (!completionInvoked) {
-                completionInvoked = true;
-                if (onComplete) onComplete();
+        
+        if (isTyping) {
+            isTyping = false;
+            visibleChars = currentFullText.size();
+            if (auto tGO = textGO.lock()) {
+                tGO->GetComponent<Text>()->SetText(currentFullText);
+            }
+            dingSound.Play(1); 
+        } 
+        else {
+            if (currentSegment < segments.size() - 1) {
+                currentSegment++;
+                UpdateUI();
+            } else {
+                paperSound.Play(1); 
+                isFinished = true;
+                DestroyUI();
+                if (!completionInvoked) {
+                    completionInvoked = true;
+                    if (onComplete) onComplete();
+                }
             }
         }
     }
