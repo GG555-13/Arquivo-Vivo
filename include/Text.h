@@ -24,6 +24,9 @@ public:
     void SetFontFile(std::string fontFile);
     void SetFontSize(int fontSize);
     void SetWrapWidth(int width);
+    void SetViewportHeight(int height);
+    void SetVerticalOffset(int offset);
+    void ScrollVertical(int amount);
 
 private:
     void RemakeTexture();
@@ -37,6 +40,10 @@ private:
     int fontSize;
     SDL_Color color;
     int wrapWidth = 0;
+    int textureWidth = 0;
+    int textureHeight = 0;
+    int viewportHeight = 0;
+    int verticalOffset = 0;
 };
 
 #endif

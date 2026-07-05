@@ -29,6 +29,7 @@ public:
 
     int GetMouseX() const;
     int GetMouseY() const;
+    int GetMouseWheelY() const;
 
     bool QuitRequested() const;
 
@@ -51,6 +52,7 @@ private:
     int updateCounter;
     int mouseX;
     int mouseY;
+    int mouseWheelY;
 };
 
 #endif

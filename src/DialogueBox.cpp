@@ -160,8 +160,8 @@ void DialogueBox::Update(float dt) {
                 if (!historyCharacterId.empty()) {
                     std::string transcript;
                     for (const DialogueSegment &segment : segments) {
-                        if (!transcript.empty()) transcript += "\n";
-                        transcript += segment.speakerName + ": " + segment.text;
+                        if (!transcript.empty()) transcript += "\n\n";
+                        transcript += segment.speakerName + ":\n" + segment.text;
                     }
                     Inventory::AddDialogueHistory(historyCharacterId, transcript);
                 }

@@ -7,7 +7,7 @@
       "description": "Documento entregue pelo chefe com as primeiras informações do desaparecimento.",
       "category": "documents",
       "mindPlaceImage": "recursos/img/papel_quadro.png",
-      "detailImage": "recursos/img/esboçoPasta.png",
+      "detailImage": "recursos/img/esbocoPasta.png",
       "usableOnClueBoard": true
     },
     {
@@ -18,7 +18,7 @@
       "description": "Histórico das conversas com o chefe.",
       "category": "people",
       "mindPlaceImage": "recursos/img/Pasta.png",
-      "detailImage": "recursos/img/esboçoPasta.png",
+      "detailImage": "recursos/img/esbocoPasta.png",
       "usableOnClueBoard": false
     },
     {
@@ -28,7 +28,7 @@
       "description": "Uma fotografia encontrada na casa da família desaparecida.",
       "category": "evidence",
       "mindPlaceImage": "recursos/img/papel_quadro.png",
-      "detailImage": "recursos/img/esboçoPasta.png",
+      "detailImage": "recursos/img/esbocoPasta.png",
       "usableOnClueBoard": true
     }
   ]

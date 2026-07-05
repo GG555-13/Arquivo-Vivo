@@ -19,6 +19,8 @@ public:
                 const std::string &defaultSprite);
 
     bool IsVisible() const;
+    void Update(float dt);
+    void Scroll(int amount);
     void Open();
     void Open(const DetailContent &content);
     void Close();
@@ -38,6 +40,14 @@ private:
     Vec2 defaultCenter;
     float defaultScale;
     std::string defaultSprite;
+
+    bool opening;
+    bool closing;
+    float openingElapsed;
+    Vec2 detailCenter;
+    Vec2 closingStartCenter;
+
+    void PositionDetailObjects(const Vec2 &center);
 };
 
 #endif

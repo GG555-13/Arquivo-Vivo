@@ -3,6 +3,8 @@
 #include "Resources.h"
 #include "Camera.h"
 
+#include <algorithm>
+
 Text::Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color)
     : Component(associated), texture(nullptr), text(text), style(style), fontFile(fontFile), fontSize(fontSize), color(color), wrapWidth(0) {
     RemakeTexture();
@@ -24,12 +26,16 @@ void Text::Update(float dt) {}
 
 void Text::Render() {
     if (texture != nullptr) {
-        SDL_Rect clipRect = {0, 0, (int)associated.box.w, (int)associated.box.h};
+        const int visibleHeight = viewportHeight > 0
+            ? std::min(viewportHeight, textureHeight - verticalOffset)
+            : textureHeight;
+        if (visibleHeight <= 0) return;
+        SDL_Rect clipRect = {0, verticalOffset, textureWidth, visibleHeight};
         SDL_Rect dstRect = {
             (int)(associated.box.x - Camera::pos.x),
             (int)(associated.box.y - Camera::pos.y),
             clipRect.w,
-            clipRect.h
+            visibleHeight
         };
         SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture, &clipRect, &dstRect, associated.angleDeg, nullptr, SDL_FLIP_NONE);
     }
@@ -37,6 +43,7 @@ void Text::Render() {
 
 void Text::SetText(std::string text) {
     this->text = text;
+    verticalOffset = 0;
     RemakeTexture();
 }
 
@@ -63,6 +70,25 @@ void Text::SetFontSize(int fontSize) {
 void Text::SetWrapWidth(int width) {
     wrapWidth = width;
     RemakeTexture();
+}
+
+void Text::SetViewportHeight(int height) {
+    viewportHeight = std::max(0, height);
+    SetVerticalOffset(verticalOffset);
+    associated.box.h = viewportHeight > 0
+        ? std::min(viewportHeight, textureHeight)
+        : textureHeight;
+}
+
+void Text::SetVerticalOffset(int offset) {
+    const int maxOffset = viewportHeight > 0
+        ? std::max(0, textureHeight - viewportHeight)
+        : 0;
+    verticalOffset = std::max(0, std::min(offset, maxOffset));
+}
+
+void Text::ScrollVertical(int amount) {
+    SetVerticalOffset(verticalOffset + amount);
 }
 
 void Text::RemakeTexture() {
@@ -92,8 +118,19 @@ void Text::RemakeTexture() {
 
     if (surface != nullptr) {
         texture = SDL_CreateTextureFromSurface(Game::GetInstance().GetRenderer(), surface);
-        associated.box.w = surface->w;
-        associated.box.h = surface->h;
+        textureWidth = surface->w;
+        textureHeight = surface->h;
+        associated.box.w = textureWidth;
+        associated.box.h = viewportHeight > 0
+            ? std::min(viewportHeight, textureHeight)
+            : textureHeight;
+        SetVerticalOffset(verticalOffset);
         SDL_FreeSurface(surface);
+    } else {
+        textureWidth = 0;
+        textureHeight = 0;
+        associated.box.w = 0;
+        associated.box.h = 0;
+        verticalOffset = 0;
     }
 }

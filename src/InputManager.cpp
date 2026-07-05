@@ -1,6 +1,6 @@
 #include "InputManager.h"
 
-InputManager::InputManager() : quitRequested(false), updateCounter(0), mouseX(0), mouseY(0)
+InputManager::InputManager() : quitRequested(false), updateCounter(0), mouseX(0), mouseY(0), mouseWheelY(0)
 {
     for (int i = 0; i < 6; ++i)
     {
@@ -20,6 +20,7 @@ void InputManager::Update()
     SDL_Event event;
 
     quitRequested = false;
+    mouseWheelY = 0;
     updateCounter++;
 
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -41,6 +42,11 @@ void InputManager::Update()
         {
             mouseState[event.button.button] = false;
             mouseUpdate[event.button.button] = updateCounter;
+        }
+
+        if (event.type == SDL_MOUSEWHEEL)
+        {
+            mouseWheelY += event.wheel.y;
         }
 
         if (event.type == SDL_KEYDOWN)
@@ -103,4 +109,9 @@ int InputManager::GetMouseY() const
 bool InputManager::QuitRequested() const
 {
     return quitRequested;
+}
+
+int InputManager::GetMouseWheelY() const
+{
+    return mouseWheelY;
 }

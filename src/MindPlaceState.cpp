@@ -14,8 +14,8 @@
 
 namespace
 {
-const Vec2 mindPlaceBackgroundCenter(180.79f, 107.5f);
-const float mindPlaceBackgroundScale = 0.56782f;
+const Vec2 mindPlaceBackgroundCenter(600.0f, 450.0f);
+const float mindPlaceBackgroundScale = 1.0f;
 }
 
 MindPlaceState::MindPlaceState()
@@ -24,7 +24,7 @@ MindPlaceState::MindPlaceState()
             detailPanel(*this,
                                     mindPlaceBackgroundCenter,
                                     mindPlaceBackgroundScale,
-                                    "recursos/img/EsboçoMentalSelecionado.png")
+                                    "recursos/img/espacoMental.png")
 {
 }
 
@@ -65,21 +65,31 @@ void MindPlaceState::Start()
     AddObject(helpGO);
 
     GameObject* backgroundGO = new GameObject();
-    SpriteRenderer* backgroundSR = new SpriteRenderer(*backgroundGO, "recursos/img/EsboçoMental2.png");
-    backgroundSR->SetScale(mindPlaceBackgroundScale, mindPlaceBackgroundScale);
+    SpriteRenderer* backgroundSR = new SpriteRenderer(*backgroundGO, "recursos/img/espacoMentalBackground.png");
+    backgroundSR->SetScale(900.0f / 2160.0f, 900.0f / 2160.0f);
+    backgroundSR->SetUseSourceFrameOffset(false);
     backgroundGO->AddComponent(backgroundSR);
     backgroundGO->box.SetCenter(mindPlaceBackgroundCenter);
     AddObject(backgroundGO);
 
-    int tab0 = tabs.AddTab(Vec2(162.0f, 110.0f),
-                           "recursos/img/abaPessoasDownEsboço.png",
-                           "recursos/img/abaPessoasUpEsboço.png");
-    int tab1 = tabs.AddTab(Vec2(362.0f, 110.0f),
-                           "recursos/img/abaPessoasDownEsboço.png",
-                           "recursos/img/abaPessoasUpEsboço.png");
-    int tab2 = tabs.AddTab(Vec2(562.0f, 110.0f),
-                           "recursos/img/abaPessoasDownEsboço.png",
-                           "recursos/img/abaPessoasUpEsboço.png");
+    GameObject* boardGO = new GameObject();
+    SpriteRenderer* boardSR = new SpriteRenderer(*boardGO, "recursos/img/espacoMental.png");
+    boardSR->SetScale(1.344f, 1.344f);
+    boardSR->SetUseSourceFrameOffset(false);
+    boardGO->AddComponent(boardSR);
+    // The artwork has transparent padding; this center places its opaque board at (600, 470).
+    boardGO->box.SetCenter(Vec2(589.0f, 582.0f));
+    AddObject(boardGO);
+
+    int tab0 = tabs.AddTab(Vec2(243.0f, 282.0f),
+                           "recursos/img/abaNSelecionada.png",
+                           "recursos/img/abaSelecionada.png");
+    int tab1 = tabs.AddTab(Vec2(483.0f, 282.0f),
+                           "recursos/img/abaNSelecionada.png",
+                           "recursos/img/abaSelecionada.png");
+    int tab2 = tabs.AddTab(Vec2(723.0f, 282.0f),
+                           "recursos/img/abaNSelecionada.png",
+                           "recursos/img/abaSelecionada.png");
 
     int counts[] = {0, 0, 0};
     for (const std::string &entryId : Inventory::GetEntries()) {
@@ -89,7 +99,7 @@ void MindPlaceState::Start()
                 : definition->category == MindPlaceCategory::Documents ? tab1 : tab2;
         const int categoryIndex = tab == tab0 ? 0 : tab == tab1 ? 1 : 2;
         const int index = counts[categoryIndex]++;
-        Vec2 center(245.0f + (index % 3) * 160.0f, 245.0f + (index / 3) * 130.0f);
+        Vec2 center(240.0f + (index % 4) * 220.0f, 365.0f + (index / 4) * 170.0f);
         tabs.AddContent(tab, CreateInventoryEntry(center, entryId));
     }
 
@@ -206,6 +216,13 @@ void MindPlaceState::Update(float dt)
             popRequested = true;
         }
         return;
+    }
+
+    detailPanel.Update(dt);
+
+    if (detailPanel.IsVisible() && input.GetMouseWheelY() != 0)
+    {
+        detailPanel.Scroll(-input.GetMouseWheelY() * 36);
     }
 
     if (!detailPanel.IsVisible() && input.MousePress(LEFT_MOUSE_BUTTON))
