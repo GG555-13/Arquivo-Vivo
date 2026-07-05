@@ -1,0 +1,47 @@
+#ifndef STATE_H
+#define STATE_H
+
+#include "GameObject.h"
+#include "Interactable.h"
+#include "ScreenFade.h"
+#include <vector>
+#include <memory>
+
+class State {
+public:
+    State();
+    virtual ~State();
+
+    virtual void LoadAssets() = 0;
+    virtual void Update(float dt) = 0;
+    virtual void Render() = 0;
+
+    virtual void Start() = 0;
+    virtual void Pause() = 0;
+    virtual void Resume() = 0;
+
+    virtual std::weak_ptr<GameObject> AddObject(GameObject* object);
+    virtual std::weak_ptr<GameObject> GetObjectPtr(GameObject* object);
+    Interactable* GetInteractable(const Interactable::InteractionContext& context);
+    bool ActivateActorInteractable(const Vec2& actorPos);
+    bool ActivateInteractableAtPoint(const Vec2& worldPoint);
+    bool ActivateInteractableAtPoint(const Vec2& worldPoint, const Vec2& actorPos);
+
+    bool PopRequested();
+    bool QuitRequested();
+
+protected:
+    void StartArray();
+    virtual void UpdateArray(float dt);
+    virtual void RenderArray();
+
+    bool popRequested;
+    bool quitRequested;
+    bool started;
+
+    std::vector<std::shared_ptr<GameObject>> objectArray;
+
+    ScreenFade screenFade;
+};
+
+#endif

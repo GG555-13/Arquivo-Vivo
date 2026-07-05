@@ -1,0 +1,217 @@
+#include "DialogueBox.h"
+#include "Game.h"
+#include "InputManager.h"
+#include "Camera.h"
+#include <fstream>
+#include <iostream>
+#include "json.hpp"
+
+using json = nlohmann::json;
+
+bool DialogueBox::isPlaying = false;
+
+DialogueBox::DialogueBox(GameObject& associated,
+                         std::string jsonFilePath,
+                         std::function<void()> onComplete)
+    : Component(associated), currentSegment(0), firstFrame(true), isFinished(false),
+      uiCreated(false), hasRequestedDelete(false), completionInvoked(false),
+      onComplete(onComplete), visibleChars(0), isTyping(false),
+      typeSound("recursos/audio/tecla.wav"), 
+      dingSound("recursos/audio/sino.wav"),  
+      paperSound("recursos/audio/papel.wav") 
+{
+    DialogueBox::isPlaying = true;
+    LoadJSON(jsonFilePath);
+}
+
+DialogueBox::~DialogueBox() {
+    if (DialogueBox::isPlaying) {
+        DialogueBox::isPlaying = false;
+        DestroyUI();
+    }
+}
+
+void DialogueBox::LoadJSON(std::string filePath) {
+    std::ifstream file(filePath);
+    if (file.is_open()) {
+        json j;
+        file >> j;
+        for (const auto& item : j) {
+            segments.push_back({
+                item["name"].get<std::string>(),
+                item["text"].get<std::string>(),
+                item["portrait"].get<std::string>()
+            });
+        }
+    } else {
+        std::cerr << "ERROR: Could not open dialogue file: " << filePath << "\n";
+    }
+}
+
+void DialogueBox::Start() {
+    CreateUI();
+    UpdateUI();
+}
+
+void DialogueBox::CreateUI() {
+    State& state = Game::GetInstance().GetCurrentState();
+
+    //  O RETRATO
+    GameObject* pGO = new GameObject();
+    portraitGO = state.AddObject(pGO);
+
+    // CAIXA DE FUNDO 
+    GameObject* bGO = new GameObject();
+    SpriteRenderer* boxSprite = new SpriteRenderer(*bGO, "recursos/img/Dialogbox.png");
+    float targetWidth = 700.0f;
+    float scale = targetWidth / boxSprite->GetWidth();
+    boxSprite->SetScale(scale, scale);
+    
+    bGO->AddComponent(boxSprite);
+    boxGO = state.AddObject(bGO);
+
+    // NOME 
+    GameObject* nGO = new GameObject();
+    nGO->AddComponent(new Text(*nGO, "recursos/font/SpecialElite-Regular.ttf", 32, Text::BLENDED, "", {255, 200, 0, 255}));
+    nameGO = state.AddObject(nGO);
+
+    // 4. TEXTO
+    GameObject* tGO = new GameObject();
+    tGO->AddComponent(new Text(*tGO, "recursos/font/SpecialElite-Regular.ttf", 24, Text::BLENDED, "", {255, 255, 255, 255}));
+    textGO = state.AddObject(tGO);
+}
+
+void DialogueBox::UpdateUI() {
+    if (currentSegment >= segments.size()) return;
+
+    DialogueSegment& seg = segments[currentSegment];
+
+    currentFullText = seg.text;
+    visibleChars = 0;
+    isTyping = true;
+    typeTimer.Restart();
+
+    if (auto nGO = nameGO.lock()) {
+        nGO->GetComponent<Text>()->SetText(seg.speakerName);
+    }
+    if (auto tGO = textGO.lock()) {
+        tGO->GetComponent<Text>()->SetText(""); 
+    }
+    if (auto pGO = portraitGO.lock()) {
+        if (SpriteRenderer* sr = pGO->GetComponent<SpriteRenderer>()) pGO->RemoveComponent(sr);
+        if (!seg.portraitFile.empty()) pGO->AddComponent(new SpriteRenderer(*pGO, seg.portraitFile));
+    }
+}
+
+void DialogueBox::PositionUI() {
+
+    // Mudar move a caixa inteira e tudo que está dentro dela
+    float boxWidth = 1000.0f;
+    float uiBaseX = Camera::pos.x + (1200.0f - boxWidth) / 2.0f; 
+    float uiBaseY = Camera::pos.y + 650.0f; 
+
+    // 1. FUNDO DA CAIXA 
+    if (auto bGO = boxGO.lock()) { 
+        bGO->box.x = uiBaseX + 100.0f; 
+        bGO->box.y = uiBaseY - 50.0f; 
+    }
+    // 2. RETRATO DO PERSONAGEM 
+    if (auto pGO = portraitGO.lock()) { 
+        pGO->box.x = uiBaseX - 200.0f; 
+        pGO->box.y = uiBaseY - 300.0f; 
+    }
+    
+    // 3. NOME DO PERSONAGEM (Texto Amarelo)
+    if (auto nGO = nameGO.lock()) { 
+        nGO->box.x = uiBaseX + 100.0f; 
+        nGO->box.y = uiBaseY + 10.0f;  
+    }
+    
+    // 4. TEXTO DO DIÁLOGO (Texto Branco)
+    if (auto tGO = textGO.lock()) { 
+        tGO->box.x = uiBaseX + 80.0f; 
+        tGO->box.y = uiBaseY + 60.0f;  
+    }
+}
+
+void DialogueBox::Update(float dt) {
+    if (isFinished) {
+        endTimer.Update(dt);
+        if (endTimer.Get() > 0.1f && !hasRequestedDelete) {
+            hasRequestedDelete = true;
+            DialogueBox::isPlaying = false; 
+            associated.RequestDelete();
+        }
+        return; 
+    }
+
+    PositionUI();
+
+    if (firstFrame) {
+        firstFrame = false;
+        return; 
+    }
+
+    if (isTyping) {
+        typeTimer.Update(dt);
+        if (typeTimer.Get() > 0.04f) {
+            visibleChars++;
+
+            while (visibleChars < currentFullText.size() && (currentFullText[visibleChars] & 0xC0) == 0x80) {
+                visibleChars++;
+            }
+
+            typeTimer.Restart();
+
+            if (auto tGO = textGO.lock()) {
+                tGO->GetComponent<Text>()->SetText(currentFullText.substr(0, visibleChars));
+            }
+
+            if (currentFullText[visibleChars - 1] != ' ') {
+                typeSound.Play(1);
+            }
+
+            if (visibleChars >= currentFullText.size()) {
+                isTyping = false; 
+                dingSound.Play(1); 
+            }
+        }
+    }
+
+    InputManager& input = InputManager::GetInstance();
+    
+    if (input.KeyPress(SPACE_KEY) || input.MousePress(LEFT_MOUSE_BUTTON)) {
+        
+        if (isTyping) {
+            isTyping = false;
+            visibleChars = currentFullText.size();
+            if (auto tGO = textGO.lock()) {
+                tGO->GetComponent<Text>()->SetText(currentFullText);
+            }
+            dingSound.Play(1); 
+        } 
+        else {
+            if (currentSegment < segments.size() - 1) {
+                currentSegment++;
+                UpdateUI();
+            } else {
+                paperSound.Play(1); 
+                isFinished = true;
+                DestroyUI();
+                if (!completionInvoked) {
+                    completionInvoked = true;
+                    if (onComplete) onComplete();
+                }
+            }
+        }
+    }
+}
+
+void DialogueBox::Render() {}
+
+void DialogueBox::DestroyUI() {
+    if (auto bGO = boxGO.lock()) { bGO->box.x = -10000; bGO->RequestDelete(); }
+    if (auto pGO = portraitGO.lock()) { pGO->box.x = -10000; pGO->RequestDelete(); }
+    if (auto nGO = nameGO.lock()) { nGO->box.x = -10000; nGO->RequestDelete(); }
+    if (auto tGO = textGO.lock()) { tGO->box.x = -10000; tGO->RequestDelete(); }
+}

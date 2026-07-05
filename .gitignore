@@ -1,0 +1,9 @@
+obj/
+
+jogo
+*.exe
+
+.vscode/
+
+core.*
+core
