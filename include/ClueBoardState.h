@@ -22,10 +22,8 @@ public:
 
 private:
     void AddQuestionPaper();
-    void AddPuzzleSlot(const Vec2 &center);
     void AddClue(const ClueBoardSlot &slot);
     void ShowPreview(const std::string &entryId);
-    void UpdateCompletion();
 
     std::weak_ptr<GameObject> previewObject;
 };

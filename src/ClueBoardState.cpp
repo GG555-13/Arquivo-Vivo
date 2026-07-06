@@ -5,7 +5,6 @@
 #include "Component.h"
 #include "Draggable.h"
 #include "Game.h"
-#include "GameData.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "Interactable.h"
@@ -14,38 +13,12 @@
 #include "InventoryEntryDefinition.h"
 #include "SpriteRenderer.h"
 
-#include <algorithm>
-
 namespace
 {
 const float NOTEBOOK_THUMBNAIL_SCALE = 190.0f / 891.0f;
 const float NOTEBOOK_PREVIEW_SCALE = 380.0f / 891.0f;
 const Vec2 PREVIEW_CENTER(984.0f, 360.0f);
 
-class SlotRenderer : public Component
-{
-public:
-    explicit SlotRenderer(GameObject &associated)
-        : Component(associated)
-    {
-    }
-
-    void Update(float) override {}
-
-    void Render() override
-    {
-        SDL_Renderer *renderer = Game::GetInstance().GetRenderer();
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 145, 145, 145, 150);
-        SDL_Rect rect = {
-            static_cast<int>(associated.box.x - Camera::pos.x),
-            static_cast<int>(associated.box.y - Camera::pos.y),
-            static_cast<int>(associated.box.w),
-            static_cast<int>(associated.box.h)
-        };
-        SDL_RenderFillRect(renderer, &rect);
-    }
-};
 }
 
 ClueBoardState::ClueBoardState()
@@ -76,11 +49,6 @@ void ClueBoardState::Start()
 
     AddQuestionPaper();
 
-    for (const ClueBoardSlot &slot : ClueBoardData::GetSlots())
-    {
-        AddPuzzleSlot(slot.targetPosition);
-    }
-
     GameObject *preview = new GameObject();
     preview->box.SetCenter(PREVIEW_CENTER);
     previewObject = AddObject(preview);
@@ -93,7 +61,6 @@ void ClueBoardState::Start()
         }
     }
 
-    UpdateCompletion();
     StartArray();
     started = true;
 }
@@ -111,16 +78,6 @@ void ClueBoardState::AddQuestionPaper()
     AddObject(paper);
 }
 
-void ClueBoardState::AddPuzzleSlot(const Vec2 &center)
-{
-    GameObject *slot = new GameObject();
-    slot->box.w = 190.0f;
-    slot->box.h = 140.0f;
-    slot->box.SetCenter(center);
-    slot->AddComponent(new SlotRenderer(*slot));
-    AddObject(slot);
-}
-
 void ClueBoardState::AddClue(const ClueBoardSlot &slot)
 {
     const InventoryEntryDefinition *definition = InventoryCatalog::Find(slot.entryId);
@@ -135,25 +92,22 @@ void ClueBoardState::AddClue(const ClueBoardSlot &slot)
     sprite->SetUseSourceFrameOffset(false);
     clue->AddComponent(sprite);
 
-    const bool locked = ClueBoardData::IsLocked(slot.entryId);
-    const Vec2 initialPosition = locked ? slot.targetPosition : slot.trayPosition;
+    Vec2 initialPosition = slot.trayPosition;
+    ClueBoardData::GetPlacedPosition(slot.entryId, initialPosition);
     clue->box.SetCenter(initialPosition);
     const std::string entryId = slot.entryId;
-    Draggable *drag = new Draggable(*clue, true);
-    drag->SetSpawnPosition(initialPosition);
+    Draggable *drag = new Draggable(*clue, false);
+    drag->SetSpawnPosition(slot.trayPosition);
     drag->SetOnClick([this, entryId]() { ShowPreview(entryId); });
-    drag->SetDragEnabled(!locked);
-    drag->SetOnRelease([this, entryId, target = slot.targetPosition, radius = slot.snapRadius, clue, drag](const Vec2 &releasePoint) {
-            if (releasePoint.Distance(target) > radius)
+    drag->SetOnRelease([entryId, tray = slot.trayPosition, clue](const Vec2 &releasePoint) {
+            if (!ClueBoardData::GetPlacementArea().Contains(releasePoint))
             {
-                return false;
+                clue->box.SetCenter(tray);
+                ClueBoardData::ClearPlacedPosition(entryId);
+                return true;
             }
 
-            clue->box.SetCenter(target);
-            drag->SetSpawnPosition(target);
-            drag->SetDragEnabled(false);
-            ClueBoardData::Lock(entryId);
-            UpdateCompletion();
+            ClueBoardData::SetPlacedPosition(entryId, releasePoint);
             return true;
     });
     clue->AddComponent(drag);
@@ -180,24 +134,6 @@ void ClueBoardState::ShowPreview(const std::string &entryId)
     sprite->SetUseSourceFrameOffset(false);
     preview->AddComponent(sprite);
     preview->box.SetCenter(PREVIEW_CENTER);
-}
-
-void ClueBoardState::UpdateCompletion()
-{
-    const std::vector<ClueBoardSlot> &slots = ClueBoardData::GetSlots();
-    if (slots.empty())
-    {
-        return;
-    }
-
-    const bool complete = std::all_of(slots.begin(), slots.end(), [](const ClueBoardSlot &slot) {
-        return ClueBoardData::IsLocked(slot.entryId);
-    });
-
-    if (complete)
-    {
-        GameData::AdvanceTutorial(TutorialStep::OpenBoard, TutorialStep::SolveBoard);
-    }
 }
 
 void ClueBoardState::Update(float dt)

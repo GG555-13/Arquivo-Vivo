@@ -273,7 +273,7 @@ void StageState::Update(float dt) {
     screenFade.Update(dt);
 
     if (screenFade.IsActive()) {
-        return;  // block game logic + input during fade
+        return;
     }
 
     WalkableState::Update(dt);

@@ -1,6 +1,7 @@
 {
+  "placementArea": { "x": 0, "y": 0, "w": 768, "h": 547 },
   "slots": [
-    { "entryId": "tutorial_notebook_1", "tray": { "x": 220, "y": 700 }, "target": { "x": 490, "y": 190 }, "snapRadius": 90 },
-    { "entryId": "tutorial_notebook_2", "tray": { "x": 500, "y": 700 }, "target": { "x": 620, "y": 390 }, "snapRadius": 90 }
+    { "entryId": "tutorial_notebook_1", "tray": { "x": 220, "y": 700 } },
+    { "entryId": "tutorial_notebook_2", "tray": { "x": 500, "y": 700 } }
   ]
 }
