@@ -1,13 +1,13 @@
 {
   "entries": [
     {
-      "id": "case_document",
+      "id": "tutorial_notebook_1",
       "kind": "evidence",
-      "name": "Documento do caso",
-      "description": "Documento entregue pelo chefe com as primeiras informações do desaparecimento.",
-      "category": "documents",
-      "mindPlaceImage": "recursos/img/papel_quadro.png",
-      "detailImage": "recursos/img/esbocoPasta.png",
+      "name": "Caderno 1",
+      "description": "Primeiro caderno entregue pelo chefe para o caso tutorial.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/cadernos.png",
+      "detailImage": "recursos/img/cadernos.png",
       "usableOnClueBoard": true
     },
     {
@@ -22,13 +22,13 @@
       "usableOnClueBoard": false
     },
     {
-      "id": "family_photo",
+      "id": "tutorial_notebook_2",
       "kind": "evidence",
-      "name": "Fotografia da família",
-      "description": "Uma fotografia encontrada na casa da família desaparecida.",
+      "name": "Caderno 2",
+      "description": "Segundo caderno entregue pelo chefe para o caso tutorial.",
       "category": "evidence",
-      "mindPlaceImage": "recursos/img/papel_quadro.png",
-      "detailImage": "recursos/img/esbocoPasta.png",
+      "mindPlaceImage": "recursos/img/cadernos1.png",
+      "detailImage": "recursos/img/cadernos1.png",
       "usableOnClueBoard": true
     }
   ]

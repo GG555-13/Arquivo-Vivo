@@ -2,15 +2,51 @@
 
 #include "Camera.h"
 #include "ClueBoardData.h"
+#include "Component.h"
 #include "Draggable.h"
+#include "Game.h"
+#include "GameData.h"
 #include "GameObject.h"
 #include "InputManager.h"
-#include "SpriteRenderer.h"
-#include "Text.h"
+#include "Interactable.h"
 #include "Inventory.h"
 #include "InventoryCatalog.h"
 #include "InventoryEntryDefinition.h"
-#include "GameData.h"
+#include "SpriteRenderer.h"
+
+#include <algorithm>
+
+namespace
+{
+const float NOTEBOOK_THUMBNAIL_SCALE = 190.0f / 891.0f;
+const float NOTEBOOK_PREVIEW_SCALE = 380.0f / 891.0f;
+const Vec2 PREVIEW_CENTER(984.0f, 360.0f);
+
+class SlotRenderer : public Component
+{
+public:
+    explicit SlotRenderer(GameObject &associated)
+        : Component(associated)
+    {
+    }
+
+    void Update(float) override {}
+
+    void Render() override
+    {
+        SDL_Renderer *renderer = Game::GetInstance().GetRenderer();
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 145, 145, 145, 150);
+        SDL_Rect rect = {
+            static_cast<int>(associated.box.x - Camera::pos.x),
+            static_cast<int>(associated.box.y - Camera::pos.y),
+            static_cast<int>(associated.box.w),
+            static_cast<int>(associated.box.h)
+        };
+        SDL_RenderFillRect(renderer, &rect);
+    }
+};
+}
 
 ClueBoardState::ClueBoardState()
     : State()
@@ -28,182 +64,145 @@ void ClueBoardState::LoadAssets()
 void ClueBoardState::Start()
 {
     LoadAssets();
-
     Camera::pos = Vec2(0, 0);
 
-    // Title
-    GameObject* titleGO = new GameObject();
-    titleGO->box.x = 320;
-    titleGO->box.y = 50;
-    titleGO->AddComponent(new Text(
-        *titleGO,
-        "recursos/font/neodgm.ttf",
-        48,
-        Text::BLENDED,
-        "Quadro de Pistas",
-        {255, 255, 255, 255}
-    ));
-    AddObject(titleGO);
+    GameObject *board = new GameObject();
+    SpriteRenderer *boardSprite = new SpriteRenderer(*board, "recursos/img/estrutura_quadro.png");
+    boardSprite->SetScale(1200.0f / 831.0f, 900.0f / 535.0f);
+    boardSprite->SetUseSourceFrameOffset(false);
+    board->AddComponent(boardSprite);
+    board->box.SetCenter(Vec2(600.0f, 450.0f));
+    AddObject(board);
 
-    // Help text
-    GameObject* helpGO = new GameObject();
-    helpGO->box.x = 290;
-    helpGO->box.y = 490;
-    helpGO->AddComponent(new Text(
-        *helpGO,
-        "recursos/font/neodgm.ttf",
-        22,
-        Text::BLENDED,
-        "Arraste as pistas | ESC para voltar",
-        {180, 180, 180, 255}
-    ));
-    AddObject(helpGO);
+    AddQuestionPaper();
 
-    // Board background
-    GameObject* boardGO = new GameObject();
-    SpriteRenderer* boardSR = new SpriteRenderer(*boardGO, "recursos/img/estrutura_quadro.png");
-    boardSR->SetScale(1.4f, 1.4f);
-    boardGO->AddComponent(boardSR);
-    boardGO->box.SetCenter(Vec2(775.0f, 610.0f));
-    AddObject(boardGO);
-
-    GameObject *progress = new GameObject();
-    progress->box.x = 760.0f;
-    progress->box.y = 500.0f;
-    progress->AddComponent(new Text(*progress, "recursos/font/neodgm.ttf", 20, Text::BLENDED, "", {210, 210, 210, 255}));
-    progressTextObject = AddObject(progress);
-
-    size_t visibleIndex = 0;
-    for (const ClueBoardSlot &slot : ClueBoardData::GetSlots()) {
-        const InventoryEntryDefinition *definition = InventoryCatalog::Find(slot.entryId);
-        if (!definition || !definition->usableOnClueBoard || !Inventory::Has(slot.entryId)) continue;
-        Vec2 initial(260.0f + static_cast<float>(visibleIndex % 3) * 150.0f,
-                     200.0f + static_cast<float>(visibleIndex / 3) * 140.0f);
-        const auto saved = ClueBoardData::entryPositions.find(slot.entryId);
-        if (saved != ClueBoardData::entryPositions.end()) initial = saved->second;
-        if (ClueBoardData::IsLocked(slot.entryId)) initial = slot.targetPosition;
-        AddClue(slot.entryId, initial);
-        ++visibleIndex;
+    for (const ClueBoardSlot &slot : ClueBoardData::GetSlots())
+    {
+        AddPuzzleSlot(slot.targetPosition);
     }
 
-    UpdateProgressText();
+    GameObject *preview = new GameObject();
+    preview->box.SetCenter(PREVIEW_CENTER);
+    previewObject = AddObject(preview);
 
+    for (const ClueBoardSlot &slot : ClueBoardData::GetSlots())
+    {
+        if (Inventory::Has(slot.entryId))
+        {
+            AddClue(slot);
+        }
+    }
+
+    UpdateCompletion();
     StartArray();
     started = true;
 }
 
-std::weak_ptr<GameObject> ClueBoardState::AddClue(const std::string &entryId, const Vec2 &center)
+void ClueBoardState::AddQuestionPaper()
+{
+    GameObject *paper = new GameObject();
+    SpriteRenderer *sprite = new SpriteRenderer(*paper, "recursos/img/papel_quadro.png");
+    sprite->SetScale(0.75f, 0.75f);
+    sprite->SetUseSourceFrameOffset(false);
+    paper->AddComponent(sprite);
+
+    // Compensates for the paper occupying the left side of a transparent canvas.
+    paper->box.SetCenter(Vec2(348.0f, 227.0f));
+    AddObject(paper);
+}
+
+void ClueBoardState::AddPuzzleSlot(const Vec2 &center)
+{
+    GameObject *slot = new GameObject();
+    slot->box.w = 190.0f;
+    slot->box.h = 140.0f;
+    slot->box.SetCenter(center);
+    slot->AddComponent(new SlotRenderer(*slot));
+    AddObject(slot);
+}
+
+void ClueBoardState::AddClue(const ClueBoardSlot &slot)
+{
+    const InventoryEntryDefinition *definition = InventoryCatalog::Find(slot.entryId);
+    if (!definition || !definition->usableOnClueBoard)
+    {
+        return;
+    }
+
+    GameObject *clue = new GameObject();
+    SpriteRenderer *sprite = new SpriteRenderer(*clue, definition->mindPlaceImage);
+    sprite->SetScale(NOTEBOOK_THUMBNAIL_SCALE, NOTEBOOK_THUMBNAIL_SCALE);
+    sprite->SetUseSourceFrameOffset(false);
+    clue->AddComponent(sprite);
+
+    const bool locked = ClueBoardData::IsLocked(slot.entryId);
+    const Vec2 initialPosition = locked ? slot.targetPosition : slot.trayPosition;
+    clue->box.SetCenter(initialPosition);
+    const std::string entryId = slot.entryId;
+    Draggable *drag = new Draggable(*clue, true);
+    drag->SetSpawnPosition(initialPosition);
+    drag->SetOnClick([this, entryId]() { ShowPreview(entryId); });
+    drag->SetDragEnabled(!locked);
+    drag->SetOnRelease([this, entryId, target = slot.targetPosition, radius = slot.snapRadius, clue, drag](const Vec2 &releasePoint) {
+            if (releasePoint.Distance(target) > radius)
+            {
+                return false;
+            }
+
+            clue->box.SetCenter(target);
+            drag->SetSpawnPosition(target);
+            drag->SetDragEnabled(false);
+            ClueBoardData::Lock(entryId);
+            UpdateCompletion();
+            return true;
+    });
+    clue->AddComponent(drag);
+
+    AddObject(clue);
+}
+
+void ClueBoardState::ShowPreview(const std::string &entryId)
 {
     const InventoryEntryDefinition *definition = InventoryCatalog::Find(entryId);
-    if (!definition) return std::weak_ptr<GameObject>();
-    GameObject *clueGO = new GameObject();
-    SpriteRenderer *sprite = new SpriteRenderer(*clueGO, definition->mindPlaceImage);
-    const float width = sprite->GetWidth();
-    const float scale = width > 0.0f ? 180.0f / width : 0.4f;
-    sprite->SetScale(scale, scale);
-    sprite->SetUseSourceFrameOffset(false);
-    clueGO->AddComponent(sprite);
-    clueGO->box.SetCenter(center);
-
-    if (!ClueBoardData::IsLocked(entryId)) {
-        Draggable *drag = new Draggable(*clueGO, false);
-        drag->SetOnRelease([this, entryId](const Vec2 &releasePoint) {
-            for (const ClueBoardSlot &slot : ClueBoardData::GetSlots()) {
-                if (slot.entryId != entryId) continue;
-                if (releasePoint.Distance(slot.targetPosition) <= slot.snapRadius) {
-                    for (auto &item : entryClueObjects) {
-                        if (item.first == entryId) {
-                            if (auto object = item.second.lock()) {
-                                object->box.SetCenter(slot.targetPosition);
-                                if (auto draggable = object->GetComponent<Draggable>()) draggable->SetEnabled(false);
-                            }
-                            break;
-                        }
-                    }
-                    ClueBoardData::entryPositions[entryId] = slot.targetPosition;
-                    ClueBoardData::Lock(entryId);
-                    UpdateProgressText();
-                    return true;
-                }
-            }
-            ClueBoardData::entryPositions[entryId] = releasePoint;
-            return true;
-        });
-        clueGO->AddComponent(drag);
+    std::shared_ptr<GameObject> preview = previewObject.lock();
+    if (!definition || !preview)
+    {
+        return;
     }
-    std::weak_ptr<GameObject> result = AddObject(clueGO);
-    clueObjects.push_back(result);
-    entryClueObjects.push_back(std::make_pair(entryId, result));
-    return result;
+
+    if (SpriteRenderer *oldSprite = preview->GetComponent<SpriteRenderer>())
+    {
+        preview->RemoveComponent(oldSprite);
+    }
+
+    SpriteRenderer *sprite = new SpriteRenderer(*preview, definition->mindPlaceImage);
+    sprite->SetScale(NOTEBOOK_PREVIEW_SCALE, NOTEBOOK_PREVIEW_SCALE);
+    sprite->SetUseSourceFrameOffset(false);
+    preview->AddComponent(sprite);
+    preview->box.SetCenter(PREVIEW_CENTER);
 }
 
-std::weak_ptr<GameObject> ClueBoardState::AddClue(const Vec2& center)
+void ClueBoardState::UpdateCompletion()
 {
-    GameObject* clueGO = new GameObject();
-    SpriteRenderer* sprite = new SpriteRenderer(*clueGO, "recursos/img/papel_quadro.png");
-    sprite->SetScale(0.40f, 0.40f);
-    sprite->SetUseSourceFrameOffset(false);
-    clueGO->AddComponent(sprite);
-    clueGO->box.SetCenter(center);
+    const std::vector<ClueBoardSlot> &slots = ClueBoardData::GetSlots();
+    if (slots.empty())
+    {
+        return;
+    }
 
-    // Draggable: do NOT return to spawn — player's position sticks
-    Draggable* drag = new Draggable(*clueGO, false);
-    clueGO->AddComponent(drag);
-
-    // On release, persist the new position
-    size_t clueIndex = clueObjects.size();
-    drag->SetOnRelease([this, clueIndex](const Vec2& releasePoint) -> bool {
-        if (clueIndex < ClueBoardData::cluePositions.size())
-        {
-            ClueBoardData::cluePositions[clueIndex] = releasePoint;
-        }
-        return true;
+    const bool complete = std::all_of(slots.begin(), slots.end(), [](const ClueBoardSlot &slot) {
+        return ClueBoardData::IsLocked(slot.entryId);
     });
 
-    std::weak_ptr<GameObject> wp = AddObject(clueGO);
-    clueObjects.push_back(wp);
-    return wp;
-}
-
-void ClueBoardState::SaveCluePositions()
-{
-    for (const auto &item : entryClueObjects) {
-        if (auto object = item.second.lock()) ClueBoardData::entryPositions[item.first] = object->box.Center();
-    }
-    for (size_t i = 0; i < clueObjects.size(); i++)
+    if (complete)
     {
-        std::shared_ptr<GameObject> obj = clueObjects[i].lock();
-        if (obj)
-        {
-            if (i < ClueBoardData::cluePositions.size())
-            {
-                ClueBoardData::cluePositions[i] = obj->box.Center();
-            }
-        }
+        GameData::AdvanceTutorial(TutorialStep::OpenBoard, TutorialStep::SolveBoard);
     }
-}
-
-void ClueBoardState::UpdateProgressText()
-{
-    int total = 0;
-    int solved = 0;
-    for (const ClueBoardSlot &slot : ClueBoardData::GetSlots()) {
-        const InventoryEntryDefinition *definition = InventoryCatalog::Find(slot.entryId);
-        if (!definition || !definition->usableOnClueBoard || !Inventory::Has(slot.entryId)) continue;
-        ++total;
-        if (ClueBoardData::IsLocked(slot.entryId)) ++solved;
-    }
-    const int missing = total - solved;
-    if (auto object = progressTextObject.lock()) {
-        object->GetComponent<Text>()->SetText(missing == 0 && total > 0
-            ? "Quadro concluído" : "Pistas restantes: " + std::to_string(missing));
-    }
-    if (missing == 0 && total > 0) GameData::AdvanceTutorial(TutorialStep::OpenBoard, TutorialStep::SolveBoard);
 }
 
 void ClueBoardState::Update(float dt)
 {
-    InputManager& input = InputManager::GetInstance();
+    InputManager &input = InputManager::GetInstance();
 
     if (input.QuitRequested())
     {
@@ -212,9 +211,14 @@ void ClueBoardState::Update(float dt)
 
     if (input.KeyPress(ESCAPE_KEY))
     {
-        SaveCluePositions();
         popRequested = true;
         return;
+    }
+
+    if (input.MousePress(LEFT_MOUSE_BUTTON))
+    {
+        ActivateInteractableAtPoint(Vec2(input.GetMouseX() + Camera::pos.x,
+                                         input.GetMouseY() + Camera::pos.y));
     }
 
     UpdateArray(dt);
@@ -225,10 +229,5 @@ void ClueBoardState::Render()
     RenderArray();
 }
 
-void ClueBoardState::Pause()
-{
-}
-
-void ClueBoardState::Resume()
-{
-}
+void ClueBoardState::Pause() {}
+void ClueBoardState::Resume() {}

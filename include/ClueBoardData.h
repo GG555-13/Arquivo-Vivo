@@ -3,22 +3,19 @@
 
 #include "Vec2.h"
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 struct ClueBoardSlot {
     std::string entryId;
+    Vec2 trayPosition;
     Vec2 targetPosition;
     float snapRadius = 0.0f;
 };
 
 struct ClueBoardData {
 
-    static std::vector<Vec2> cluePositions;
-    static std::unordered_map<std::string, Vec2> entryPositions;
     static std::vector<std::string> lockedEntries;
 
-    static std::vector<Vec2> GetDefaultPositions();
     static bool LoadLayout(const std::string &path);
     static const std::vector<ClueBoardSlot> &GetSlots();
     static void ClearLayout();

@@ -10,10 +10,14 @@ Draggable::Draggable(GameObject &associated, bool returnToSpawnOnRelease)
     : Component(associated),
       dragging(false),
       returnToSpawnOnRelease(returnToSpawnOnRelease),
-    spawnPosition(associated.box.Center()),
+      spawnPosition(associated.box.Center()),
       dragOffset(),
+      pressPoint(),
       onRelease(),
-      enabled(true)
+      onClick(),
+      enabled(true),
+      dragEnabled(true),
+      movedBeyondClickThreshold(false)
 {
 }
 
@@ -39,8 +43,15 @@ void Draggable::Update(float dt)
     {
         if (input.IsMouseDown(LEFT_MOUSE_BUTTON))
         {
-            associated.box.x = mouseWorldPoint.x - dragOffset.x;
-            associated.box.y = mouseWorldPoint.y - dragOffset.y;
+            if (mouseWorldPoint.Distance(pressPoint) >= 6.0f)
+            {
+                movedBeyondClickThreshold = true;
+            }
+            if (dragEnabled)
+            {
+                associated.box.x = mouseWorldPoint.x - dragOffset.x;
+                associated.box.y = mouseWorldPoint.y - dragOffset.y;
+            }
             return;
         }
 
@@ -60,6 +71,8 @@ void Draggable::Update(float dt)
 
     dragging = true;
     activeDraggable = this;
+    pressPoint = mouseWorldPoint;
+    movedBeyondClickThreshold = false;
     dragOffset = Vec2(mouseWorldPoint.x - associated.box.x,
                       mouseWorldPoint.y - associated.box.y);
 }
@@ -104,12 +117,42 @@ void Draggable::SetEnabled(bool value)
     if (!enabled && dragging) FinishDrag();
 }
 
+void Draggable::SetDragEnabled(bool value)
+{
+    dragEnabled = value;
+}
+
+void Draggable::SetOnClick(std::function<void()> callback)
+{
+    onClick = callback;
+}
+
 void Draggable::FinishDrag()
 {
     dragging = false;
     if (activeDraggable == this)
     {
         activeDraggable = nullptr;
+    }
+
+    InputManager &input = InputManager::GetInstance();
+    Vec2 releasePoint(input.GetMouseX() + Camera::pos.x,
+                      input.GetMouseY() + Camera::pos.y);
+    if (releasePoint.Distance(pressPoint) >= 6.0f)
+    {
+        movedBeyondClickThreshold = true;
+    }
+
+    if (!movedBeyondClickThreshold)
+    {
+        if (onClick) onClick();
+        if (returnToSpawnOnRelease) ResetToSpawn();
+        return;
+    }
+
+    if (!dragEnabled)
+    {
+        return;
     }
 
     bool dropAccepted = false;
