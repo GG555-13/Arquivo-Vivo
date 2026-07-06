@@ -21,6 +21,7 @@ void InputManager::Update()
 
     quitRequested = false;
     mouseWheelY = 0;
+    textInput.clear();
     updateCounter++;
 
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -47,6 +48,11 @@ void InputManager::Update()
         if (event.type == SDL_MOUSEWHEEL)
         {
             mouseWheelY += event.wheel.y;
+        }
+
+        if (event.type == SDL_TEXTINPUT)
+        {
+            textInput += event.text.text;
         }
 
         if (event.type == SDL_KEYDOWN)
@@ -114,4 +120,9 @@ bool InputManager::QuitRequested() const
 int InputManager::GetMouseWheelY() const
 {
     return mouseWheelY;
+}
+
+const std::string &InputManager::GetTextInput() const
+{
+    return textInput;
 }

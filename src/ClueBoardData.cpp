@@ -7,10 +7,23 @@
 #include <iostream>
 
 std::map<std::string, Vec2> ClueBoardData::placedPositions;
+std::map<std::size_t, std::string> ClueBoardData::solvedAnswers;
 
 namespace {
 std::vector<ClueBoardSlot> slots;
 Rect placementArea;
+std::vector<ClueBoardQuestion> questions;
+ClueBoardQuestionStyle questionStyle;
+
+SDL_Color ReadColor(const nlohmann::json &value, SDL_Color fallback) {
+    if (!value.is_object()) return fallback;
+    return {
+        static_cast<Uint8>(value.value("r", static_cast<int>(fallback.r))),
+        static_cast<Uint8>(value.value("g", static_cast<int>(fallback.g))),
+        static_cast<Uint8>(value.value("b", static_cast<int>(fallback.b))),
+        static_cast<Uint8>(value.value("a", static_cast<int>(fallback.a)))
+    };
+}
 }
 
 bool ClueBoardData::LoadLayout(const std::string &path) {
@@ -24,8 +37,48 @@ bool ClueBoardData::LoadLayout(const std::string &path) {
         Rect loadedArea(area.value("x", 0.0f), area.value("y", 0.0f),
                         area.value("w", 0.0f), area.value("h", 0.0f));
         if (loadedArea.w <= 0.0f || loadedArea.h <= 0.0f) throw std::runtime_error("invalid placementArea");
-        std::vector<ClueBoardSlot> loaded;
         bool valid = true;
+        ClueBoardQuestionStyle loadedStyle;
+        if (root.contains("questionPresentation") && root["questionPresentation"].is_object()) {
+            const auto &style = root["questionPresentation"];
+            loadedStyle.fontFile = style.value("font", loadedStyle.fontFile);
+            loadedStyle.promptFontSize = style.value("promptFontSize", loadedStyle.promptFontSize);
+            loadedStyle.answerFontSize = style.value("answerFontSize", loadedStyle.answerFontSize);
+            loadedStyle.fieldWidth = style.value("fieldWidth", loadedStyle.fieldWidth);
+            loadedStyle.incorrectDialogueFile = style.value("incorrectDialogue", loadedStyle.incorrectDialogueFile);
+            if (style.contains("textColor")) loadedStyle.textColor = ReadColor(style["textColor"], loadedStyle.textColor);
+        }
+        std::vector<ClueBoardQuestion> loadedQuestions;
+        if (root.contains("questions") && root["questions"].is_array()) {
+            for (const auto &value : root["questions"]) {
+                if (!value.is_object()) {
+                    std::cerr << "Invalid clue board question; skipping\n";
+                    valid = false;
+                    continue;
+                }
+                ClueBoardQuestion question;
+                question.prompt = value.value("prompt", "");
+                question.maxLength = value.value("maxLength", 32);
+                if (value.contains("promptPosition")) {
+                    question.promptPosition = Vec2(value["promptPosition"].value("x", 0.0f), value["promptPosition"].value("y", 0.0f));
+                }
+                if (value.contains("inputPosition")) {
+                    question.inputPosition = Vec2(value["inputPosition"].value("x", 0.0f), value["inputPosition"].value("y", 0.0f));
+                }
+                if (value.contains("acceptedAnswers") && value["acceptedAnswers"].is_array()) {
+                    for (const auto &answer : value["acceptedAnswers"]) {
+                        if (answer.is_string() && !answer.get<std::string>().empty()) question.acceptedAnswers.push_back(answer.get<std::string>());
+                    }
+                }
+                if (question.prompt.empty() || question.acceptedAnswers.empty() || question.maxLength <= 0) {
+                    std::cerr << "Invalid clue board question; skipping\n";
+                    valid = false;
+                    continue;
+                }
+                loadedQuestions.push_back(question);
+            }
+        }
+        std::vector<ClueBoardSlot> loaded;
         for (const auto &value : root["slots"]) {
             ClueBoardSlot slot;
             slot.entryId = value.value("entryId", "");
@@ -45,6 +98,8 @@ bool ClueBoardData::LoadLayout(const std::string &path) {
         }
         slots.swap(loaded);
         placementArea = loadedArea;
+        questions.swap(loadedQuestions);
+        questionStyle = loadedStyle;
         return valid;
     } catch (const std::exception &error) {
         std::cerr << "Invalid clue board layout " << path << ": " << error.what() << '\n';
@@ -54,7 +109,9 @@ bool ClueBoardData::LoadLayout(const std::string &path) {
 
 const std::vector<ClueBoardSlot> &ClueBoardData::GetSlots() { return slots; }
 const Rect &ClueBoardData::GetPlacementArea() { return placementArea; }
-void ClueBoardData::ClearLayout() { slots.clear(); placedPositions.clear(); placementArea = Rect(); }
+const std::vector<ClueBoardQuestion> &ClueBoardData::GetQuestions() { return questions; }
+const ClueBoardQuestionStyle &ClueBoardData::GetQuestionStyle() { return questionStyle; }
+void ClueBoardData::ClearLayout() { slots.clear(); questions.clear(); placedPositions.clear(); solvedAnswers.clear(); placementArea = Rect(); questionStyle = ClueBoardQuestionStyle(); }
 bool ClueBoardData::GetPlacedPosition(const std::string &entryId, Vec2 &position) {
     const auto found = placedPositions.find(entryId);
     if (found == placedPositions.end()) return false;
@@ -65,3 +122,12 @@ void ClueBoardData::SetPlacedPosition(const std::string &entryId, const Vec2 &po
     placedPositions[entryId] = position;
 }
 void ClueBoardData::ClearPlacedPosition(const std::string &entryId) { placedPositions.erase(entryId); }
+bool ClueBoardData::GetSolvedAnswer(std::size_t questionIndex, std::string &answer) {
+    const auto found = solvedAnswers.find(questionIndex);
+    if (found == solvedAnswers.end()) return false;
+    answer = found->second;
+    return true;
+}
+void ClueBoardData::SetSolvedAnswer(std::size_t questionIndex, const std::string &answer) {
+    solvedAnswers[questionIndex] = answer;
+}
