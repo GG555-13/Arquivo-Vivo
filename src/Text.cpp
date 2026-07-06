@@ -104,15 +104,15 @@ void Text::RemakeTexture() {
 
     switch (style) {
         case SOLID:
-            surface = TTF_RenderText_Solid(font.get(), text.c_str(), color);
+            surface = TTF_RenderUTF8_Solid(font.get(), text.c_str(), color);
             break;
         case SHADED:
-            surface = TTF_RenderText_Shaded(font.get(), text.c_str(), color, {0, 0, 0, 255}); // Fundo preto
+            surface = TTF_RenderUTF8_Shaded(font.get(), text.c_str(), color, {0, 0, 0, 255}); 
             break;
         case BLENDED:
             surface = wrapWidth > 0
-                ? TTF_RenderText_Blended_Wrapped(font.get(), text.c_str(), color, static_cast<Uint32>(wrapWidth))
-                : TTF_RenderText_Blended(font.get(), text.c_str(), color);
+                ? TTF_RenderUTF8_Blended_Wrapped(font.get(), text.c_str(), color, static_cast<Uint32>(wrapWidth))
+                : TTF_RenderUTF8_Blended(font.get(), text.c_str(), color);
             break;
     }
 

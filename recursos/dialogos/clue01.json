@@ -1,7 +1,7 @@
 [
     {
         "name": "Detetive",
-        "text": "Olá, posso fazer algumas perguntas?",
+        "text": "   Bom dia, posso fazer algumas perguntas?",
         "portrait": "recursos/img/Protagonista .png"
     },
     {
@@ -11,37 +11,7 @@
     },
     {
         "name": "Detetive",
-        "text": "Vamos começar pela primeira pergunta.",
-        "portrait": "recursos/img/Protagonista .png"
-    },
-    {
-        "name": "Suspeito",
-        "text": "Fique à vontade, detetive.",
-        "portrait": "recursos/img/Cultista.png"
-    },
-    {
-        "name": "Detetive",
-        "text": "Onde você estava na noite do desaparecimento?",
-        "portrait": "recursos/img/Protagonista .png"
-    },
-    {
-        "name": "Suspeito",
-        "text": "Na minha casa. Sozinho. Infelizmente não tenho álibi.",
-        "portrait": "recursos/img/Cultista.png"
-    },
-    {
-        "name": "Detetive",
-        "text": "E conhecia a família desaparecida?",
-        "portrait": "recursos/img/Protagonista .png"
-    },
-    {
-        "name": "Suspeito",
-        "text": "Eram meus vizinhos. Pessoas tranquilas, muito reservadas.",
-        "portrait": "recursos/img/Cultista.png"
-    },
-    {
-        "name": "Detetive",
-        "text": "Obrigado pelas informações. Vou investigar mais a fundo.",
+        "text": "Vamos começar pela primeira pergunta",
         "portrait": "recursos/img/Protagonista .png"
     }
 ]
