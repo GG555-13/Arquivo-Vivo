@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "StageState.h"
 #include "TitleState.h"
-#include <StageManager.h>
+#include "StageManager.h"
 #include "Inventory.h"
 #include "InventoryCatalog.h"
 #include "ClueBoardData.h"

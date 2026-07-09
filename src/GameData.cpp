@@ -1,5 +1,18 @@
 #include "GameData.h"
 
+std::unordered_map<std::string, bool> GameData::flags;
+
+void GameData::SetFlag(const std::string& flagName, bool value) {
+    flags[flagName] = value;
+}
+
+bool GameData::GetFlag(const std::string& flagName) {
+    if (flags.find(flagName) != flags.end()) {
+        return flags[flagName];
+    }
+    return false; 
+}
+
 bool GameData::playerVictory = false;
 TutorialStep GameData::tutorialStep = TutorialStep::TalkToBoss;
 
