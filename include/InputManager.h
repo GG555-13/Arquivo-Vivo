@@ -2,6 +2,7 @@
 #define INPUTMANAGER_H
 
 #include <unordered_map>
+#include <string>
 #include "SDL_include.h"
 
 #define LEFT_ARROW_KEY SDLK_LEFT
@@ -29,6 +30,8 @@ public:
 
     int GetMouseX() const;
     int GetMouseY() const;
+    int GetMouseWheelY() const;
+    const std::string &GetTextInput() const;
 
     bool QuitRequested() const;
 
@@ -51,6 +54,8 @@ private:
     int updateCounter;
     int mouseX;
     int mouseY;
+    int mouseWheelY;
+    std::string textInput;
 };
 
 #endif

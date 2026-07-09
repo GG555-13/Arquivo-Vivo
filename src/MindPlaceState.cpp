@@ -7,11 +7,15 @@
 #include "InputManager.h"
 #include "SpriteRenderer.h"
 #include "Text.h"
+#include "DetailContent.h"
+#include "Inventory.h"
+#include "InventoryCatalog.h"
+#include "InventoryEntryDefinition.h"
 
 namespace
 {
-const Vec2 mindPlaceBackgroundCenter(180.79f, 107.5f);
-const float mindPlaceBackgroundScale = 0.56782f;
+const Vec2 mindPlaceBackgroundCenter(600.0f, 450.0f);
+const float mindPlaceBackgroundScale = 1.0f;
 }
 
 MindPlaceState::MindPlaceState()
@@ -20,7 +24,7 @@ MindPlaceState::MindPlaceState()
             detailPanel(*this,
                                     mindPlaceBackgroundCenter,
                                     mindPlaceBackgroundScale,
-                                    "recursos/img/EsboçoMentalSelecionado.png")
+                                    "recursos/img/espacoMental.png")
 {
 }
 
@@ -61,31 +65,82 @@ void MindPlaceState::Start()
     AddObject(helpGO);
 
     GameObject* backgroundGO = new GameObject();
-    SpriteRenderer* backgroundSR = new SpriteRenderer(*backgroundGO, "recursos/img/EsboçoMental2.png");
-    backgroundSR->SetScale(mindPlaceBackgroundScale, mindPlaceBackgroundScale);
+    SpriteRenderer* backgroundSR = new SpriteRenderer(*backgroundGO, "recursos/img/espacoMentalBackground.png");
+    backgroundSR->SetScale(900.0f / 2160.0f, 900.0f / 2160.0f);
+    backgroundSR->SetUseSourceFrameOffset(false);
     backgroundGO->AddComponent(backgroundSR);
     backgroundGO->box.SetCenter(mindPlaceBackgroundCenter);
     AddObject(backgroundGO);
 
-    int tab0 = tabs.AddTab(Vec2(162.0f, 110.0f),
-                           "recursos/img/abaPessoasDownEsboço.png",
-                           "recursos/img/abaPessoasUpEsboço.png");
-    int tab1 = tabs.AddTab(Vec2(362.0f, 110.0f),
-                           "recursos/img/abaPessoasDownEsboço.png",
-                           "recursos/img/abaPessoasUpEsboço.png");
-    int tab2 = tabs.AddTab(Vec2(562.0f, 110.0f),
-                           "recursos/img/abaPessoasDownEsboço.png",
-                           "recursos/img/abaPessoasUpEsboço.png");
+    GameObject* boardGO = new GameObject();
+    SpriteRenderer* boardSR = new SpriteRenderer(*boardGO, "recursos/img/espacoMental.png");
+    boardSR->SetScale(1.344f, 1.344f);
+    boardSR->SetUseSourceFrameOffset(false);
+    boardGO->AddComponent(boardSR);
+    // The artwork has transparent padding; this center places its opaque board at (600, 470).
+    boardGO->box.SetCenter(Vec2(589.0f, 582.0f));
+    AddObject(boardGO);
 
-    tabs.AddContent(tab0, CreateFolder(Vec2(245.0f, 245.0f), nullptr));
-    tabs.AddContent(tab0, CreateFolder(Vec2(405.0f, 245.0f)));
-    tabs.AddContent(tab1, CreateFolder(Vec2(245.0f, 245.0f), nullptr));
-    tabs.AddContent(tab2, CreateFolder(Vec2(245.0f, 245.0f)));
+    int tab0 = tabs.AddTab(Vec2(243.0f, 282.0f),
+                           "recursos/img/abaNSelecionada.png",
+                           "recursos/img/abaSelecionada.png");
+    int tab1 = tabs.AddTab(Vec2(483.0f, 282.0f),
+                           "recursos/img/abaNSelecionada.png",
+                           "recursos/img/abaSelecionada.png");
+    int tab2 = tabs.AddTab(Vec2(723.0f, 282.0f),
+                           "recursos/img/abaNSelecionada.png",
+                           "recursos/img/abaSelecionada.png");
+
+    int counts[] = {0, 0, 0};
+    for (const std::string &entryId : Inventory::GetEntries()) {
+        const InventoryEntryDefinition *definition = InventoryCatalog::Find(entryId);
+        if (!definition) continue;
+        int tab = definition->category == MindPlaceCategory::People ? tab0
+                : definition->category == MindPlaceCategory::Documents ? tab1 : tab2;
+        const int categoryIndex = tab == tab0 ? 0 : tab == tab1 ? 1 : 2;
+        const int index = counts[categoryIndex]++;
+        Vec2 center(240.0f + (index % 4) * 220.0f, 365.0f + (index / 4) * 170.0f);
+        tabs.AddContent(tab, CreateInventoryEntry(center, entryId));
+    }
 
     tabs.SwitchTo(0);
 
     StartArray();
     started = true;
+}
+
+std::weak_ptr<GameObject> MindPlaceState::CreateEntry(const Vec2 &center,
+                                                       const std::string &iconPath,
+                                                       std::function<void()> callback,
+                                                       float scale)
+{
+    const float offscreenY = 2000.0f;
+    GameObject *entry = new GameObject();
+    SpriteRenderer *sprite = new SpriteRenderer(*entry, iconPath);
+    sprite->SetScale(scale, scale);
+    sprite->SetUseSourceFrameOffset(false);
+    entry->AddComponent(sprite);
+    entry->AddComponent(new Interactable(*entry, Interactable::CLICK_ONLY,
+                                          Interactable::NO_ACTOR, 0.0f, callback));
+    entry->box.SetCenter(Vec2(center.x, center.y + offscreenY));
+    return AddObject(entry);
+}
+
+std::weak_ptr<GameObject> MindPlaceState::CreateInventoryEntry(const Vec2 &center,
+                                                                const std::string &entryId)
+{
+    const InventoryEntryDefinition *definition = InventoryCatalog::Find(entryId);
+    if (!definition) return std::weak_ptr<GameObject>();
+    const std::string icon = definition->mindPlaceImage;
+    return CreateEntry(center, icon, [this, entryId]() {
+        const InventoryEntryDefinition *current = InventoryCatalog::Find(entryId);
+        if (!current) return;
+        DetailContent content{current->name, current->description, current->detailImage};
+        if (current->kind == InventoryEntryKind::DialogueFolder) {
+            content.description = Inventory::GetDialogueHistory(current->characterId);
+        }
+        detailPanel.Open(content);
+    });
 }
 
 void MindPlaceState::LoadAssets()
@@ -161,6 +216,13 @@ void MindPlaceState::Update(float dt)
             popRequested = true;
         }
         return;
+    }
+
+    detailPanel.Update(dt);
+
+    if (detailPanel.IsVisible() && input.GetMouseWheelY() != 0)
+    {
+        detailPanel.Scroll(-input.GetMouseWheelY() * 36);
     }
 
     if (!detailPanel.IsVisible() && input.MousePress(LEFT_MOUSE_BUTTON))

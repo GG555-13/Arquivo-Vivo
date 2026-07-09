@@ -24,7 +24,8 @@ public:
 
     DialogueBox(GameObject& associated,
                 std::string jsonFilePath,
-                std::function<void()> onComplete = {});
+                std::function<void()> onComplete = {},
+                std::string historyCharacterId = "");
     ~DialogueBox();
 
     void Start() override;
@@ -42,6 +43,7 @@ private:
     bool hasRequestedDelete;  
     bool completionInvoked;
     std::function<void()> onComplete;
+    std::string historyCharacterId;
 
     Timer typeTimer;
     unsigned int visibleChars;

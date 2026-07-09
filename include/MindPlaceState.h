@@ -28,6 +28,13 @@ private:
     TabGroup tabs;
     DetailPanel detailPanel;
 
+    std::weak_ptr<GameObject> CreateEntry(const Vec2 &center,
+                                          const std::string &iconPath,
+                                          std::function<void()> interactable,
+                                          float scale = 0.22f);
+    std::weak_ptr<GameObject> CreateInventoryEntry(const Vec2 &center,
+                                                   const std::string &entryId);
+
     std::weak_ptr<GameObject> CreateFolder(const Vec2 &center,
                                            float scale = 0.22f,
                                            const std::string &spritePath = "recursos/img/Pasta.png");

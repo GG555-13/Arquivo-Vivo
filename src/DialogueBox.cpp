@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include "json.hpp"
+#include "Inventory.h"
 
 using json = nlohmann::json;
 
@@ -12,10 +13,12 @@ bool DialogueBox::isPlaying = false;
 
 DialogueBox::DialogueBox(GameObject& associated,
                          std::string jsonFilePath,
-                         std::function<void()> onComplete)
+                         std::function<void()> onComplete,
+                         std::string historyCharacterId)
     : Component(associated), currentSegment(0), firstFrame(true), isFinished(false),
       uiCreated(false), hasRequestedDelete(false), completionInvoked(false),
-      onComplete(onComplete), visibleChars(0), isTyping(false),
+      onComplete(onComplete), historyCharacterId(historyCharacterId), 
+      visibleChars(0), isTyping(false),
       typeSound("recursos/audio/tecla.wav"), 
       dingSound("recursos/audio/sino.wav"),  
       paperSound("recursos/audio/papel.wav") 
@@ -181,30 +184,54 @@ void DialogueBox::Update(float dt) {
     InputManager& input = InputManager::GetInstance();
     
     if (input.KeyPress(SPACE_KEY) || input.MousePress(LEFT_MOUSE_BUTTON)) {
-        
-        if (isTyping) {
-            isTyping = false;
-            visibleChars = currentFullText.size();
-            if (auto tGO = textGO.lock()) {
-                tGO->GetComponent<Text>()->SetText(currentFullText);
-            }
-            dingSound.Play(1); 
-        } 
-        else {
-            if (currentSegment < segments.size() - 1) {
-                currentSegment++;
-                UpdateUI();
-            } else {
-                paperSound.Play(1); 
-                isFinished = true;
-                DestroyUI();
-                if (!completionInvoked) {
-                    completionInvoked = true;
-                    if (onComplete) onComplete();
+
+    if (isTyping) {
+        isTyping = false;
+        visibleChars = currentFullText.size();
+
+        if (auto tGO = textGO.lock()) {
+            tGO->GetComponent<Text>()->SetText(currentFullText);
+        }
+
+        dingSound.Play(1);
+    } else {
+        if (currentSegment < segments.size() - 1) {
+            currentSegment++;
+            UpdateUI();
+        } else {
+            paperSound.Play(1);
+            isFinished = true;
+            DestroyUI();
+
+            if (!completionInvoked) {
+                completionInvoked = true;
+
+                if (!historyCharacterId.empty()) {
+                    std::string transcript;
+
+                    for (const DialogueSegment& segment : segments) {
+                        if (!transcript.empty()) {
+                            transcript += "\n\n";
+                        }
+
+                        transcript +=
+                            segment.speakerName + ":\n" +
+                            segment.text;
+                    }
+
+                    Inventory::AddDialogueHistory(
+                        historyCharacterId,
+                        transcript
+                    );
+                }
+
+                if (onComplete) {
+                    onComplete();
                 }
             }
         }
     }
+}
 }
 
 void DialogueBox::Render() {}

@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "id": "tutorial_notebook_1",
+      "kind": "evidence",
+      "name": "Caderno 1",
+      "description": "Primeiro caderno entregue pelo chefe para o caso tutorial.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/cadernos.png",
+      "detailImage": "recursos/img/cadernos.png",
+      "usableOnClueBoard": true
+    },
+    {
+      "id": "chief_dialogues",
+      "kind": "dialogueFolder",
+      "characterId": "chief",
+      "name": "Chefe",
+      "description": "Histórico das conversas com o chefe.",
+      "category": "people",
+      "mindPlaceImage": "recursos/img/Pasta.png",
+      "detailImage": "recursos/img/esbocoPasta.png",
+      "usableOnClueBoard": false
+    },
+    {
+      "id": "tutorial_notebook_2",
+      "kind": "evidence",
+      "name": "Caderno 2",
+      "description": "Segundo caderno entregue pelo chefe para o caso tutorial.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/cadernos1.png",
+      "detailImage": "recursos/img/cadernos1.png",
+      "usableOnClueBoard": true
+    }
+  ]
+}

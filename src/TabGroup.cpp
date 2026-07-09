@@ -19,7 +19,8 @@ int TabGroup::AddTab(Vec2 buttonCenter,
 
     GameObject* downBtn = new GameObject();
     SpriteRenderer* downSR = new SpriteRenderer(*downBtn, downSprite);
-    downSR->SetScale(0.56782f, 0.56782f);
+    downSR->SetScale(0.37f, 0.37f);
+    downSR->SetUseSourceFrameOffset(false);
     downBtn->AddComponent(downSR);
     downBtn->box.SetCenter(buttonCenter);
     downBtn->AddComponent(new Interactable(
@@ -33,7 +34,8 @@ int TabGroup::AddTab(Vec2 buttonCenter,
 
     GameObject* upBtn = new GameObject();
     SpriteRenderer* upSR = new SpriteRenderer(*upBtn, upSprite);
-    upSR->SetScale(0.56782f, 0.56782f);
+    upSR->SetScale(0.37f, 0.37f);
+    upSR->SetUseSourceFrameOffset(false);
     upBtn->AddComponent(upSR);
     upBtn->box.SetCenter(Vec2(buttonCenter.x, buttonCenter.y + OFFSCREEN_Y));
     upBtn->AddComponent(new Interactable(

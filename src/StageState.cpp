@@ -20,6 +20,7 @@
 #include "InputManager.h"
 #include "Interactable.h"
 #include "DialogueBox.h"
+#include "Inventory.h"
 #include "ClueBoardState.h"
 #include "Interactable.h"
 
@@ -179,6 +180,9 @@ void StageState::LoadStage(const StageConfig& config) {
         std::function<void()> onComplete;
         if (isTutorialBoss) {
             onComplete = [clueBoardInteractable]() {
+                Inventory::Add("tutorial_notebook_1");
+                Inventory::Add("tutorial_notebook_2");
+                Inventory::Add("chief_dialogues");
                 if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
                     clueBoardInteractable != nullptr) {
                     clueBoardInteractable->SetEnabled(true);
@@ -189,7 +193,8 @@ void StageState::LoadStage(const StageConfig& config) {
         dialogueController->AddComponent(new DialogueBox(
             *dialogueController,
             "recursos/dialogos/clue01.json",
-            onComplete
+            onComplete,
+            isTutorialBoss ? "chief" : ""
         ));
         Game::GetInstance().GetCurrentState().AddObject(dialogueController);
     }));
@@ -268,7 +273,7 @@ void StageState::Update(float dt) {
     screenFade.Update(dt);
 
     if (screenFade.IsActive()) {
-        return;  // block game logic + input during fade
+        return;
     }
 
     WalkableState::Update(dt);
