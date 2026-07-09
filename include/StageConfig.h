@@ -30,8 +30,30 @@ struct TriggerConfig {
     std::string targetStageId;
     float targetSpawnX = -1.0f;
     float targetSpawnY = -1.0f;
-
     FadeTransitionConfig fade;
+};
+
+struct NPCConfig {
+    std::string id;
+    float x, y;
+    std::string spriteFile;
+    int frameRows = 1, frameCols = 1;
+    float scale = 1.0f;
+    float renderOffsetY = 0.0f;
+    
+    std::string dialogueJson; 
+    std::string conditionFlag; 
+};
+
+struct PropConfig {
+    std::string id;
+    float x, y;
+    std::string spriteFile;
+    float scale = 1.0f;
+    
+    std::string interactDialogueJson; 
+    std::string unlockFlag;           
+    std::string conditionFlag;        
 };
 
 struct StageConfig {
@@ -41,6 +63,8 @@ struct StageConfig {
     Vec2 playerSpawn;
     
     std::vector<TriggerConfig> triggers; 
+    std::vector<NPCConfig> npcs;   
+    std::vector<PropConfig> props; 
 };
 
 #endif
