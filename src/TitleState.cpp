@@ -34,6 +34,13 @@ void TitleState::Start()
 
     AddObject(bg);
 
+    GameObject* startText = new GameObject();
+    startText->AddComponent(new Text(*startText, "recursos/font/neodgm.ttf", 32, Text::BLENDED, 
+        "Pressione ESPACO ou clique para iniciar", {255, 255, 255, 255}));
+    
+    startText->box.SetCenter(Vec2(Game::GetInstance().GetWidth() / 2.0f, 750.0f));
+    AddObject(startText);
+
     Camera::pos = Vec2(0.0f, 0.0f);
     Camera::Unfollow();
 

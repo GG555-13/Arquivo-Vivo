@@ -11,6 +11,8 @@
 #include "SpriteRenderer.h"
 #include "Text.h"
 #include "json.hpp"
+#include "InstructionPrompt.h"
+#include "GameObject.h"
 
 #include <algorithm>
 #include <cctype>
@@ -145,6 +147,17 @@ void WhisperState::Start()
 
     StartArray();
     SetInputFocused(false);
+
+    if (!GameData::GetFlag("instrucao_sussurro_mostrada")) {
+        GameData::SetFlag("instrucao_sussurro_mostrada", true);
+        
+        GameObject* promptGO = new GameObject();
+        promptGO->AddComponent(new Text(*promptGO, config.font, 26, Text::BLENDED, 
+            "Digite o nome do suspeito | ENTER: Confirmar", {0, 0, 0, 255}));
+        promptGO->AddComponent(new InstructionPrompt(*promptGO, 8.0f, Vec2(600.0f, 150.0f)));
+        AddObject(promptGO);
+    }
+
     started = true;
 }
 

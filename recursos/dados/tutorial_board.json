@@ -11,7 +11,7 @@
   "questions": [
     {
       "prompt": "Quem é o culpado?",
-      "acceptedAnswers": ["cabra"],
+      "acceptedAnswers": ["claudio", "cláudio"],
       "maxLength": 32,
       "promptPosition": { "x": 82, "y": 215 },
       "inputPosition": { "x": 82, "y": 265 }

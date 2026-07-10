@@ -17,6 +17,7 @@
 #include "SpriteRenderer.h"
 #include "Text.h"
 #include "WhisperState.h"
+#include "InstructionPrompt.h"
 
 #include <algorithm>
 #include <cctype>
@@ -100,6 +101,16 @@ void ClueBoardState::Start()
         StartTextInput();
     }
     started = true;
+
+    if (!GameData::GetFlag("instrucao_quadro_mostrada")) {
+        GameData::SetFlag("instrucao_quadro_mostrada", true);
+        
+        GameObject* promptGO = new GameObject();
+        promptGO->AddComponent(new Text(*promptGO, "recursos/font/neodgm.ttf", 26, Text::BLENDED, 
+            "Digite a resposta com o teclado no espaço abaixo da questão | ENTER: Confirmar", {255, 255, 0, 255}));
+        promptGO->AddComponent(new InstructionPrompt(*promptGO, 8.0f, Vec2(600.0f, 850.0f)));
+        AddObject(promptGO);
+    }
 }
 
 void ClueBoardState::AddQuestions()
