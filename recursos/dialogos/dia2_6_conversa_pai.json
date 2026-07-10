@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Pai",
+    "text": "Essa delegacia tem se ocupado muito tempo, estou preocupado com esse seu estresse tão alto.",
+    "portrait": "recursos/img/portrait_pai.png"
+  },
+  {
+    "name": "Pai",
+    "text": "Fico muito orgulhoso de ver seu trabalho, mas lembra que não conseguimos resolver o problema de todo mundo.",
+    "portrait": "recursos/img/portrait_pai.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Vai ter que falar isso pra todo mundo.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  }
+]

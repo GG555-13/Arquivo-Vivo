@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Chefe",
+    "text": "O mercado do Joca sumiu com muito dinheiro e estavam fazendo baderna por causa disso. Um dos apostadores entrou no mercado e bateu em um dos funcionários.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Ouch...",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "É... eu falava pro Joca que ele devia parar de deixar acontecer esse tipo de jogo no mercado dele, mas a ganância sempre fala mais alto. Agora tá lá, tudo parado pra investigação.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Aparentemente o dinheiro ia ser usado para as novas apostas mas sumiu um pouco antes da confusão começar. Pegamos depoimento de 3 pessoas e um caderno caído com algumas anotações interessantes.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Certo, por onde começamos?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Pelo mais simples. Toda bagunça deixa algum rastro para investigação. Comece analisando todos os documentos e relatos. A pergunta que o quadro precisa responder é quem foi o culpado pelo roubo.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  }
+]
