@@ -1,5 +1,6 @@
 #include "Inventory.h"
 #include "InventoryCatalog.h"
+#include "InventoryEntryDefinition.h"
 
 #include <algorithm>
 #include <iostream>
@@ -7,6 +8,7 @@
 
 namespace {
 std::vector<std::string> entries;
+std::vector<std::string> pendingNotifications;
 std::unordered_map<std::string, std::vector<std::string>> histories;
 }
 
@@ -17,6 +19,10 @@ bool Inventory::Add(const std::string &entryId) {
     }
     if (Has(entryId)) return false;
     entries.push_back(entryId);
+    const InventoryEntryDefinition *definition = InventoryCatalog::Find(entryId);
+    if (definition && definition->kind != InventoryEntryKind::DialogueFolder) {
+        pendingNotifications.push_back(entryId);
+    }
     return true;
 }
 
@@ -26,8 +32,20 @@ bool Inventory::Has(const std::string &entryId) {
 
 const std::vector<std::string> &Inventory::GetEntries() { return entries; }
 
+bool Inventory::HasPendingNotifications() {
+    return !pendingNotifications.empty();
+}
+
+std::string Inventory::PopPendingNotification() {
+    if (pendingNotifications.empty()) return "";
+    const std::string entryId = pendingNotifications.front();
+    pendingNotifications.erase(pendingNotifications.begin());
+    return entryId;
+}
+
 void Inventory::Clear() {
     entries.clear();
+    pendingNotifications.clear();
     histories.clear();
 }
 

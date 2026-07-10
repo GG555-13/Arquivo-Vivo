@@ -23,11 +23,13 @@
 #include "Inventory.h"
 #include "ClueBoardState.h"
 #include "Interactable.h"
+#include "ObtainedItemCardPresenter.h"
 
 StageState::StageState(std::string stageId, float spawnX, float spawnY) : WalkableState(), 
                                                                           currentStageId(stageId), 
                                                                           overrideSpawnX(spawnX), 
-                                                                          overrideSpawnY(spawnY) {}
+                                                                          overrideSpawnY(spawnY),
+                                                                          itemNotifications(new ObtainedItemCardPresenter(*this)) {}
 
 void StageState::Start() {
     LoadAssets();
@@ -266,13 +268,26 @@ void StageState::Render() {
 }
 
 void StageState::Pause() {}
-void StageState::Resume() {}
+void StageState::Resume() {
+    if (Player::player) {
+        Camera::Update(0.0f);
+    }
+    auto pf = Game::GetInstance().ConsumePendingFadeIn();
+    if (pf.active) {
+        screenFade.FadeIn(pf.duration, pf.color);
+    }
+}
 StageState::~StageState() {}
 
 void StageState::Update(float dt) {
     screenFade.Update(dt);
 
     if (screenFade.IsActive()) {
+        return;
+    }
+
+    itemNotifications->Update(dt);
+    if (itemNotifications->IsActive()) {
         return;
     }
 

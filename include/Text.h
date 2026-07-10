@@ -27,6 +27,8 @@ public:
     void SetViewportHeight(int height);
     void SetVerticalOffset(int offset);
     void ScrollVertical(int amount);
+    int GetTextureWidth() const;
+    int GetTextureHeight() const;
 
 private:
     void RemakeTexture();

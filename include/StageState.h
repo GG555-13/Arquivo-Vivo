@@ -8,7 +8,9 @@
 #include "StageConfig.h"
 #include "Text.h"
 
+#include <memory>
 
+class ObtainedItemCardPresenter;
 class StageState : public WalkableState {
 public:
     StageState(std::string stageId = "colonial_mansion", float overrideSpawnX = -1.0f, float overrideSpawnY = -1.0f);
@@ -44,6 +46,7 @@ private:
     Music backgroundMusic;
     float overrideSpawnX;
     float overrideSpawnY;
+    std::unique_ptr<ObtainedItemCardPresenter> itemNotifications;
 };
 
 #endif

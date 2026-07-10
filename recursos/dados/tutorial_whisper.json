@@ -1,0 +1,23 @@
+{
+  "background": "recursos/img/sussurro1.png",
+  "font": "recursos/font/SpecialElite-Regular.ttf",
+  "dialogue": "labsdflnbserkjgnldsfmnvkesfmgvefvg",
+  "dash": "/",
+  "acceptedAnswers": ["cabra"],
+  "maxLength": 32,
+  "dialogueFontSize": 30,
+  "inputFontSize": 32,
+  "feedbackFontSize": 22,
+  "dialogueWrapWidth": 520,
+  "inputWrapWidth": 260,
+  "textColor": { "r": 45, "g": 35, "b": 30, "a": 255 },
+  "feedbackColor": { "r": 130, "g": 45, "b": 45, "a": 255 },
+  "inputBoxColor": { "r": 95, "g": 95, "b": 95, "a": 90 },
+  "dialoguePosition": { "x": 430, "y": 250 },
+  "dashPosition": { "x": 585, "y": 325 },
+  "inputBoxPosition": { "x": 500, "y": 560 },
+  "inputBoxSize": { "x": 255, "y": 58 },
+  "inputPosition": { "x": 525, "y": 575 },
+  "feedbackPosition": { "x": 460, "y": 635 },
+  "incorrectText": "Esse nome não encontra eco."
+}

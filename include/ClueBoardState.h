@@ -28,12 +28,14 @@ private:
     void ShowPreview(const std::string &entryId);
     void UpdateQuestionInput(float dt);
     void RefreshAnswerText();
+    void RefreshCarets();
     void SubmitAnswer();
     void StartTextInput();
     void StopTextInput();
 
     std::weak_ptr<GameObject> previewObject;
     std::vector<std::weak_ptr<GameObject>> answerObjects;
+    std::vector<std::weak_ptr<GameObject>> caretObjects;
     std::vector<std::string> typedAnswers;
     size_t activeQuestion = 0;
     bool textInputActive = false;
