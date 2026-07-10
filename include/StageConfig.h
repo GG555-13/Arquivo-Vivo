@@ -55,6 +55,7 @@ struct PropConfig {
     float scale = 1.0f;
     float interactRadius = 100.0f;
     float markerOffsetY = 0.0f;
+    bool renderBehindPlayer = false;
     
     std::string interactDialogueJson; 
     std::string unlockFlag;           

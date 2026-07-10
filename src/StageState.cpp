@@ -92,6 +92,98 @@ void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig> &
     Camera::stageWidth = this->maxStageWidth;
 }
 
+void StageState::LoadProps(const StageConfig &config, bool renderBehindPlayer)
+{
+    for (const auto &propConfig : config.props)
+    {
+        if (propConfig.renderBehindPlayer != renderBehindPlayer)
+        {
+            continue;
+        }
+
+        GameObject *propGO = new GameObject();
+        const bool visualOnlyProp = propConfig.interactDialogueJson.empty() &&
+                                    propConfig.unlockFlag.empty() &&
+                                    propConfig.conditionFlag.empty() &&
+                                    propConfig.targetState.empty();
+
+        if (!propConfig.spriteFile.empty())
+        {
+            SpriteRenderer *sr = new SpriteRenderer(*propGO, propConfig.spriteFile);
+            sr->SetScale(propConfig.scale, propConfig.scale);
+            sr->SetUseSourceFrameOffset(false);
+            propGO->AddComponent(sr);
+            propGO->box.x = propConfig.x;
+            propGO->box.y = propConfig.y;
+        }
+        else
+        {
+            propGO->box.SetCenter(Vec2(propConfig.x, propConfig.y));
+        }
+
+        std::function<bool()> cond = nullptr;
+        if (!propConfig.conditionFlag.empty())
+        {
+            cond = [flag = propConfig.conditionFlag]() {
+                if (flag == "tutorial_board_unlocked")
+                {
+                    return IsTutorialBoardUnlocked();
+                }
+                return GameData::GetFlag(flag);
+            };
+        }
+
+        if (visualOnlyProp)
+        {
+            AddObject(propGO);
+            continue;
+        }
+
+        Interactable *interactable = new Interactable(
+            *propGO,
+            Interactable::SPACE_OR_CLICK,
+            Interactable::REQUIRE_NEAR,
+            propConfig.interactRadius,
+            [jsonFile = propConfig.interactDialogueJson,
+             unlock = propConfig.unlockFlag,
+             stateName = propConfig.targetState]() {
+                if (DialogueBox::isPlaying)
+                    return;
+
+                if (stateName == "ClueBoardState")
+                {
+                    Game::GetInstance().Push(new ClueBoardState());
+                    return;
+                }
+
+                if (jsonFile.empty())
+                    return;
+
+                GameObject *dialogueController = new GameObject();
+                auto onComplete = [unlock]() {
+                    if (!unlock.empty())
+                    {
+                        GameData::SetFlag(unlock, true);
+                    }
+                };
+
+                dialogueController->AddComponent(new DialogueBox(*dialogueController, jsonFile, onComplete, ""));
+                Game::GetInstance().GetCurrentState().AddObject(dialogueController);
+            },
+            propConfig.markerOffsetY,
+            cond);
+
+        if (propConfig.id == "quadro_pistas")
+        {
+            tutorialClueBoardInteractable = interactable;
+            tutorialClueBoardInteractable->SetEnabled(IsTutorialBoardUnlocked());
+        }
+
+        propGO->AddComponent(interactable);
+        AddObject(propGO);
+    }
+}
+
 void StageState::LoadStage(const StageConfig &config)
 {
     Resources::ClearImages();
@@ -109,6 +201,8 @@ void StageState::LoadStage(const StageConfig &config)
         backgroundMusic.Open(config.musicFile);
         backgroundMusic.Play(-1);
     }
+
+    LoadProps(config, true);
 
     GameObject *playerGo = new GameObject();
     playerGo->box.x = (overrideSpawnX >= 0.0f) ? overrideSpawnX : config.playerSpawn.x;
@@ -259,92 +353,7 @@ void StageState::LoadStage(const StageConfig &config)
         AddObject(bossComputer);
     }
 
-    for (const auto &propConfig : config.props)
-    {
-        GameObject *propGO = new GameObject();
-        const bool visualOnlyProp = propConfig.interactDialogueJson.empty() &&
-                                    propConfig.unlockFlag.empty() &&
-                                    propConfig.conditionFlag.empty() &&
-                                    propConfig.targetState.empty();
-
-        if (!propConfig.spriteFile.empty())
-        {
-            SpriteRenderer *sr = new SpriteRenderer(*propGO, propConfig.spriteFile);
-            sr->SetScale(propConfig.scale, propConfig.scale);
-            if (visualOnlyProp)
-            {
-                sr->SetUseSourceFrameOffset(false);
-            }
-            propGO->AddComponent(sr);
-            propGO->box.x = propConfig.x;
-            propGO->box.y = propConfig.y;
-        }
-        else
-        {
-            propGO->box.SetCenter(Vec2(propConfig.x, propConfig.y));
-        }
-
-        std::function<bool()> cond = nullptr;
-        if (!propConfig.conditionFlag.empty())
-        {
-            cond = [flag = propConfig.conditionFlag]() {
-                if (flag == "tutorial_board_unlocked")
-                {
-                    return IsTutorialBoardUnlocked();
-                }
-                return GameData::GetFlag(flag);
-            };
-        }
-
-        if (visualOnlyProp)
-        {
-            AddObject(propGO);
-            continue;
-        }
-
-        Interactable *interactable = new Interactable(
-            *propGO,
-            Interactable::SPACE_OR_CLICK,
-            Interactable::REQUIRE_NEAR,
-            propConfig.interactRadius,
-            [jsonFile = propConfig.interactDialogueJson,
-             unlock = propConfig.unlockFlag,
-             stateName = propConfig.targetState]() {
-                if (DialogueBox::isPlaying)
-                    return;
-
-                if (stateName == "ClueBoardState")
-                {
-                    Game::GetInstance().Push(new ClueBoardState());
-                    return;
-                }
-
-                if (jsonFile.empty())
-                    return;
-
-                GameObject *dialogueController = new GameObject();
-                auto onComplete = [unlock]() {
-                    if (!unlock.empty())
-                    {
-                        GameData::SetFlag(unlock, true);
-                    }
-                };
-
-                dialogueController->AddComponent(new DialogueBox(*dialogueController, jsonFile, onComplete, ""));
-                Game::GetInstance().GetCurrentState().AddObject(dialogueController);
-            },
-            propConfig.markerOffsetY,
-            cond);
-
-        if (propConfig.id == "quadro_pistas")
-        {
-            tutorialClueBoardInteractable = interactable;
-            tutorialClueBoardInteractable->SetEnabled(IsTutorialBoardUnlocked());
-        }
-
-        propGO->AddComponent(interactable);
-        AddObject(propGO);
-    }
+    LoadProps(config, false);
 }
 
 void StageState::PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY)

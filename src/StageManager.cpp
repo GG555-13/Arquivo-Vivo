@@ -68,6 +68,30 @@ void StageManager::Initialize() {
     clueBoard.targetState = "ClueBoardState";
     mansionInterior.props.push_back(clueBoard);
 
+    PropConfig coffeeProp;
+    coffeeProp.id = "protagonist_table_coffee";
+    coffeeProp.x = 950.0f;
+    coffeeProp.y = 600.0f;
+    coffeeProp.spriteFile = "recursos/img/cafe.png";
+    coffeeProp.scale = 0.08f;
+    coffeeProp.interactRadius = 250.0f;
+    coffeeProp.markerOffsetY = 15.0f;
+    coffeeProp.renderBehindPlayer = true;
+    coffeeProp.interactDialogueJson = "recursos/dialogos/dia1_prop_cafe.json";
+    mansionInterior.props.push_back(coffeeProp);
+
+    PropConfig cheeseBreadProp;
+    cheeseBreadProp.id = "protagonist_table_cheese_bread";
+    cheeseBreadProp.x = 750.0f;
+    cheeseBreadProp.y = 600.0f;
+    cheeseBreadProp.spriteFile = "recursos/img/breadDeQueijo.png";
+    cheeseBreadProp.scale = 0.08f;
+    cheeseBreadProp.interactRadius = 250.0f;
+    cheeseBreadProp.markerOffsetY = 15.0f;
+    cheeseBreadProp.renderBehindPlayer = true;
+    cheeseBreadProp.interactDialogueJson = "recursos/dialogos/dia1_prop_pao_queijo.json";
+    mansionInterior.props.push_back(cheeseBreadProp);
+
     mansionInterior.triggers.push_back({115.0f, 600.0f, 150.0f, 300.0f, "colonial_mansion", 9645.0f, 850.0f});
     mansionInterior.triggers.push_back({1288.0f, 600.0f, 200.0f, 260.0f, "WIN_GAME", -1.0f, -1.0f, {true, 2.0f, FadeColor::Black, true, 1.0f, FadeColor::Black}});
     

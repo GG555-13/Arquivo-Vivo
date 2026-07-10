@@ -27,6 +27,7 @@ public:
     
     void LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers);
     void LoadStage(const StageConfig& config);
+    void LoadProps(const StageConfig& config, bool renderBehindPlayer);
     void TransitionTo(std::string targetStageId, float spawnX = -1.0f, float spawnY = -1.0f,
                       const FadeTransitionConfig& fadeConfig = {});
     void BeginTutorialEndSequence();
