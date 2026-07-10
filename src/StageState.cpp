@@ -20,9 +20,8 @@
 #include "InputManager.h"
 #include "Interactable.h"
 #include "DialogueBox.h"
-#include "Inventory.h"
+#include "Inventory.h"    
 #include "ClueBoardState.h"
-#include "Interactable.h"
 
 StageState::StageState(std::string stageId, float spawnX, float spawnY) : WalkableState(), 
                                                                           currentStageId(stageId), 
@@ -50,13 +49,14 @@ void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& 
         layerSprite->SetScale(layer.scaleX, layer.scaleY);
         layerSprite->SetParallax(Vec2(layer.parallaxX, layer.parallaxY));
         layerGo->AddComponent(layerSprite);
-        // Compensa offsets
+        
         float spriteWidth = layerSprite->GetWidth();
         float spriteHeight = layerSprite->GetHeight();
         float centeringOffsetX = (spriteWidth / layer.scaleX) * (1.0f - layer.scaleX) / 2.0f;
         float centeringOffsetY = (spriteHeight / layer.scaleY) * (1.0f - layer.scaleY) / 2.0f;
         layerGo->box.x = layer.baseWidth * layer.scaleX - centeringOffsetX;
         layerGo->box.y = 900.0f - spriteHeight - centeringOffsetY;
+        
         if (!layer.isSky) {
             float layerRightEdge = layer.baseWidth * layer.scaleX + spriteWidth;
             if (layerRightEdge > this->maxStageWidth)
@@ -90,14 +90,15 @@ void StageState::LoadStage(const StageConfig& config) {
     AddObject(playerGo);
     Camera::Follow(playerGo);
 
-    // Debug: player position display
     debugPosText = new GameObject();
     Text* posText = new Text(*debugPosText,
         "recursos/font/neodgm.ttf", 16, Text::SOLID,
         "Pos: (0, 0)",
-        {255, 255, 0, 255});  // yellow
+        {255, 255, 0, 255}); 
     debugPosText->AddComponent(posText);
     AddObject(debugPosText);
+
+    // 1. GERADOR DINÂMICO DE PORTAS / TRIGGERS
 
     for (const auto& triggerData : config.triggers) {
         GameObject* triggerGo = new GameObject();
@@ -105,104 +106,117 @@ void StageState::LoadStage(const StageConfig& config) {
         triggerGo->box.y = triggerData.y;
         triggerGo->box.w = triggerData.width;
         triggerGo->box.h = triggerData.height;
-        // triggerGo->AddComponent(new Collider(*triggerGo));
-        // triggerGo->AddComponent(new TransitionTrigger(*triggerGo, triggerData.targetStageId));
 
-        // triggerGo->AddComponent(new Interactable(*triggerGo,
-        //                                          Interactable::SPACE_OR_CLICK,
-        //                                          Interactable::REQUIRE_INSIDE_AREA,
-        //                                          0.0f,
-        //                                          [targetId = triggerData.targetStageId]() {
-        //                                             auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
-        //                                             if (stage) stage->TransitionTo(targetId);
-        //                                          },
-        //                                          -28.0f
-        // ));
+        std::function<bool()> cond = nullptr;
+        if (!triggerData.conditionFlag.empty()) {
+            cond = [flag = triggerData.conditionFlag]() { return GameData::GetFlag(flag); };
+        }
 
         triggerGo->AddComponent(new Interactable(*triggerGo,
-                                                 Interactable::SPACE_OR_CLICK,
-                                                 Interactable::REQUIRE_NEAR,
-                                                 std::max(triggerData.width, triggerData.height) * 0.7f,
-                                                 [targetId = triggerData.targetStageId,
-                                                  sx = triggerData.targetSpawnX,
-                                                  sy = triggerData.targetSpawnY,
-                                                  fadeCfg = triggerData.fade]() {
-                                                     auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
-                                                     if (stage) stage->TransitionTo(targetId, sx, sy, fadeCfg);
-                                                 }
+            Interactable::SPACE_OR_CLICK,
+            Interactable::REQUIRE_NEAR,
+            std::max(triggerData.width, triggerData.height) * 0.7f,
+            [targetId = triggerData.targetStageId, tx = triggerData.targetSpawnX, ty = triggerData.targetSpawnY, fadeCfg = triggerData.fade]() {
+                auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
+                if (stage) stage->TransitionTo(targetId, tx, ty, fadeCfg);
+            },
+            0.0f,
+            cond
         ));
 
         AddObject(triggerGo);
     }
 
-    // Clue board interactable — only inside the mansion
-    Interactable* clueBoardInteractable = nullptr;
-    if (config.stageId == "mansion_interior") {
-        GameObject* clueBoardGo = new GameObject();
-        // SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
-        // boardSprite->SetScale(1.2f, 1.2f);
-        // clueBoardGo->AddComponent(boardSprite);
-        clueBoardGo->box.SetCenter(Vec2(2400.0f, 750.0f));
+    // 2. GERADOR DINÂMICO DE NPCs 
+    for (const auto& npcConfig : config.npcs) {
+        GameObject* npcGO = new GameObject();
+        npcGO->box.x = npcConfig.x;
+        npcGO->box.y = npcConfig.y;
 
-        clueBoardInteractable = new Interactable(
-            *clueBoardGo,
-            Interactable::SPACE_OR_CLICK,
-            Interactable::REQUIRE_NEAR,
-            250.0f,
-            []() {
-                Game::GetInstance().Push(new ClueBoardState());
-            },
-            -110.0f
-        );
-        clueBoardInteractable->SetEnabled(
-            GameData::GetTutorialStep() != TutorialStep::TalkToBoss
-        );
-        clueBoardGo->AddComponent(clueBoardInteractable);
-        AddObject(clueBoardGo);
-    }
+        npcGO->AddComponent(new NPC(*npcGO, npcConfig.spriteFile, npcConfig.frameRows, npcConfig.frameCols, npcConfig.scale, npcConfig.renderOffsetY));
 
-    GameObject* npcGO = new GameObject();
-    
-    npcGO->box.x = config.playerSpawn.x + 200.0f; 
-    npcGO->box.y = 750.0f;
-
-    npcGO->AddComponent(new NPC(*npcGO, "recursos/img/NPC.png", 3, 4));
-
-    const bool isTutorialBoss = config.stageId == "mansion_interior";
-    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, [isTutorialBoss, clueBoardInteractable]() {
-        if (DialogueBox::isPlaying) return; 
-
-        if (isTutorialBoss && GameData::GetTutorialStep() != TutorialStep::TalkToBoss) {
-            return;
+        std::function<bool()> cond = nullptr;
+        if (!npcConfig.conditionFlag.empty()) {
+            cond = [flag = npcConfig.conditionFlag]() { return GameData::GetFlag(flag); };
         }
 
-        GameObject* dialogueController = new GameObject();
-        std::function<void()> onComplete;
-        if (isTutorialBoss) {
-            onComplete = [clueBoardInteractable]() {
-                Inventory::Add("tutorial_notebook_1");
-                Inventory::Add("tutorial_notebook_2");
-                Inventory::Add("chief_dialogues");
-                if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
-                    clueBoardInteractable != nullptr) {
-                    clueBoardInteractable->SetEnabled(true);
+        npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, [jsonFile = npcConfig.dialogueJson, npcId = npcConfig.id]() {
+            if (DialogueBox::isPlaying) return; 
+
+            if (npcId == "chefe_policia" && GameData::GetTutorialStep() != TutorialStep::TalkToBoss) {
+                return;
+            }
+
+            GameObject* dialogueController = new GameObject();
+            
+            auto onComplete = [npcId]() {
+                GameData::SetFlag("falou_com_" + npcId, true); 
+                
+                if (npcId == "chefe_policia") { 
+                    Inventory::Add("tutorial_notebook_1");
+                    Inventory::Add("tutorial_notebook_2");
+                    Inventory::Add("chief_dialogues");
+                    GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard);
                 }
+            };
+
+            std::string voiceId = (npcId == "chefe_policia") ? "chief" : npcId;
+            dialogueController->AddComponent(new DialogueBox(*dialogueController, jsonFile, onComplete, voiceId));
+            
+            Game::GetInstance().GetCurrentState().AddObject(dialogueController);
+        }, 
+        0.0f, cond));
+
+        AddObject(npcGO);
+    }
+
+    // 3. GERADOR DINÂMICO DE PROPS (Pistas/Itens/Telas)
+    for (const auto& propConfig : config.props) {
+        GameObject* propGO = new GameObject();
+        
+        if (!propConfig.spriteFile.empty()) {
+            SpriteRenderer* sr = new SpriteRenderer(*propGO, propConfig.spriteFile);
+            sr->SetScale(propConfig.scale, propConfig.scale);
+            propGO->AddComponent(sr);
+            propGO->box.x = propConfig.x;
+            propGO->box.y = propConfig.y;
+        } else {
+            propGO->box.SetCenter(Vec2(propConfig.x, propConfig.y));
+        }
+
+        std::function<bool()> cond = nullptr;
+        if (!propConfig.conditionFlag.empty()) {
+            cond = [flag = propConfig.conditionFlag]() { 
+                if (flag == "tutorial_board_unlocked") {
+                    return GameData::GetTutorialStep() != TutorialStep::TalkToBoss;
+                }
+                return GameData::GetFlag(flag); 
             };
         }
 
-        dialogueController->AddComponent(new DialogueBox(
-            *dialogueController,
-            "recursos/dialogos/clue01.json",
-            onComplete,
-            isTutorialBoss ? "chief" : ""
-        ));
-        Game::GetInstance().GetCurrentState().AddObject(dialogueController);
-    }));
+        propGO->AddComponent(new Interactable(*propGO, Interactable::SPACE_OR_CLICK, Interactable::REQUIRE_NEAR, propConfig.interactRadius, [jsonFile = propConfig.interactDialogueJson, unlock = propConfig.unlockFlag, stateName = propConfig.targetState]() {
+            if (DialogueBox::isPlaying) return;
 
-    AddObject(npcGO);
+            if (stateName == "ClueBoardState") {
+                Game::GetInstance().Push(new ClueBoardState());
+                return;
+            }
 
+            GameObject* dialogueController = new GameObject();
+            auto onComplete = [unlock]() {
+                if (!unlock.empty()) {
+                    GameData::SetFlag(unlock, true);
+                }
+            };
+
+            dialogueController->AddComponent(new DialogueBox(*dialogueController, jsonFile, onComplete, ""));
+            Game::GetInstance().GetCurrentState().AddObject(dialogueController);
+        },
+        propConfig.markerOffsetY, cond));
+
+        AddObject(propGO);
+    }
 }
-
 
 void StageState::PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY) {
     popRequested = true;
@@ -220,9 +234,8 @@ void StageState::PerformTransitionTo(std::string targetStageId, float spawnX, fl
     }
 }
 
-void StageState::TransitionTo(std::string targetStageId, float spawnX, float spawnY,
-                               const FadeTransitionConfig& fadeConfig) {
-    if (screenFade.IsActive()) return;  // block double-trigger while fading
+void StageState::TransitionTo(std::string targetStageId, float spawnX, float spawnY, const FadeTransitionConfig& fadeConfig) {
+    if (screenFade.IsActive()) return; 
 
     if (fadeConfig.fadeIn) {
         Game::GetInstance().SetPendingFadeIn({true, fadeConfig.fadeInDuration, fadeConfig.fadeInColor});
@@ -237,9 +250,7 @@ void StageState::TransitionTo(std::string targetStageId, float spawnX, float spa
     }
 }
 
-void StageState::LoadAssets() {
-
-}
+void StageState::LoadAssets() {}
 
 void StageState::UpdateWalkable(float dt) {
     (void)dt;
@@ -278,7 +289,6 @@ void StageState::Update(float dt) {
 
     WalkableState::Update(dt);
 
-    // Update debug position display
     if (debugPosText && Player::player) {
         Vec2 pos = Player::player->GetPosition();
         auto* text = debugPosText->GetComponent<Text>();
@@ -288,7 +298,6 @@ void StageState::Update(float dt) {
                 GameData::GetTutorialStepName()
             );
         }
-        // Pin to top-left of screen
         debugPosText->box.x = Camera::pos.x + 10.0f;
         debugPosText->box.y = Camera::pos.y + 10.0f;
     }

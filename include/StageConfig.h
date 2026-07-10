@@ -31,6 +31,7 @@ struct TriggerConfig {
     float targetSpawnX = -1.0f;
     float targetSpawnY = -1.0f;
     FadeTransitionConfig fade;
+    std::string conditionFlag = "";
 };
 
 struct NPCConfig {
@@ -50,10 +51,13 @@ struct PropConfig {
     float x, y;
     std::string spriteFile;
     float scale = 1.0f;
+    float interactRadius = 100.0f;
+    float markerOffsetY = 0.0f;
     
     std::string interactDialogueJson; 
     std::string unlockFlag;           
     std::string conditionFlag;        
+    std::string targetState; 
 };
 
 struct StageConfig {

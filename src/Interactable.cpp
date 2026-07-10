@@ -7,18 +7,20 @@
 
 Interactable::Interactable(GameObject &associated,
                            ActivationType activationType,
-                                                     Requirement requirement,
+                           Requirement requirement,
                            float interactionRadius,
                            std::function<void()> onInteract,
-                           float markerOffsetY)
+                           float markerOffsetY,
+                           std::function<bool()> condition) 
     : Component(associated),
       activationType(activationType),
-            requirement(requirement),
+      requirement(requirement),
       interactionRadius(interactionRadius),
       enabled(true),
       wasPlayerNearLastFrame(false),
       onInteract(onInteract),
-      markerOffsetY(markerOffsetY)
+      markerOffsetY(markerOffsetY),
+      condition(condition) 
 {
 }
 
@@ -39,6 +41,10 @@ void Interactable::Start()
 void Interactable::Update(float dt)
 {
     (void)dt;
+
+    if (condition) {
+        SetEnabled(condition());
+    }
 
     if (!enabled)
     {

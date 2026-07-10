@@ -69,6 +69,18 @@ void StageManager::Initialize() {
     
     missingFamily.triggers.push_back({85.0f, 600.0f, 150.0f, 300.0f, "residential_area", 1655.0f, 850.0f});
 
+    PropConfig clueBoard;
+    clueBoard.id = "quadro_pistas";
+    clueBoard.x = 2400.0f; 
+    clueBoard.y = 750.0f;
+    clueBoard.spriteFile = ""; 
+    clueBoard.interactRadius = 250.0f;
+    clueBoard.markerOffsetY = -110.0f;
+    clueBoard.conditionFlag = "tutorial_board_unlocked";
+    clueBoard.targetState = "ClueBoardState"; 
+    
+    mansionInterior.props.push_back(clueBoard);
+
     stages["missing_family"] = missingFamily;
 
 
