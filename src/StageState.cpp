@@ -24,6 +24,7 @@
 #include "ClueBoardState.h"
 #include "ObtainedItemCardPresenter.h"
 #include "TutorialEndInterludeState.h"
+#include "InstructionPrompt.h"
 
 namespace
 {
@@ -354,6 +355,18 @@ void StageState::LoadStage(const StageConfig &config)
     }
 
     LoadProps(config, false);
+
+    if (config.stageId == "mansion_interior" && 
+        GameData::GetTutorialStep() == TutorialStep::TalkToBoss && 
+        !GameData::GetFlag("instrucao_andar_mostrada")) 
+    {
+        GameData::SetFlag("instrucao_andar_mostrada", true);
+        GameObject* promptGO = new GameObject();
+        promptGO->AddComponent(new Text(*promptGO, "recursos/font/neodgm.ttf", 26, Text::BLENDED, 
+            "A/D / Clique: Andar   |   ESPACO: Interagir", {255, 255, 0, 255}));
+        promptGO->AddComponent(new InstructionPrompt(*promptGO, 8.0f, Vec2(600.0f, 150.0f)));
+        AddObject(promptGO);
+    }
 }
 
 void StageState::PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY)
@@ -426,6 +439,13 @@ void StageState::StartInitialBossDialogue(const std::string &dialogueJson)
             {
                 tutorialClueBoardInteractable->SetEnabled(true);
             }
+
+            GameObject* promptGO = new GameObject();
+            promptGO->AddComponent(new Text(*promptGO, "recursos/font/neodgm.ttf", 26, Text::BLENDED, 
+                "S: abrir palacio mental  |   ESC: fechar telas", {255, 255, 0, 255}));
+            promptGO->AddComponent(new InstructionPrompt(*promptGO, 8.0f, Vec2(600.0f, 150.0f)));
+            Game::GetInstance().GetCurrentState().AddObject(promptGO);
+
         },
         "chief"));
     AddObject(dialogueController);
@@ -545,6 +565,21 @@ void StageState::Update(float dt)
     }
 
     UpdateTutorialIntro(dt);
+
+    if (currentStageId == "mansion_interior" && 
+        GameData::GetTutorialStep() == TutorialStep::SolveWhisper && 
+        !DialogueBox::isPlaying) 
+    {
+        StartPostWhisperBossDialogue();
+    }
+
+    if (DialogueBox::isPlaying) {
+        UpdateArray(dt);
+        return;
+    }
+
+    itemNotifications->Update(dt);
+
     if (DialogueBox::isPlaying)
     {
         UpdateArray(dt);

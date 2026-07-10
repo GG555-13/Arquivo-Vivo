@@ -115,6 +115,13 @@ void State::UpdateArray(float dt) {
     for (unsigned i = 0; i < objectArray.size(); i++) {
         objectArray[i]->Update(dt);
     }
+
+    for (unsigned i = 0; i < objectArray.size(); i++) {
+        if (objectArray[i]->IsDead()) {
+            objectArray.erase(objectArray.begin() + i);
+            i--; 
+        }
+    }
 }
 
 void State::RenderArray() {

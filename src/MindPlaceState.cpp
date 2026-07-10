@@ -11,6 +11,8 @@
 #include "Inventory.h"
 #include "InventoryCatalog.h"
 #include "InventoryEntryDefinition.h"
+#include "InstructionPrompt.h"
+#include <GameData.h>
 
 namespace
 {
@@ -107,6 +109,19 @@ void MindPlaceState::Start()
 
     StartArray();
     started = true;
+
+    started = true;
+
+    if (!GameData::GetFlag("instrucao_mente_mostrada")) {
+        GameData::SetFlag("instrucao_mente_mostrada", true);
+        
+        GameObject* promptGO = new GameObject();
+        promptGO->AddComponent(new Text(*promptGO, "recursos/font/neodgm.ttf", 26, Text::BLENDED, 
+            "Clique nas pastas para ler conversas antigas | S: Voltar", {0, 0, 0, 255}));
+        promptGO->AddComponent(new InstructionPrompt(*promptGO, 8.0f, Vec2(600.0f, 150.0f)));
+        AddObject(promptGO);
+    }
+
 }
 
 std::weak_ptr<GameObject> MindPlaceState::CreateEntry(const Vec2 &center,

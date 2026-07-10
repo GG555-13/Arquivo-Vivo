@@ -80,7 +80,7 @@ void DialogueBox::CreateUI() {
 
     // 4. TEXTO
     GameObject* tGO = new GameObject();
-    tGO->AddComponent(new Text(*tGO, "recursos/font/SpecialElite-Regular.ttf", 24, Text::BLENDED, "", {255, 255, 255, 255}));
+    tGO->AddComponent(new Text(*tGO, "recursos/font/SpecialElite-Regular.ttf", 24, Text::BLENDED, "", {255, 255, 255, 255}, 600));
     textGO = state.AddObject(tGO);
 }
 
