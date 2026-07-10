@@ -3,7 +3,7 @@
   "font": "recursos/font/SpecialElite-Regular.ttf",
   "dialogue": "Agora, só preciso sair daqui.",
   "dash": "/",
-  "acceptedAnswers": ["cabra"],
+  "acceptedAnswers": ["claudio", "cláudio"],
   "maxLength": 32,
   "dialogueFontSize": 30,
   "inputFontSize": 32,
