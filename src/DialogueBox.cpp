@@ -120,7 +120,7 @@ void DialogueBox::PositionUI() {
     }
     // 2. RETRATO DO PERSONAGEM 
     if (auto pGO = portraitGO.lock()) { 
-        pGO->box.x = uiBaseX - 200.0f; 
+        pGO->box.x = uiBaseX + 50.0f; 
         pGO->box.y = uiBaseY - 300.0f; 
     }
     
