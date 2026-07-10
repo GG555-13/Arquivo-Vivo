@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Chefe",
+    "text": "Não se sabe o que aconteceu ainda, apenas que eles não voltam pra casa há 3 dias e que o carro foi encontrado no meio de uma estrada de barro sem ninguém dentro.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Eles não deram nenhum sinal de vida desde então?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Infelizmente não até agora. Ninguém está entendendo muito desse caso. Precisamos que você se concentre para conseguir encontrar seus amigos e seu afilhado em segurança.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Estamos torcendo para isso. O Rio de Janeiro está se tornando muito perigoso com esses casos de sequestro relâmpago e arrastão.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Eu vou analisar e ver o que consigo.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  }
+]

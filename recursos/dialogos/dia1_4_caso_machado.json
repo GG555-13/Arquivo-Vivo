@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Chefe",
+    "text": "Sei que já te coloquei para resolver um caso hoje, mas esse eu acho que você vai querer saber. É sobre os Machado.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Sei que vocês são praticamente família, então pensei que seria melhor encaminhar para você.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "O que tem eles? Aconteceu alguma coisa?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Eles desapareceram...",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "O que?? Me deixa ver isso.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Sônia",
+    "text": "Olá, bela jovem. O que eu poderia ajudar?",
+    "portrait": "recursos/img/portrait_sonia.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Sou a Andrea, sou investigadora da polícia. Estou investigando o desaparecimento da família Machado. Por acaso você notou algo suspeito dias atrás?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Sônia",
+    "text": "Ah sim, minha querida. Que coisa terrível aconteceu com eles, eram uma família tão linda... que Deus os proteja.",
+    "portrait": "recursos/img/portrait_sonia.png"
+  },
+  {
+    "name": "Sônia",
+    "text": "No dia 5 deste mês de outubro eu tinha feito um bolo para eles. Bati na porta deles algumas vezes durante o dia, mas ninguém atendia. Foi a última vez que eles estiveram em casa.",
+    "portrait": "recursos/img/portrait_sonia.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Lembra de algo mais que possa ajudar na investigação?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Sônia",
+    "text": "Acho que não minha jovem, geralmente só fico em casa, vendo o faustão, e não notei mais nada.",
+    "portrait": "recursos/img/portrait_sonia.png"
+  }
+]

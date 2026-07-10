@@ -1,0 +1,87 @@
+[
+  {
+    "name": "Andrea",
+    "text": "Olá, sou a Andrea policial civil do Rio de Janeiro e preciso de mais informações do estudante Felipe Machado. Ele é do 3ºC.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "Claro! Posso buscar o registro dele se quiser.",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Quando foi a última vez que ele apareceu na escola?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "Tem 3 dias, ele faltou terça, quarta e hoje. Ele fez algo que envolvesse a polícia?",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Ele desapareceu junto com a família, estamos buscando rastros. Sabe me dizer exatamente o que aconteceu no último dia que ele veio pra escola? Foi um dia normal de aula? Houve algo suspeito?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "O Felipe desapareceu?? Mas o que houve?",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "É isso que estou tentando descobrir.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "Bom... eu não sei ao certo se posso te ajudar com muito. Foi um dia completamente normal na escola. Os pais vieram trazer ele, ele fez as aulas, ficou no intervalo e foi buscado pelo primo dele no final da aula porque os pais tinham passado mal.",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Quem era esse primo?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "O nome dele era Marcos Machado, disse que era primo dele e tinha vindo buscar o Felipe porque os pais dele tiveram problema de saúde no trabalho.",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "E chegaram a conferir se ele realmente era familiar?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "Ele é estudante aqui da escola, já vimos ele junto do Felipe algumas vezes.",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Você tem uma foto dele que eu possa ver?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "Claro. Está bem no anuário. Aqui.",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Obrigada.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Secretária",
+    "text": "Espero que encontre o Felipe bem.",
+    "portrait": "recursos/img/portrait_secretaria.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Eu também espero.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  }
+]

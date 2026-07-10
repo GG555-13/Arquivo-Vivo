@@ -22,17 +22,34 @@
 #include "DialogueBox.h"
 #include "Inventory.h"
 #include "ClueBoardState.h"
-#include "Interactable.h"
 #include "ObtainedItemCardPresenter.h"
 #include "TutorialEndInterludeState.h"
 
-StageState::StageState(std::string stageId, float spawnX, float spawnY) : WalkableState(), 
-                                                                          currentStageId(stageId), 
-                                                                          overrideSpawnX(spawnX), 
-                                                                          overrideSpawnY(spawnY),
-                                                                          itemNotifications(new ObtainedItemCardPresenter(*this)) {}
+namespace
+{
+bool IsTutorialBoardUnlocked()
+{
+    if (GameData::GetFlag("tutorial_board_unlocked"))
+    {
+        return true;
+    }
 
-void StageState::Start() {
+    const TutorialStep step = GameData::GetTutorialStep();
+    return step == TutorialStep::OpenBoard ||
+           step == TutorialStep::SolveBoard ||
+           step == TutorialStep::SolveWhisper;
+}
+}
+
+StageState::StageState(std::string stageId, float spawnX, float spawnY)
+    : WalkableState(),
+      currentStageId(stageId),
+      overrideSpawnX(spawnX),
+      overrideSpawnY(spawnY),
+      itemNotifications(new ObtainedItemCardPresenter(*this)) {}
+
+void StageState::Start()
+{
     LoadAssets();
     StageConfig config = StageManager::GetStage(currentStageId);
     LoadStage(config);
@@ -40,27 +57,32 @@ void StageState::Start() {
     StartArray();
 
     auto pf = Game::GetInstance().ConsumePendingFadeIn();
-    if (pf.active) {
+    if (pf.active)
+    {
         screenFade.FadeIn(pf.duration, pf.color);
     }
 }
 
-void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers) {
+void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig> &layers)
+{
     this->maxStageWidth = 0.0f;
-    for (const auto& layer : layers) {
-        GameObject* layerGo = new GameObject();
-        SpriteRenderer* layerSprite = new SpriteRenderer(*layerGo, layer.file);
+    for (const auto &layer : layers)
+    {
+        GameObject *layerGo = new GameObject();
+        SpriteRenderer *layerSprite = new SpriteRenderer(*layerGo, layer.file);
         layerSprite->SetScale(layer.scaleX, layer.scaleY);
         layerSprite->SetParallax(Vec2(layer.parallaxX, layer.parallaxY));
         layerGo->AddComponent(layerSprite);
-        // Compensa offsets
+
         float spriteWidth = layerSprite->GetWidth();
         float spriteHeight = layerSprite->GetHeight();
         float centeringOffsetX = (spriteWidth / layer.scaleX) * (1.0f - layer.scaleX) / 2.0f;
         float centeringOffsetY = (spriteHeight / layer.scaleY) * (1.0f - layer.scaleY) / 2.0f;
         layerGo->box.x = layer.baseWidth * layer.scaleX - centeringOffsetX;
         layerGo->box.y = 900.0f - spriteHeight - centeringOffsetY;
-        if (!layer.isSky) {
+
+        if (!layer.isSky)
+        {
             float layerRightEdge = layer.baseWidth * layer.scaleX + spriteWidth;
             if (layerRightEdge > this->maxStageWidth)
                 this->maxStageWidth = layerRightEdge;
@@ -70,22 +92,25 @@ void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& 
     Camera::stageWidth = this->maxStageWidth;
 }
 
-void StageState::LoadStage(const StageConfig& config) {
+void StageState::LoadStage(const StageConfig &config)
+{
     Resources::ClearImages();
     Resources::ClearMusics();
     tutorialClueBoardInteractable = nullptr;
+    tutorialIntroDialogueJson = "recursos/dialogos/clue01.json";
     tutorialIntroPending = config.stageId == "mansion_interior" &&
                            GameData::GetTutorialStep() == TutorialStep::TalkToBoss;
     tutorialIntroTriggered = false;
     tutorialIntroTimer.Restart();
     LoadBackgroundLayers(config.layers);
 
-    if (!config.musicFile.empty()) {
+    if (!config.musicFile.empty())
+    {
         backgroundMusic.Open(config.musicFile);
         backgroundMusic.Play(-1);
     }
 
-    GameObject* playerGo = new GameObject();
+    GameObject *playerGo = new GameObject();
     playerGo->box.x = (overrideSpawnX >= 0.0f) ? overrideSpawnX : config.playerSpawn.x;
     playerGo->box.y = (overrideSpawnY >= 0.0f) ? overrideSpawnY : config.playerSpawn.y;
     playerGo->AddComponent(new Player(*playerGo));
@@ -99,9 +124,10 @@ void StageState::LoadStage(const StageConfig& config) {
     Camera::Follow(playerGo);
     Camera::Update(0.0f);
 
-    if (config.stageId == "mansion_interior") {
-        GameObject* foregroundDesk = new GameObject();
-        SpriteRenderer* deskSprite = new SpriteRenderer(*foregroundDesk, "recursos/img/mesadelegaciaseparada.png");
+    if (config.stageId == "mansion_interior")
+    {
+        GameObject *foregroundDesk = new GameObject();
+        SpriteRenderer *deskSprite = new SpriteRenderer(*foregroundDesk, "recursos/img/mesadelegaciaseparada.png");
         deskSprite->SetScale(0.141f, 0.19f);
         deskSprite->SetUseSourceFrameOffset(false);
         foregroundDesk->AddComponent(deskSprite);
@@ -110,153 +136,244 @@ void StageState::LoadStage(const StageConfig& config) {
         AddObject(foregroundDesk);
     }
 
-    // Debug: player position display
     debugPosText = new GameObject();
-    Text* posText = new Text(*debugPosText,
-        "recursos/font/neodgm.ttf", 16, Text::SOLID,
-        "Pos: (0, 0)",
-        {255, 255, 0, 255});  // yellow
+    Text *posText = new Text(*debugPosText,
+                             "recursos/font/neodgm.ttf", 16, Text::SOLID,
+                             "Pos: (0, 0)",
+                             {255, 255, 0, 255});
     debugPosText->AddComponent(posText);
     AddObject(debugPosText);
 
-    for (const auto& triggerData : config.triggers) {
-        GameObject* triggerGo = new GameObject();
+    for (const auto &triggerData : config.triggers)
+    {
+        GameObject *triggerGo = new GameObject();
         triggerGo->box.x = triggerData.x;
         triggerGo->box.y = triggerData.y;
         triggerGo->box.w = triggerData.width;
         triggerGo->box.h = triggerData.height;
-        // triggerGo->AddComponent(new Collider(*triggerGo));
-        // triggerGo->AddComponent(new TransitionTrigger(*triggerGo, triggerData.targetStageId));
 
-        // triggerGo->AddComponent(new Interactable(*triggerGo,
-        //                                          Interactable::SPACE_OR_CLICK,
-        //                                          Interactable::REQUIRE_INSIDE_AREA,
-        //                                          0.0f,
-        //                                          [targetId = triggerData.targetStageId]() {
-        //                                             auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
-        //                                             if (stage) stage->TransitionTo(targetId);
-        //                                          },
-        //                                          -28.0f
-        // ));
+        std::function<bool()> cond = nullptr;
+        if (!triggerData.conditionFlag.empty())
+        {
+            cond = [flag = triggerData.conditionFlag]() { return GameData::GetFlag(flag); };
+        }
 
-        triggerGo->AddComponent(new Interactable(*triggerGo,
-                                                 Interactable::SPACE_OR_CLICK,
-                                                 Interactable::REQUIRE_NEAR,
-                                                 std::max(triggerData.width, triggerData.height) * 0.7f,
-                                                 [targetId = triggerData.targetStageId,
-                                                  sx = triggerData.targetSpawnX,
-                                                  sy = triggerData.targetSpawnY,
-                                                  fadeCfg = triggerData.fade]() {
-                                                     auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
-                                                     if (stage) stage->TransitionTo(targetId, sx, sy, fadeCfg);
-                                                 }
-        ));
+        triggerGo->AddComponent(new Interactable(
+            *triggerGo,
+            Interactable::SPACE_OR_CLICK,
+            Interactable::REQUIRE_NEAR,
+            std::max(triggerData.width, triggerData.height) * 0.7f,
+            [targetId = triggerData.targetStageId,
+             tx = triggerData.targetSpawnX,
+             ty = triggerData.targetSpawnY,
+             fadeCfg = triggerData.fade]() {
+                auto *stage = static_cast<StageState *>(&Game::GetInstance().GetCurrentState());
+                if (stage)
+                    stage->TransitionTo(targetId, tx, ty, fadeCfg);
+            },
+            0.0f,
+            cond));
 
         AddObject(triggerGo);
     }
 
-    // Clue board interactable — only inside the mansion
-    if (config.stageId == "mansion_interior") {
-        GameObject* clueBoardGo = new GameObject();
-        // SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
-        // boardSprite->SetScale(1.2f, 1.2f);
-        // clueBoardGo->AddComponent(boardSprite);
-        clueBoardGo->box.SetCenter(Vec2(2400.0f, 750.0f));
+    for (const auto &npcConfig : config.npcs)
+    {
+        GameObject *npcGO = new GameObject();
+        npcGO->box.x = npcConfig.x;
+        npcGO->box.y = npcConfig.y;
 
-        tutorialClueBoardInteractable = new Interactable(
-            *clueBoardGo,
+        npcGO->AddComponent(new NPC(*npcGO,
+                                    npcConfig.spriteFile,
+                                    npcConfig.frameRows,
+                                    npcConfig.frameCols,
+                                    npcConfig.scale,
+                                    npcConfig.renderOffsetY));
+
+        if (config.stageId == "mansion_interior" && npcConfig.id == "chefe_policia" && !npcConfig.dialogueJson.empty())
+        {
+            tutorialIntroDialogueJson = npcConfig.dialogueJson;
+        }
+
+        std::function<bool()> cond = nullptr;
+        if (!npcConfig.conditionFlag.empty())
+        {
+            cond = [flag = npcConfig.conditionFlag]() { return GameData::GetFlag(flag); };
+        }
+
+        npcGO->AddComponent(new Interactable(
+            *npcGO,
+            Interactable::SPACE_ONLY,
+            Interactable::REQUIRE_NEAR,
+            100.0f,
+            [this,
+             jsonFile = npcConfig.dialogueJson,
+             npcId = npcConfig.id]() {
+                if (DialogueBox::isPlaying)
+                    return;
+
+                if (npcId == "chefe_policia")
+                {
+                    const TutorialStep step = GameData::GetTutorialStep();
+                    if (step == TutorialStep::TalkToBoss)
+                    {
+                        StartInitialBossDialogue(jsonFile);
+                    }
+                    else if (step == TutorialStep::SolveWhisper)
+                    {
+                        StartPostWhisperBossDialogue();
+                    }
+                    return;
+                }
+
+                if (jsonFile.empty())
+                    return;
+
+                GameObject *dialogueController = new GameObject();
+                auto onComplete = [npcId]() {
+                    if (!npcId.empty())
+                    {
+                        GameData::SetFlag("falou_com_" + npcId, true);
+                    }
+                };
+
+                dialogueController->AddComponent(new DialogueBox(*dialogueController, jsonFile, onComplete, npcId));
+                Game::GetInstance().GetCurrentState().AddObject(dialogueController);
+            },
+            0.0f,
+            cond));
+
+        AddObject(npcGO);
+    }
+
+    for (const auto &propConfig : config.props)
+    {
+        GameObject *propGO = new GameObject();
+
+        if (!propConfig.spriteFile.empty())
+        {
+            SpriteRenderer *sr = new SpriteRenderer(*propGO, propConfig.spriteFile);
+            sr->SetScale(propConfig.scale, propConfig.scale);
+            propGO->AddComponent(sr);
+            propGO->box.x = propConfig.x;
+            propGO->box.y = propConfig.y;
+        }
+        else
+        {
+            propGO->box.SetCenter(Vec2(propConfig.x, propConfig.y));
+        }
+
+        std::function<bool()> cond = nullptr;
+        if (!propConfig.conditionFlag.empty())
+        {
+            cond = [flag = propConfig.conditionFlag]() {
+                if (flag == "tutorial_board_unlocked")
+                {
+                    return IsTutorialBoardUnlocked();
+                }
+                return GameData::GetFlag(flag);
+            };
+        }
+
+        Interactable *interactable = new Interactable(
+            *propGO,
             Interactable::SPACE_OR_CLICK,
             Interactable::REQUIRE_NEAR,
-            250.0f,
-            []() {
-                Game::GetInstance().Push(new ClueBoardState());
+            propConfig.interactRadius,
+            [jsonFile = propConfig.interactDialogueJson,
+             unlock = propConfig.unlockFlag,
+             stateName = propConfig.targetState]() {
+                if (DialogueBox::isPlaying)
+                    return;
+
+                if (stateName == "ClueBoardState")
+                {
+                    Game::GetInstance().Push(new ClueBoardState());
+                    return;
+                }
+
+                if (jsonFile.empty())
+                    return;
+
+                GameObject *dialogueController = new GameObject();
+                auto onComplete = [unlock]() {
+                    if (!unlock.empty())
+                    {
+                        GameData::SetFlag(unlock, true);
+                    }
+                };
+
+                dialogueController->AddComponent(new DialogueBox(*dialogueController, jsonFile, onComplete, ""));
+                Game::GetInstance().GetCurrentState().AddObject(dialogueController);
             },
-            -110.0f
-        );
-        tutorialClueBoardInteractable->SetEnabled(
-            GameData::GetTutorialStep() != TutorialStep::TalkToBoss
-        );
-        clueBoardGo->AddComponent(tutorialClueBoardInteractable);
-        AddObject(clueBoardGo);
+            propConfig.markerOffsetY,
+            cond);
+
+        if (propConfig.id == "quadro_pistas")
+        {
+            tutorialClueBoardInteractable = interactable;
+            tutorialClueBoardInteractable->SetEnabled(IsTutorialBoardUnlocked());
+        }
+
+        propGO->AddComponent(interactable);
+        AddObject(propGO);
     }
-
-    GameObject* npcGO = new GameObject();
-
-    if (config.stageId == "mansion_interior") {
-        npcGO->box.x = 1150.0f;
-        npcGO->box.y = 750.0f;
-    } else {
-        npcGO->box.x = sx + 200.0f;
-        npcGO->box.y = 750.0f;
-    }
-
-    npcGO->AddComponent(new NPC(*npcGO, "recursos/img/NPC.png", 3, 4));
-
-    const bool isTutorialBoss = config.stageId == "mansion_interior";
-    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, [this, isTutorialBoss]() {
-        if (DialogueBox::isPlaying) return; 
-
-        const TutorialStep step = GameData::GetTutorialStep();
-        if (isTutorialBoss && step != TutorialStep::TalkToBoss && step != TutorialStep::SolveWhisper) {
-            return;
-        }
-
-        if (isTutorialBoss && step == TutorialStep::TalkToBoss) {
-            StartInitialBossDialogue();
-        }
-        else if (isTutorialBoss && step == TutorialStep::SolveWhisper) {
-            StartPostWhisperBossDialogue();
-        }
-    }));
-
-    AddObject(npcGO);
-
 }
 
-
-void StageState::PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY) {
+void StageState::PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY)
+{
     popRequested = true;
 
-    if (targetStageId == "WIN_GAME") {
+    if (targetStageId == "WIN_GAME")
+    {
         GameData::playerVictory = true;
         Game::GetInstance().Push(new EndState());
     }
-    else if (targetStageId == "LOSE_GAME") {
+    else if (targetStageId == "LOSE_GAME")
+    {
         GameData::playerVictory = false;
         Game::GetInstance().Push(new EndState());
     }
-    else {
+    else
+    {
         Game::GetInstance().Push(new StageState(targetStageId, spawnX, spawnY));
     }
 }
 
-void StageState::TransitionTo(std::string targetStageId, float spawnX, float spawnY,
-                               const FadeTransitionConfig& fadeConfig) {
-    if (screenFade.IsActive()) return;  // block double-trigger while fading
+void StageState::TransitionTo(std::string targetStageId, float spawnX, float spawnY, const FadeTransitionConfig &fadeConfig)
+{
+    if (screenFade.IsActive())
+        return;
 
-    if (fadeConfig.fadeIn) {
+    if (fadeConfig.fadeIn)
+    {
         Game::GetInstance().SetPendingFadeIn({true, fadeConfig.fadeInDuration, fadeConfig.fadeInColor});
     }
 
-    if (fadeConfig.fadeOut) {
+    if (fadeConfig.fadeOut)
+    {
         screenFade.FadeOut(fadeConfig.fadeOutDuration, fadeConfig.fadeOutColor, [=]() {
             PerformTransitionTo(targetStageId, spawnX, spawnY);
         });
-    } else {
+    }
+    else
+    {
         PerformTransitionTo(targetStageId, spawnX, spawnY);
     }
 }
 
-void StageState::StartInitialBossDialogue() {
-    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::TalkToBoss) return;
+void StageState::StartInitialBossDialogue(const std::string &dialogueJson)
+{
+    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::TalkToBoss)
+        return;
 
     tutorialIntroPending = false;
     tutorialIntroTriggered = true;
 
-    GameObject* dialogueController = new GameObject();
+    GameObject *dialogueController = new GameObject();
     dialogueController->AddComponent(new DialogueBox(
         *dialogueController,
-        "recursos/dialogos/clue01.json",
+        dialogueJson.empty() ? "recursos/dialogos/clue01.json" : dialogueJson,
         [this]() {
             Inventory::Add("tutorial_notebook_1");
             Inventory::Add("tutorial_notebook_2");
@@ -266,73 +383,92 @@ void StageState::StartInitialBossDialogue() {
             Inventory::Add("relato_2");
             Inventory::Add("relato_3");
             Inventory::Add("chief_dialogues");
+            GameData::SetFlag("falou_com_chefe_policia", true);
+            GameData::SetFlag("tutorial_board_unlocked", true);
             if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
-                tutorialClueBoardInteractable != nullptr) {
+                tutorialClueBoardInteractable != nullptr)
+            {
                 tutorialClueBoardInteractable->SetEnabled(true);
             }
         },
-        "chief"
-    ));
+        "chief"));
     AddObject(dialogueController);
 }
 
-void StageState::StartPostWhisperBossDialogue() {
-    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::SolveWhisper) return;
+void StageState::StartPostWhisperBossDialogue()
+{
+    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::SolveWhisper)
+        return;
 
-    GameObject* dialogueController = new GameObject();
+    GameObject *dialogueController = new GameObject();
     dialogueController->AddComponent(new DialogueBox(
         *dialogueController,
         "recursos/dialogos/chefe_pos_sussurro.json",
         []() {
-            if (GameData::AdvanceTutorial(TutorialStep::SolveWhisper, TutorialStep::TutorialComplete)) {
-                auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
-                if (stage) stage->BeginTutorialEndSequence();
+            if (GameData::AdvanceTutorial(TutorialStep::SolveWhisper, TutorialStep::TutorialComplete))
+            {
+                auto *stage = static_cast<StageState *>(&Game::GetInstance().GetCurrentState());
+                if (stage)
+                    stage->BeginTutorialEndSequence();
             }
         },
-        "chief"
-    ));
+        "chief"));
     AddObject(dialogueController);
 }
 
-void StageState::UpdateTutorialIntro(float dt) {
-    if (!tutorialIntroPending || tutorialIntroTriggered) return;
-    if (currentStageId != "mansion_interior") return;
-    if (GameData::GetTutorialStep() != TutorialStep::TalkToBoss) {
+void StageState::UpdateTutorialIntro(float dt)
+{
+    if (!tutorialIntroPending || tutorialIntroTriggered)
+        return;
+    if (currentStageId != "mansion_interior")
+        return;
+    if (GameData::GetTutorialStep() != TutorialStep::TalkToBoss)
+    {
         tutorialIntroPending = false;
         return;
     }
-    if (DialogueBox::isPlaying) return;
+    if (DialogueBox::isPlaying)
+        return;
 
     tutorialIntroTimer.Update(dt);
-    if (tutorialIntroTimer.Get() >= 1.5f) {
-        StartInitialBossDialogue();
+    if (tutorialIntroTimer.Get() >= 1.5f)
+    {
+        StartInitialBossDialogue(tutorialIntroDialogueJson);
     }
 }
 
-void StageState::BeginTutorialEndSequence() {
-    if (screenFade.IsActive()) return;
+void StageState::BeginTutorialEndSequence()
+{
+    if (screenFade.IsActive())
+        return;
 
     screenFade.FadeOut(1.0f, FadeColor::Black, []() {
         Game::GetInstance().Push(new TutorialEndInterludeState());
     });
 }
 
-void StageState::LoadAssets() {
-
+void StageState::LoadAssets()
+{
 }
 
-void StageState::UpdateWalkable(float dt) {
+void StageState::UpdateWalkable(float dt)
+{
     (void)dt;
 
-    for (unsigned i = 0; i < objectArray.size(); i++) {
-        Collider* colA = objectArray[i]->GetComponent<Collider>();
-        if (!colA) continue;
+    for (unsigned i = 0; i < objectArray.size(); i++)
+    {
+        Collider *colA = objectArray[i]->GetComponent<Collider>();
+        if (!colA)
+            continue;
 
-        for (unsigned j = i + 1; j < objectArray.size(); j++) {
-            Collider* colB = objectArray[j]->GetComponent<Collider>();
-            if (!colB) continue; 
+        for (unsigned j = i + 1; j < objectArray.size(); j++)
+        {
+            Collider *colB = objectArray[j]->GetComponent<Collider>();
+            if (!colB)
+                continue;
 
-            if (Collision::IsColliding(colA->box, colB->box, objectArray[i]->angleDeg, objectArray[j]->angleDeg)) {
+            if (Collision::IsColliding(colA->box, colB->box, objectArray[i]->angleDeg, objectArray[j]->angleDeg))
+            {
                 objectArray[i]->NotifyCollision(*objectArray[j]);
                 objectArray[j]->NotifyCollision(*objectArray[i]);
             }
@@ -340,54 +476,63 @@ void StageState::UpdateWalkable(float dt) {
     }
 }
 
-void StageState::Render() {
+void StageState::Render()
+{
     RenderArray();
     screenFade.Render();
 }
 
 void StageState::Pause() {}
-void StageState::Resume() {
-    if (Player::player) {
+
+void StageState::Resume()
+{
+    if (Player::player)
+    {
         Camera::Update(0.0f);
     }
     auto pf = Game::GetInstance().ConsumePendingFadeIn();
-    if (pf.active) {
+    if (pf.active)
+    {
         screenFade.FadeIn(pf.duration, pf.color);
     }
 }
+
 StageState::~StageState() {}
 
-void StageState::Update(float dt) {
+void StageState::Update(float dt)
+{
     screenFade.Update(dt);
 
-    if (screenFade.IsActive()) {
+    if (screenFade.IsActive())
+    {
         return;
     }
 
     UpdateTutorialIntro(dt);
-    if (DialogueBox::isPlaying) {
+    if (DialogueBox::isPlaying)
+    {
         UpdateArray(dt);
         return;
     }
 
     itemNotifications->Update(dt);
-    if (itemNotifications->IsActive()) {
+    if (itemNotifications->IsActive())
+    {
         return;
     }
 
     WalkableState::Update(dt);
 
-    // Update debug position display
-    if (debugPosText && Player::player) {
+    if (debugPosText && Player::player)
+    {
         Vec2 pos = Player::player->GetPosition();
-        auto* text = debugPosText->GetComponent<Text>();
-        if (text) {
+        auto *text = debugPosText->GetComponent<Text>();
+        if (text)
+        {
             text->SetText(
                 "Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ") | Tutorial: " +
-                GameData::GetTutorialStepName()
-            );
+                GameData::GetTutorialStepName());
         }
-        // Pin to top-left of screen
         debugPosText->box.x = Camera::pos.x + 10.0f;
         debugPosText->box.y = Camera::pos.y + 10.0f;
     }

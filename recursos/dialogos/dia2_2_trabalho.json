@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Andrea",
+    "text": "Olá, sou a Andrea, policial civil do Rio de Janeiro e estou investigando o desaparecimento de Geraldo e Aparecida. Eles trabalham aqui.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Colega",
+    "text": "Me disseram que você deveria vir aqui. Não imaginei que houvesse algo sério acontecendo, apenas que o Geraldo tinha tirado um dia de folga. Mas quando soube do desaparecimento fiquei desnorteado.",
+    "portrait": "recursos/img/portrait_colega.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Pode me dizer mais sobre o que viu e ouviu? Se houve algum comportamento estranho de qualquer um dos dois nesses últimos tempos ou se apareceu alguém aqui procurando por eles.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Colega",
+    "text": "Na verdade, não houve nada estranho. Eles chegaram aqui no trabalho pela última vez há três dias atrás. Chegaram no horário certo e durante o expediente, o Geraldo estava dando uma olhada nessa pasta que ele vinha analisando há uns dias já.",
+    "portrait": "recursos/img/portrait_colega.png"
+  },
+  {
+    "name": "Colega",
+    "text": "No final do expediente ambos ficaram agitados e pareciam com pressa na hora de sair, deixaram até a pasta para trás e foram embora.",
+    "portrait": "recursos/img/portrait_colega.png"
+  },
+  {
+    "name": "Colega",
+    "text": "Geralmente eles saem esse horário para ir buscar o filho na escola, mas nunca vi eles com tanta pressa para isso. Tudo que eu sei adicional a isso é que eles não apareceram mais aqui desde aquele dia.",
+    "portrait": "recursos/img/portrait_colega.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Entendi. Bom, muito obrigada pelas informações, tenho certeza que serão muito úteis.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Colega",
+    "text": "Já tiveram alguma novidade na investigação do caso deles?",
+    "portrait": "recursos/img/portrait_colega.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Não podemos falar sobre o andamento dos casos da delegacia, mas estamos trabalhando nisso.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Colega",
+    "text": "Espero que eles estejam bem. Espero ter sido útil para a investigação. Boa sorte!",
+    "portrait": "recursos/img/portrait_colega.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Obrigada.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  }
+]

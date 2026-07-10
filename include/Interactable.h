@@ -43,7 +43,8 @@ public:
                  Requirement requirement,
                  float interactionRadius,
                  std::function<void()> onInteract,
-                 float markerOffsetY = 0.0f);
+                 float markerOffsetY = 0.0f,
+                 std::function<bool()> condition = nullptr); 
 
     void Start() override;
     void Update(float dt) override;
@@ -75,6 +76,7 @@ protected:
 
     bool MeetsRequirement(const InteractionContext &context) const;
     void UpdateAreaMarker(const InteractionContext &context);
+    std::function<bool()> condition;
 };
 
 #endif

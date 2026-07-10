@@ -35,10 +35,33 @@ void StageManager::Initialize() {
     
     mansionInterior.layers.push_back({"recursos/img/delegacia_interior.png", 0.42f, 0.42f, 1.0f, 1.0f, 0.0f, false});
 
+    NPCConfig boss;
+    boss.id = "chefe_policia"; 
+    boss.x = 1150.0f;
+    boss.y = 750.0f;
+    boss.spriteFile = "recursos/img/NPC.png"; 
+    boss.frameRows = 3;
+    boss.frameCols = 4;
+    boss.dialogueJson = "recursos/dialogos/clue01.json"; 
+    mansionInterior.npcs.push_back(boss);
+
+    PropConfig clueBoard;
+    clueBoard.id = "quadro_pistas";
+    clueBoard.x = 2400.0f;
+    clueBoard.y = 750.0f;
+    clueBoard.spriteFile = "";
+    clueBoard.interactRadius = 250.0f;
+    clueBoard.markerOffsetY = -110.0f;
+    clueBoard.conditionFlag = "tutorial_board_unlocked"; 
+    clueBoard.targetState = "ClueBoardState";
+    mansionInterior.props.push_back(clueBoard);
+
     mansionInterior.triggers.push_back({115.0f, 600.0f, 150.0f, 300.0f, "colonial_mansion", 9645.0f, 850.0f});
     mansionInterior.triggers.push_back({1288.0f, 600.0f, 200.0f, 260.0f, "WIN_GAME", -1.0f, -1.0f, {true, 2.0f, FadeColor::Black, true, 1.0f, FadeColor::Black}});
     
     stages["mansion_interior"] = mansionInterior;
+
+    
 
 
     // ==========================================

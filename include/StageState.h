@@ -36,7 +36,7 @@ protected:
 
 private:
     void PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY);
-    void StartInitialBossDialogue();
+    void StartInitialBossDialogue(const std::string& dialogueJson);
     void StartPostWhisperBossDialogue();
     void UpdateTutorialIntro(float dt);
 
@@ -51,6 +51,7 @@ private:
     Music backgroundMusic;
     float overrideSpawnX;
     float overrideSpawnY;
+    std::string tutorialIntroDialogueJson;
     std::unique_ptr<ObtainedItemCardPresenter> itemNotifications;
     Interactable* tutorialClueBoardInteractable = nullptr;
     Timer tutorialIntroTimer;
