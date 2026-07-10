@@ -188,7 +188,8 @@ void StageState::LoadStage(const StageConfig &config)
                                     npcConfig.frameRows,
                                     npcConfig.frameCols,
                                     npcConfig.scale,
-                                    npcConfig.renderOffsetY));
+                                    npcConfig.renderOffsetY,
+                                    npcConfig.flipHorizontal));
 
         if (config.stageId == "mansion_interior" && npcConfig.id == "chefe_policia" && !npcConfig.dialogueJson.empty())
         {
@@ -205,7 +206,7 @@ void StageState::LoadStage(const StageConfig &config)
             *npcGO,
             Interactable::SPACE_ONLY,
             Interactable::REQUIRE_NEAR,
-            100.0f,
+            npcConfig.interactRadius,
             [this,
              jsonFile = npcConfig.dialogueJson,
              npcId = npcConfig.id]() {
@@ -246,14 +247,34 @@ void StageState::LoadStage(const StageConfig &config)
         AddObject(npcGO);
     }
 
+    if (config.stageId == "mansion_interior")
+    {
+        GameObject *bossComputer = new GameObject();
+        SpriteRenderer *computerSprite = new SpriteRenderer(*bossComputer, "recursos/img/Computador chefe.png");
+        computerSprite->SetScale(0.35f, 0.35f);
+        computerSprite->SetUseSourceFrameOffset(false);
+        bossComputer->AddComponent(computerSprite);
+        bossComputer->box.x = 1388.0f;
+        bossComputer->box.y = 640.0f;
+        AddObject(bossComputer);
+    }
+
     for (const auto &propConfig : config.props)
     {
         GameObject *propGO = new GameObject();
+        const bool visualOnlyProp = propConfig.interactDialogueJson.empty() &&
+                                    propConfig.unlockFlag.empty() &&
+                                    propConfig.conditionFlag.empty() &&
+                                    propConfig.targetState.empty();
 
         if (!propConfig.spriteFile.empty())
         {
             SpriteRenderer *sr = new SpriteRenderer(*propGO, propConfig.spriteFile);
             sr->SetScale(propConfig.scale, propConfig.scale);
+            if (visualOnlyProp)
+            {
+                sr->SetUseSourceFrameOffset(false);
+            }
             propGO->AddComponent(sr);
             propGO->box.x = propConfig.x;
             propGO->box.y = propConfig.y;
@@ -273,6 +294,12 @@ void StageState::LoadStage(const StageConfig &config)
                 }
                 return GameData::GetFlag(flag);
             };
+        }
+
+        if (visualOnlyProp)
+        {
+            AddObject(propGO);
+            continue;
         }
 
         Interactable *interactable = new Interactable(
@@ -403,7 +430,7 @@ void StageState::StartPostWhisperBossDialogue()
     GameObject *dialogueController = new GameObject();
     dialogueController->AddComponent(new DialogueBox(
         *dialogueController,
-        "recursos/dialogos/chefe_pos_sussurro.json",
+        "recursos/dialogos/dia1_3_joca_resolvido.json",
         []() {
             if (GameData::AdvanceTutorial(TutorialStep::SolveWhisper, TutorialStep::TutorialComplete))
             {

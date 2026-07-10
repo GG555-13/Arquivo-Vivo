@@ -6,7 +6,17 @@
   },
   {
     "name": "Andrea",
-    "text": "Nada de especial, só algumas coisas que não fazem sentido nenhum nesses casos. Essas pessoas não tinham conexão nenhuma entre si e trabalhavam juntas... Me pergunto como eles se conheceram.",
+    "text": "Nada de especial, só algumas coisas que não fazem sentido nenhum nesses casos.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Essas pessoas não tinham conexão nenhuma entre si e trabalhavam juntas...",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Andrea",
+    "text": " Me pergunto como eles se conheceram.",
     "portrait": "recursos/img/portrait_andrea.png"
   },
   {
@@ -26,7 +36,17 @@
   },
   {
     "name": "Chefe",
-    "text": "Já que você tá dizendo... Preciso que você monte esse quadro para mostrar como a gente trabalha aqui na delegacia, não queremos assustar o novato pra longe.",
+    "text": "Já que você tá dizendo...",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Preciso que você monte esse quadro para mostrar como a gente trabalha aqui na delegacia,",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "não queremos assustar o novato pra longe.",
     "portrait": "recursos/img/portrait_chefe.png"
   },
   {

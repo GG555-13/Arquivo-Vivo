@@ -41,6 +41,8 @@ struct NPCConfig {
     int frameRows = 1, frameCols = 1;
     float scale = 1.0f;
     float renderOffsetY = 0.0f;
+    bool flipHorizontal = false;
+    float interactRadius = 100.0f;
     
     std::string dialogueJson; 
     std::string conditionFlag; 

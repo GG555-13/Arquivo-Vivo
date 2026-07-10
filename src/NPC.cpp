@@ -7,13 +7,15 @@ NPC::NPC(GameObject &associated,
          const std::string &spritePath,
          int frameRows, int frameCols,
          float scale,
-         float renderOffsetY)
+         float renderOffsetY,
+         bool flipHorizontal)
     : Character(associated),
       spritePath(spritePath),
       frameRows(frameRows),
       frameCols(frameCols),
       scale(scale),
-      renderOffsetY(renderOffsetY)
+      renderOffsetY(renderOffsetY),
+      flipHorizontal(flipHorizontal)
 {
     boundsEnabled = false;
 
@@ -39,4 +41,15 @@ void NPC::SetupSprite()
 
     associated.box.w = sr->GetWidth();
     associated.box.h = sr->GetHeight();
+}
+
+void NPC::Update(float dt)
+{
+    Character::Update(dt);
+
+    SpriteRenderer *sr = associated.GetComponent<SpriteRenderer>();
+    if (sr)
+    {
+        sr->SetFlip(flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    }
 }

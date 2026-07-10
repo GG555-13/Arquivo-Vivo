@@ -73,7 +73,7 @@ void TitleState::Update(float dt)
         screenFade.FadeOut(1.0f, FadeColor::Black, [this]() {
             Game::GetInstance().SetPendingFadeIn({true, 1.0f, FadeColor::Black});
             popRequested = true;
-            Game::GetInstance().Push(new StageState("mansion_interior", 950.0f, 760.0f));
+            Game::GetInstance().Push(new StageState("mansion_interior", 950.0f, 850.0f));
         });
     }
 

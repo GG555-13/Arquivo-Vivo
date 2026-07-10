@@ -19,6 +19,14 @@ void StageManager::Initialize() {
     mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte2.png", 0.42f, 0.42f, 1.0f, 1.0f, 10475.0f, false});
     mansionExterior.layers.push_back({"recursos/img/cidadearquivovivo_parte3.png", 0.42f, 0.42f, 1.0f, 1.0f, 20950.0f, false});
 
+    PropConfig taxiForeground;
+    taxiForeground.id = "taxi_foreground";
+    taxiForeground.x = 9975.0f;
+    taxiForeground.y = 290.0f;
+    taxiForeground.spriteFile = "recursos/img/taxiseparado.png";
+    taxiForeground.scale = 0.445f;
+    mansionExterior.props.push_back(taxiForeground);
+
     mansionExterior.triggers.push_back({9645.0f, 600.0f, 150.0f, 300.0f, "mansion_interior", 185.0f, 850.0f});
     mansionExterior.triggers.push_back({10721.0f, 600.0f, 150.0f, 300.0f, "residential_area", 185.0f, 850.0f});
     
@@ -37,12 +45,16 @@ void StageManager::Initialize() {
 
     NPCConfig boss;
     boss.id = "chefe_policia"; 
-    boss.x = 1150.0f;
-    boss.y = 750.0f;
-    boss.spriteFile = "recursos/img/NPC.png"; 
-    boss.frameRows = 3;
-    boss.frameCols = 4;
-    boss.dialogueJson = "recursos/dialogos/clue01.json"; 
+    boss.x = 1310.0f;
+    boss.y = 508.0f;
+    boss.renderOffsetY = -562.0f;
+    boss.spriteFile = "recursos/img/Chefe.png"; 
+    boss.frameRows = 1;
+    boss.frameCols = 1;
+    boss.scale = 0.35f;
+    boss.flipHorizontal = false;
+    boss.interactRadius = 430.0f;
+    boss.dialogueJson = "recursos/dialogos/dia1_chefe_intro_joca.json"; 
     mansionInterior.npcs.push_back(boss);
 
     PropConfig clueBoard;
