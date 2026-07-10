@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Andrea",
+    "text": "Bom dia Felipe, como você está? Te trouxe pão de queijo.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Eu to bem tia, obrigado.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Felipe, eu preciso te fazer algumas perguntas, tudo bem? Você consegue me ajudar?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Huhum [enquanto come pão de queijo]",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Quando foi a última vez que você viu seus pais?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Tem uns dias tia, eles foram me deixar na escola.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "A última vez que você viu eles foi quando você foi pra escola?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Foi.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "E nesses últimos dias? Onde você esteve?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Os moços que me pegaram me carregavam para vários lugares, falavam que se eu obedecesse e pegasse o dinheiro das pessoas que eles pediam, eles não iriam machucar nem o papai e nem a mamãe.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "O que eles te disseram do seu pai e da sua mãe?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Que eles estavam presos e que o desperto nunca ia parar. Eu não sei o que isso significa, mas todos eles vestiam um mesmo capuz preto e verde por cima das roupas, parecia até uma torcida organizada. Acho que todos eles eram maus.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Como assim Felipe?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Todos eles repetiam algumas coisas sem sentido. Falavam muito de bons costumes e que os inimigos só aprenderiam se batessem neles. Tinha muito sangue também. Ouvia muitos gritos quando estava andando do lado deles.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Como eles te pegaram?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Um menino da minha escola me buscou, falou que meus pais estavam passando mal. Quando sai da escola tinha um outro homem lá, ele me dava medo.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Quando falei que já não queria ir eles me seguraram e me arrastaram pra dentro do carro. Você conseguiu achar meus pais?",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Ainda não meu amor, mas a tia e a polícia inteira estão atrás deles. Por enquanto, fica aqui e descansa tá bom? Alguns amigos meus ainda vão querer te perguntar algumas coisas e vão cuidar de você enquanto eu penso melhor no que faço, entendeu?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Logo logo quando isso acabar você pode ir lá pra casa da tia que a gente vai fazer muita coisa legal juntos.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Felipe",
+    "text": "Tá bom.",
+    "portrait": "recursos/img/portrait_crianca.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Chefe, preciso que você cuide do Felipe até isso acabar aqui na delegacia, é muita coisa para uma criança. Eu preciso voltar pra casa para continuar investigando. Não vou conseguir me concentrar aqui.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Não se preocupe, farei isso. Termine o quadro de investigação primeiro antes de sair, vai te ajudar com os pensamentos.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  }
+]

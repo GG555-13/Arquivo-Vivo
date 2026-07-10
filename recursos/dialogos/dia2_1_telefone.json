@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Chefe",
+    "text": "Oi, como você está hoje?",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Estou bem, tive um pesadelo terrível sobre o caso mas já passou.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Sei que é um caso delicado para você, por envolver conhecidos seus, mas tenta manter a mente em ordem até resolver o desaparecimento deles, ok?",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Okay, vou tentar fazer isso...",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Sobre a investigação, já tem algum plano?",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Tenho sim, preciso ir na casa dos desaparecidos ver se encontro mais pistas, já que estou com as chaves deles. Preciso passar na vizinha deles pra saber se ela viu, ou ouviu, algo suspeito na noite do desaparecimento.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Tenho também os crachás deles, ir no trabalho não parece má ideia.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "É um bom começo. Se precisar de mim estarei na delegacia investigando outros casos.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  }
+]

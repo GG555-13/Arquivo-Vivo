@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Chefe",
+    "text": "Vejo que alguém não está muito feliz. Aconteceu alguma coisa?",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Nada de especial, só algumas coisas que não fazem sentido nenhum nesses casos. Essas pessoas não tinham conexão nenhuma entre si e trabalhavam juntas... Me pergunto como eles se conheceram.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Talvez você devesse sair um pouco dos casos já finalizados e voltar um pouco para os que ainda precisam da sua atenção.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Tenho aqui um ótimo candidato para isso. Já vai ser um começo pra tirar seu mundo da cabeça da lua.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Sem a minha cabeça no mundo da lua vocês teriam bastante problema de resolver os casos.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Já que você tá dizendo... Preciso que você monte esse quadro para mostrar como a gente trabalha aqui na delegacia, não queremos assustar o novato pra longe.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Sério? Não tem mais ninguém que possa fazer isso?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Mais desocupado que você, não. Rsrsrs",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Rude!",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Haha, eu te ajudo! Deixa de reclamar!",
+    "portrait": "recursos/img/portrait_chefe.png"
+  }
+]
