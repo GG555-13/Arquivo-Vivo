@@ -26,6 +26,7 @@ struct InventoryEntryDefinition
     MindPlaceCategory category = MindPlaceCategory::Documents;
     std::string mindPlaceImage;
     std::string detailImage;
+    std::string clueBoardPreviewText;
     bool usableOnClueBoard = false;
     std::string characterId;
 };

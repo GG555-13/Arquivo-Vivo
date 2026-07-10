@@ -91,6 +91,14 @@ void Text::ScrollVertical(int amount) {
     SetVerticalOffset(verticalOffset + amount);
 }
 
+int Text::GetTextureWidth() const {
+    return textureWidth;
+}
+
+int Text::GetTextureHeight() const {
+    return textureHeight;
+}
+
 void Text::RemakeTexture() {
     if (texture != nullptr) {
         SDL_DestroyTexture(texture);

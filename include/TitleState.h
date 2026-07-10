@@ -23,6 +23,7 @@ public:
 private:
     Timer textTimer;
     Music backgroundMusic;
+    bool startingGame = false;
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "ClueBoardState.h"
 
 #include "Camera.h"
+#include "BlinkingCaret.h"
 #include "ClueBoardData.h"
 #include "Component.h"
 #include "Draggable.h"
@@ -15,15 +16,18 @@
 #include "InventoryEntryDefinition.h"
 #include "SpriteRenderer.h"
 #include "Text.h"
+#include "WhisperState.h"
 
 #include <algorithm>
 #include <cctype>
 
 namespace
 {
-const float NOTEBOOK_THUMBNAIL_SCALE = 190.0f / 891.0f;
+const float NOTEBOOK_THUMBNAIL_SCALE = 170.0f / 891.0f;
 const float NOTEBOOK_PREVIEW_SCALE = 380.0f / 891.0f;
 const Vec2 PREVIEW_CENTER(984.0f, 360.0f);
+const Vec2 PREVIEW_TEXT_POSITION(805.0f, 170.0f);
+const int PREVIEW_TEXT_WIDTH = 350;
 
 std::string NormalizeAnswer(const std::string &answer)
 {
@@ -125,11 +129,20 @@ void ClueBoardState::AddQuestions()
         answer->box.y = question.inputPosition.y;
         const std::string displayedAnswer = !typedAnswers[index].empty()
             ? typedAnswers[index]
-            : (index == activeQuestion ? "_" : " ");
+            : " ";
         answer->AddComponent(new Text(*answer, style.fontFile, style.answerFontSize, Text::BLENDED,
                                       displayedAnswer, style.textColor, style.fieldWidth));
         answerObjects.push_back(AddObject(answer));
+
+        GameObject *caret = new GameObject();
+        caret->box.x = question.inputPosition.x - 10.0f;
+        caret->box.y = question.inputPosition.y + 2.0f;
+        caret->box.w = 4.0f;
+        caret->box.h = static_cast<float>(style.answerFontSize + 6);
+        caret->AddComponent(new BlinkingCaret(*caret));
+        caretObjects.push_back(AddObject(caret));
     }
+    RefreshCarets();
 
 }
 
@@ -137,12 +150,11 @@ void ClueBoardState::AddQuestionPaper()
 {
     GameObject *paper = new GameObject();
     SpriteRenderer *sprite = new SpriteRenderer(*paper, "recursos/img/papel_quadro.png");
-    sprite->SetScale(0.75f, 0.75f);
+    sprite->SetScale(0.57f, 0.57f);
     sprite->SetUseSourceFrameOffset(false);
     paper->AddComponent(sprite);
 
-    // Compensates for the paper occupying the left side of a transparent canvas.
-    paper->box.SetCenter(Vec2(348.0f, 227.0f));
+    paper->box.SetCenter(Vec2(294.0f, 227.0f));
     AddObject(paper);
 }
 
@@ -196,6 +208,24 @@ void ClueBoardState::ShowPreview(const std::string &entryId)
     {
         preview->RemoveComponent(oldSprite);
     }
+    if (Text *oldText = preview->GetComponent<Text>())
+    {
+        preview->RemoveComponent(oldText);
+    }
+
+    if (!definition->clueBoardPreviewText.empty())
+    {
+        preview->box.x = PREVIEW_TEXT_POSITION.x;
+        preview->box.y = PREVIEW_TEXT_POSITION.y;
+        preview->AddComponent(new Text(*preview,
+                                       "recursos/font/SpecialElite-Regular.ttf",
+                                       24,
+                                       Text::BLENDED,
+                                       definition->clueBoardPreviewText,
+                                       {45, 35, 30, 255},
+                                       PREVIEW_TEXT_WIDTH));
+        return;
+    }
 
     SpriteRenderer *sprite = new SpriteRenderer(*preview, definition->mindPlaceImage);
     sprite->SetScale(NOTEBOOK_PREVIEW_SCALE, NOTEBOOK_PREVIEW_SCALE);
@@ -228,7 +258,43 @@ void ClueBoardState::RefreshAnswerText()
     std::shared_ptr<GameObject> answer = answerObjects[activeQuestion].lock();
     if (!answer) return;
     Text *text = answer->GetComponent<Text>();
-    if (text) text->SetText(typedAnswers[activeQuestion] + "_");
+    if (text) text->SetText(typedAnswers[activeQuestion].empty() ? " " : typedAnswers[activeQuestion]);
+    RefreshCarets();
+}
+
+void ClueBoardState::RefreshCarets()
+{
+    const auto &questions = ClueBoardData::GetQuestions();
+    const auto &style = ClueBoardData::GetQuestionStyle();
+    for (size_t index = 0; index < caretObjects.size(); ++index)
+    {
+        if (auto caret = caretObjects[index].lock())
+        {
+            if (index < questions.size())
+            {
+                float textWidth = 0.0f;
+                if (!typedAnswers[index].empty())
+                {
+                    if (auto answer = answerObjects[index].lock())
+                    {
+                        if (Text *text = answer->GetComponent<Text>())
+                        {
+                            textWidth = static_cast<float>(text->GetTextureWidth());
+                        }
+                    }
+                }
+                caret->box.x = questions[index].inputPosition.x + textWidth + 4.0f;
+                caret->box.y = questions[index].inputPosition.y + 2.0f;
+                caret->box.h = static_cast<float>(style.answerFontSize + 6);
+            }
+            if (BlinkingCaret *component = caret->GetComponent<BlinkingCaret>())
+            {
+                component->SetEnabled(index == activeQuestion &&
+                                      activeQuestion < questions.size() &&
+                                      GameData::GetTutorialStep() == TutorialStep::OpenBoard);
+            }
+        }
+    }
 }
 
 void ClueBoardState::SubmitAnswer()
@@ -271,12 +337,16 @@ void ClueBoardState::SubmitAnswer()
 
     if (activeQuestion >= questions.size())
     {
+        RefreshCarets();
         GameData::AdvanceTutorial(TutorialStep::OpenBoard, TutorialStep::SolveBoard);
         StopTextInput();
+        popRequested = true;
+        Game::GetInstance().Push(new WhisperState());
     }
     else
     {
         RefreshAnswerText();
+        RefreshCarets();
     }
 }
 
@@ -322,6 +392,10 @@ void ClueBoardState::Update(float dt)
     }
 
     UpdateQuestionInput(dt);
+    if (popRequested)
+    {
+        return;
+    }
 
     if (input.MousePress(LEFT_MOUSE_BUTTON))
     {

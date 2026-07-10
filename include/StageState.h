@@ -8,7 +8,10 @@
 #include "StageConfig.h"
 #include "Text.h"
 
+#include <memory>
 
+class ObtainedItemCardPresenter;
+class Interactable;
 class StageState : public WalkableState {
 public:
     StageState(std::string stageId = "colonial_mansion", float overrideSpawnX = -1.0f, float overrideSpawnY = -1.0f);
@@ -24,14 +27,19 @@ public:
     
     void LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& layers);
     void LoadStage(const StageConfig& config);
+    void LoadProps(const StageConfig& config, bool renderBehindPlayer);
     void TransitionTo(std::string targetStageId, float spawnX = -1.0f, float spawnY = -1.0f,
                       const FadeTransitionConfig& fadeConfig = {});
+    void BeginTutorialEndSequence();
 
 protected:
     void UpdateWalkable(float dt) override;
 
 private:
     void PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY);
+    void StartInitialBossDialogue(const std::string& dialogueJson);
+    void StartPostWhisperBossDialogue();
+    void UpdateTutorialIntro(float dt);
 
     TileSet* tileSet;
     Timer endGameTimer;
@@ -44,6 +52,12 @@ private:
     Music backgroundMusic;
     float overrideSpawnX;
     float overrideSpawnY;
+    std::string tutorialIntroDialogueJson;
+    std::unique_ptr<ObtainedItemCardPresenter> itemNotifications;
+    Interactable* tutorialClueBoardInteractable = nullptr;
+    Timer tutorialIntroTimer;
+    bool tutorialIntroPending = false;
+    bool tutorialIntroTriggered = false;
 };
 
 #endif

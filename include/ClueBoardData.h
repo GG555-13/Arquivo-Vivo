@@ -38,6 +38,7 @@ struct ClueBoardData {
     static const std::vector<ClueBoardQuestion> &GetQuestions();
     static const ClueBoardQuestionStyle &GetQuestionStyle();
     static void ClearLayout();
+    static void ClearProgress();
     static bool GetPlacedPosition(const std::string &entryId, Vec2 &position);
     static void SetPlacedPosition(const std::string &entryId, const Vec2 &position);
     static void ClearPlacedPosition(const std::string &entryId);

@@ -112,6 +112,7 @@ const Rect &ClueBoardData::GetPlacementArea() { return placementArea; }
 const std::vector<ClueBoardQuestion> &ClueBoardData::GetQuestions() { return questions; }
 const ClueBoardQuestionStyle &ClueBoardData::GetQuestionStyle() { return questionStyle; }
 void ClueBoardData::ClearLayout() { slots.clear(); questions.clear(); placedPositions.clear(); solvedAnswers.clear(); placementArea = Rect(); questionStyle = ClueBoardQuestionStyle(); }
+void ClueBoardData::ClearProgress() { placedPositions.clear(); solvedAnswers.clear(); }
 bool ClueBoardData::GetPlacedPosition(const std::string &entryId, Vec2 &position) {
     const auto found = placedPositions.find(entryId);
     if (found == placedPositions.end()) return false;

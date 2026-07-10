@@ -52,6 +52,7 @@ bool InventoryCatalog::Load(const std::string &path) {
             def.description = value.value("description", "");
             def.mindPlaceImage = value.value("mindPlaceImage", "");
             def.detailImage = value.value("detailImage", "");
+            def.clueBoardPreviewText = value.value("clueBoardPreviewText", "");
             def.usableOnClueBoard = value.value("usableOnClueBoard", false);
             def.characterId = value.value("characterId", "");
             const bool rowValid = !def.id.empty() && !def.name.empty() && !def.mindPlaceImage.empty()

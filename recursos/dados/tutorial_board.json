@@ -2,15 +2,15 @@
   "placementArea": { "x": 0, "y": 0, "w": 768, "h": 547 },
   "questionPresentation": {
     "font": "recursos/font/SpecialElite-Regular.ttf",
-    "promptFontSize": 22,
-    "answerFontSize": 22,
-    "fieldWidth": 230,
+    "promptFontSize": 18,
+    "answerFontSize": 18,
+    "fieldWidth": 190,
     "textColor": { "r": 45, "g": 35, "b": 30, "a": 255 },
     "incorrectDialogue": "recursos/dialogos/resposta_incorreta_quadro.json"
   },
   "questions": [
     {
-      "prompt": "Quem têm a maior dívida?",
+      "prompt": "Quem é o culpado?",
       "acceptedAnswers": ["cabra"],
       "maxLength": 32,
       "promptPosition": { "x": 82, "y": 215 },
@@ -18,7 +18,10 @@
     }
   ],
   "slots": [
-    { "entryId": "tutorial_notebook_1", "tray": { "x": 220, "y": 700 } },
-    { "entryId": "tutorial_notebook_2", "tray": { "x": 500, "y": 700 } }
+    { "entryId": "tutorial_notebook_1", "tray": { "x": 100, "y": 700 } },
+    { "entryId": "tutorial_notebook_2", "tray": { "x": 250, "y": 700 } },
+    { "entryId": "relato_1", "tray": { "x": 400, "y": 700 } },
+    { "entryId": "relato_2", "tray": { "x": 550, "y": 700 } },
+    { "entryId": "relato_3", "tray": { "x": 700, "y": 700 } }
   ]
 }

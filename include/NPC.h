@@ -13,7 +13,10 @@ public:
         const std::string &spritePath,
         int frameRows, int frameCols,
         float scale = 1.0f,
-        float renderOffsetY = 0.0f);
+        float renderOffsetY = 0.0f,
+        bool flipHorizontal = false);
+
+    void Update(float dt) override;
 
 protected:
     void SetupSprite() override;
@@ -23,6 +26,7 @@ private:
     int frameRows, frameCols;
     float scale;
     float renderOffsetY;
+    bool flipHorizontal;
 };
 
 #endif

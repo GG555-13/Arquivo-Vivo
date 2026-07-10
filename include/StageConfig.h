@@ -41,6 +41,8 @@ struct NPCConfig {
     int frameRows = 1, frameCols = 1;
     float scale = 1.0f;
     float renderOffsetY = 0.0f;
+    bool flipHorizontal = false;
+    float interactRadius = 100.0f;
     
     std::string dialogueJson; 
     std::string conditionFlag; 
@@ -53,6 +55,7 @@ struct PropConfig {
     float scale = 1.0f;
     float interactRadius = 100.0f;
     float markerOffsetY = 0.0f;
+    bool renderBehindPlayer = false;
     
     std::string interactDialogueJson; 
     std::string unlockFlag;           
