@@ -18,7 +18,7 @@
       "description": "Histórico das conversas com o chefe.",
       "category": "people",
       "mindPlaceImage": "recursos/img/Pasta.png",
-      "detailImage": "recursos/img/esbocoPasta.png",
+      "detailImage": "recursos/img/portrait_chefe.png",
       "usableOnClueBoard": false
     },
     {

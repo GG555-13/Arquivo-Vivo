@@ -93,7 +93,6 @@ void StageManager::Initialize() {
     mansionInterior.props.push_back(cheeseBreadProp);
 
     mansionInterior.triggers.push_back({115.0f, 600.0f, 150.0f, 300.0f, "colonial_mansion", 9645.0f, 850.0f});
-    mansionInterior.triggers.push_back({1288.0f, 600.0f, 200.0f, 260.0f, "WIN_GAME", -1.0f, -1.0f, {true, 2.0f, FadeColor::Black, true, 1.0f, FadeColor::Black}});
     
     stages["mansion_interior"] = mansionInterior;
 
