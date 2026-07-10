@@ -187,10 +187,16 @@ void StageState::LoadStage(const StageConfig& config) {
         std::function<bool()> cond = nullptr;
         if (!propConfig.conditionFlag.empty()) {
             cond = [flag = propConfig.conditionFlag]() { 
+                
+                if (GameData::GetFlag(flag)) return true;
+            
                 if (flag == "tutorial_board_unlocked") {
-                    return GameData::GetTutorialStep() != TutorialStep::TalkToBoss;
+                    return GameData::GetTutorialStep() == TutorialStep::OpenBoard || 
+                           GameData::GetTutorialStep() == TutorialStep::SolveBoard ||
+                           GameData::GetTutorialStep() == TutorialStep::SolveWhisper;
                 }
-                return GameData::GetFlag(flag); 
+                
+                return false; 
             };
         }
 
