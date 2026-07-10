@@ -22,6 +22,36 @@
       "usableOnClueBoard": false
     },
     {
+      "id": "boletim_vizinha",
+      "kind": "evidence",
+      "name": "Boletim da Vizinha",
+      "description": "Relato da vizinha sobre o desaparecimento estranho da família Machado.",
+      "category": "documents",
+      "mindPlaceImage": "recursos/img/documento.png",
+      "detailImage": "recursos/img/documento.png",
+      "usableOnClueBoard": true
+    },
+    {
+      "id": "cracha_machado",
+      "kind": "evidence",
+      "name": "Crachás do Casal",
+      "description": "Crachás de funcionários do registro público de Geraldo e Aparecida.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/identidade.png",
+      "detailImage": "recursos/img/identidade.png",
+      "usableOnClueBoard": true
+    },
+    {
+      "id": "chave_casa",
+      "kind": "item",
+      "name": "Chave da Casa",
+      "description": "Chave encontrada na residência dos Machado.",
+      "category": "documents",
+      "mindPlaceImage": "recursos/img/chave.png",
+      "detailImage": "recursos/img/chave.png",
+      "usableOnClueBoard": false
+    },
+    {
       "id": "tutorial_notebook_2",
       "kind": "evidence",
       "name": "Caderno 2",
@@ -83,6 +113,16 @@
       "detailImage": "recursos/img/relato3.png",
       "usableOnClueBoard": true,
       "clueBoardPreviewText": "“Bom, que eu conheço pelo que ouvi, o Romário é Bahia, a Sandra é Belo Horizonte, o Cláudio é Sorocaba e o Raiumundo é Natal.”"
+    },
+    {
+      "id": "bilhete_pai",
+      "kind": "evidence",
+      "name": "Bilhete do Pai",
+      "description": "Vou resolver umas coisas, volto amanhã. Te amo. - Papai",
+      "category": "documents",
+      "mindPlaceImage": "recursos/img/cartapai.png",
+      "detailImage": "recursos/img/cartapai.png",
+      "usableOnClueBoard": true
     }
   ]
 }

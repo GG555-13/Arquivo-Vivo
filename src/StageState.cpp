@@ -472,6 +472,22 @@ void StageState::StartPostWhisperBossDialogue()
     AddObject(dialogueController);
 }
 
+void StageState::StartPostTutorialSequence() {
+    GameObject *dialogueController = new GameObject();
+    
+    dialogueController->AddComponent(new DialogueBox(
+        *dialogueController,
+        "recursos/dialogos/dia1_4_caso_machado.json", 
+        []() {
+            Inventory::Add("boletim_vizinha");
+            Inventory::Add("cracha_machado");
+            Inventory::Add("chave_casa");
+        },
+        "chief"));
+    
+    AddObject(dialogueController);
+}
+
 void StageState::UpdateTutorialIntro(float dt)
 {
     if (!tutorialIntroPending || tutorialIntroTriggered)
@@ -555,14 +571,9 @@ void StageState::Resume()
 
 StageState::~StageState() {}
 
-void StageState::Update(float dt)
-{
+void StageState::Update(float dt) {
     screenFade.Update(dt);
-
-    if (screenFade.IsActive())
-    {
-        return;
-    }
+    if (screenFade.IsActive()) return;
 
     UpdateTutorialIntro(dt);
 
@@ -573,36 +584,29 @@ void StageState::Update(float dt)
         StartPostWhisperBossDialogue();
     }
 
+    if (GameData::GetTutorialStep() == TutorialStep::TutorialComplete && !postTutorialSequenceTriggered) {
+        postTutorialTimer.Update(dt);
+        if (postTutorialTimer.Get() >= 1.0f) {
+            postTutorialSequenceTriggered = true;
+            StartPostTutorialSequence();
+        }
+    }
+
     if (DialogueBox::isPlaying) {
         UpdateArray(dt);
         return;
     }
 
     itemNotifications->Update(dt);
-
-    if (DialogueBox::isPlaying)
-    {
-        UpdateArray(dt);
-        return;
-    }
-
-    itemNotifications->Update(dt);
-    if (itemNotifications->IsActive())
-    {
-        return;
-    }
+    if (itemNotifications->IsActive()) return;
 
     WalkableState::Update(dt);
 
-    if (debugPosText && Player::player)
-    {
+    if (debugPosText && Player::player) {
         Vec2 pos = Player::player->GetPosition();
         auto *text = debugPosText->GetComponent<Text>();
-        if (text)
-        {
-            text->SetText(
-                "Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ") | Tutorial: " +
-                GameData::GetTutorialStepName());
+        if (text) {
+            text->SetText("Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ")");
         }
         debugPosText->box.x = Camera::pos.x + 10.0f;
         debugPosText->box.y = Camera::pos.y + 10.0f;

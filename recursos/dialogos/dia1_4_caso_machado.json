@@ -23,5 +23,50 @@
     "name": "Andrea",
     "text": "O que?? Me deixa ver isso.",
     "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Não se sabe o que aconteceu ainda, apenas que eles não voltam pra casa há 3 dias e que o carro foi encontrado no meio de uma estrada de barro sem ninguém dentro.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Eles não deram nenhum sinal de vida desde então?",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Infelizmente não até agora. Ninguém está entendendo muito desse caso. Precisamos que você se concentre para conseguir encontrar seus amigos e seu afilhado em segurança.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Estamos torcendo para isso. O Rio de Janeiro está se tornando muito perigoso com esses casos de sequestro relâmpago e arrastão.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Eu vou analisar e ver o que consigo.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Eles não sumiriam assim do nada sem falar nada pra ninguém. Espero que não seja nada grave.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Leva essa pasta pra casa e tenta descansar um pouco. Seus próximos dias vão ser longos e você vai precisar de cabeça para lidar com isso.",
+    "portrait": "recursos/img/portrait_chefe.png"
+  },
+  {
+    "name": "Andrea",
+    "text": "Não sei se vou conseguir.",
+    "portrait": "recursos/img/portrait_andrea.png"
+  },
+  {
+    "name": "Chefe",
+    "text": "Mas ao menos tente. Te vejo amanhã, descansada de preferência.",
+    "portrait": "recursos/img/portrait_chefe.png"
   }
 ]
