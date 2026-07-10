@@ -235,6 +235,16 @@ void MindPlaceState::Update(float dt)
 
     detailPanel.Update(dt);
 
+    if (detailPanel.IsVisible() &&
+        (input.KeyPress(SDLK_RETURN) ||
+         input.KeyPress(SDLK_KP_ENTER) ||
+         input.KeyPress(SPACE_KEY) ||
+         input.MousePress(LEFT_MOUSE_BUTTON)))
+    {
+        detailPanel.Close();
+        return;
+    }
+
     if (detailPanel.IsVisible() && input.GetMouseWheelY() != 0)
     {
         detailPanel.Scroll(-input.GetMouseWheelY() * 36);

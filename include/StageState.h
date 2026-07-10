@@ -48,7 +48,8 @@ private:
     Timer endGameTimer;
     bool endGameStarted;
     bool playerWon;
-    GameObject* debugPosText; 
+    GameObject* debugPosText = nullptr;
+    bool debugTextVisible = false;
     
     std::string currentStageId;
     float maxStageWidth;

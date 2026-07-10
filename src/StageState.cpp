@@ -550,7 +550,13 @@ void StageState::UpdateWalkable(float dt)
 
 void StageState::Render()
 {
-    RenderArray();
+    for (const auto &object : objectArray)
+    {
+        if (debugTextVisible || object.get() != debugPosText)
+        {
+            object->Render();
+        }
+    }
     screenFade.Render();
 }
 
@@ -574,6 +580,12 @@ StageState::~StageState() {}
 void StageState::Update(float dt) {
     screenFade.Update(dt);
     if (screenFade.IsActive()) return;
+
+    InputManager &input = InputManager::GetInstance();
+    if (input.KeyPress(SDLK_t))
+    {
+        debugTextVisible = !debugTextVisible;
+    }
 
     UpdateTutorialIntro(dt);
 

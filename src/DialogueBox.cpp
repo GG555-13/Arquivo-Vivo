@@ -183,7 +183,10 @@ void DialogueBox::Update(float dt) {
 
     InputManager& input = InputManager::GetInstance();
     
-    if (input.KeyPress(SPACE_KEY) || input.MousePress(LEFT_MOUSE_BUTTON)) {
+    if (input.KeyPress(SDLK_RETURN) ||
+        input.KeyPress(SDLK_KP_ENTER) ||
+        input.KeyPress(SPACE_KEY) ||
+        input.MousePress(LEFT_MOUSE_BUTTON)) {
 
     if (isTyping) {
         isTyping = false;

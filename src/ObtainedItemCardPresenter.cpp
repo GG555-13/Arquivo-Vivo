@@ -57,7 +57,13 @@ void ObtainedItemCardPresenter::Update(float dt)
     }
 
     InputManager &input = InputManager::GetInstance();
-    if (mode != Mode::Closing && (input.KeyPress(ESCAPE_KEY) || input.KeyPress(MIND_PLACE_KEY)))
+    const bool dismissRequested = input.KeyPress(ESCAPE_KEY) ||
+                                  input.KeyPress(MIND_PLACE_KEY) ||
+                                  input.KeyPress(SDLK_RETURN) ||
+                                  input.KeyPress(SDLK_KP_ENTER) ||
+                                  input.KeyPress(SPACE_KEY) ||
+                                  input.MousePress(LEFT_MOUSE_BUTTON);
+    if (mode != Mode::Closing && dismissRequested)
     {
         Close();
     }
