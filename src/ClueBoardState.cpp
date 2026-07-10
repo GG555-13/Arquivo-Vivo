@@ -23,9 +23,11 @@
 
 namespace
 {
-const float NOTEBOOK_THUMBNAIL_SCALE = 190.0f / 891.0f;
+const float NOTEBOOK_THUMBNAIL_SCALE = 170.0f / 891.0f;
 const float NOTEBOOK_PREVIEW_SCALE = 380.0f / 891.0f;
 const Vec2 PREVIEW_CENTER(984.0f, 360.0f);
+const Vec2 PREVIEW_TEXT_POSITION(805.0f, 170.0f);
+const int PREVIEW_TEXT_WIDTH = 350;
 
 std::string NormalizeAnswer(const std::string &answer)
 {
@@ -205,6 +207,24 @@ void ClueBoardState::ShowPreview(const std::string &entryId)
     if (SpriteRenderer *oldSprite = preview->GetComponent<SpriteRenderer>())
     {
         preview->RemoveComponent(oldSprite);
+    }
+    if (Text *oldText = preview->GetComponent<Text>())
+    {
+        preview->RemoveComponent(oldText);
+    }
+
+    if (!definition->clueBoardPreviewText.empty())
+    {
+        preview->box.x = PREVIEW_TEXT_POSITION.x;
+        preview->box.y = PREVIEW_TEXT_POSITION.y;
+        preview->AddComponent(new Text(*preview,
+                                       "recursos/font/SpecialElite-Regular.ttf",
+                                       24,
+                                       Text::BLENDED,
+                                       definition->clueBoardPreviewText,
+                                       {45, 35, 30, 255},
+                                       PREVIEW_TEXT_WIDTH));
+        return;
     }
 
     SpriteRenderer *sprite = new SpriteRenderer(*preview, definition->mindPlaceImage);

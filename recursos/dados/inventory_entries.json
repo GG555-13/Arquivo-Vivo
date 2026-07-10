@@ -30,6 +30,59 @@
       "mindPlaceImage": "recursos/img/cadernos1.png",
       "detailImage": "recursos/img/cadernos1.png",
       "usableOnClueBoard": true
+    },
+    {
+      "id": "cafe",
+      "kind": "item",
+      "name": "Café",
+      "description": "Um café entregue pelo chefe.",
+      "category": "documents",
+      "mindPlaceImage": "recursos/img/cafe.png",
+      "detailImage": "recursos/img/cafe.png",
+      "usableOnClueBoard": false
+    },
+    {
+      "id": "bread_de_queijo",
+      "kind": "item",
+      "name": "Pão de queijo",
+      "description": "Um pão de queijo entregue pelo chefe.",
+      "category": "documents",
+      "mindPlaceImage": "recursos/img/breadDeQueijo.png",
+      "detailImage": "recursos/img/breadDeQueijo.png",
+      "usableOnClueBoard": false
+    },
+    {
+      "id": "relato_1",
+      "kind": "evidence",
+      "name": "Relato 1",
+      "description": "Primeiro relato coletado para o caso.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/relato1.png",
+      "detailImage": "recursos/img/relato1.png",
+      "usableOnClueBoard": true,
+      "clueBoardPreviewText": "“A pessoa que apostou gato estava com comportamento suspeito”"
+    },
+    {
+      "id": "relato_2",
+      "kind": "evidence",
+      "name": "Relato 2",
+      "description": "Segundo relato coletado para o caso.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/relato2.png",
+      "detailImage": "recursos/img/relato2.png",
+      "usableOnClueBoard": true,
+      "clueBoardPreviewText": "“Acredito que dívida alta seja um motivo bem plausível pra quem cometeu o crime”"
+    },
+    {
+      "id": "relato_3",
+      "kind": "evidence",
+      "name": "Relato 3",
+      "description": "Terceiro relato coletado para o caso.",
+      "category": "evidence",
+      "mindPlaceImage": "recursos/img/relato3.png",
+      "detailImage": "recursos/img/relato3.png",
+      "usableOnClueBoard": true,
+      "clueBoardPreviewText": "“Bom, que eu conheço pelo que ouvi, o Romário é Bahia, a Sandra é Belo Horizonte, o Cláudio é Sorocaba e o Raiumundo é Natal.”"
     }
   ]
 }

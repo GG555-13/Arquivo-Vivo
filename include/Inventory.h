@@ -8,6 +8,7 @@ class Inventory
 {
 public:
     static bool Add(const std::string &entryId);
+    static bool Remove(const std::string &entryId);
     static bool Has(const std::string &entryId);
     static const std::vector<std::string> &GetEntries();
     static bool HasPendingNotifications();

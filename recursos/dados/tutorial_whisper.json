@@ -1,7 +1,7 @@
 {
   "background": "recursos/img/sussurro1.png",
   "font": "recursos/font/SpecialElite-Regular.ttf",
-  "dialogue": "labsdflnbserkjgnldsfmnvkesfmgvefvg",
+  "dialogue": "Agora, só preciso sair daqui.",
   "dash": "/",
   "acceptedAnswers": ["cabra"],
   "maxLength": 32,

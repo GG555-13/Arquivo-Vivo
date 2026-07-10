@@ -11,6 +11,7 @@
 #include <memory>
 
 class ObtainedItemCardPresenter;
+class Interactable;
 class StageState : public WalkableState {
 public:
     StageState(std::string stageId = "colonial_mansion", float overrideSpawnX = -1.0f, float overrideSpawnY = -1.0f);
@@ -28,12 +29,16 @@ public:
     void LoadStage(const StageConfig& config);
     void TransitionTo(std::string targetStageId, float spawnX = -1.0f, float spawnY = -1.0f,
                       const FadeTransitionConfig& fadeConfig = {});
+    void BeginTutorialEndSequence();
 
 protected:
     void UpdateWalkable(float dt) override;
 
 private:
     void PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY);
+    void StartInitialBossDialogue();
+    void StartPostWhisperBossDialogue();
+    void UpdateTutorialIntro(float dt);
 
     TileSet* tileSet;
     Timer endGameTimer;
@@ -47,6 +52,10 @@ private:
     float overrideSpawnX;
     float overrideSpawnY;
     std::unique_ptr<ObtainedItemCardPresenter> itemNotifications;
+    Interactable* tutorialClueBoardInteractable = nullptr;
+    Timer tutorialIntroTimer;
+    bool tutorialIntroPending = false;
+    bool tutorialIntroTriggered = false;
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "ObtainedItemCardPresenter.h"
 
+#include "Camera.h"
 #include "DetailContent.h"
 #include "GameObject.h"
 #include "InputManager.h"
@@ -211,8 +212,9 @@ void ObtainedItemCardPresenter::SetContent(const std::string &entryId)
 
 void ObtainedItemCardPresenter::PositionObjects(const Vec2 &center)
 {
-    MoveTo(cardObject, center);
-    MoveTo(imageObject, Vec2(center.x, center.y - 140.0f));
-    MoveTo(titleObject, Vec2(center.x, center.y + 25.0f));
-    MoveTo(descriptionObject, Vec2(center.x + 6.0f, center.y + 155.0f));
+    const Vec2 screenCenter(Camera::pos.x + center.x, Camera::pos.y + center.y);
+    MoveTo(cardObject, screenCenter);
+    MoveTo(imageObject, Vec2(screenCenter.x, screenCenter.y - 140.0f));
+    MoveTo(titleObject, Vec2(screenCenter.x, screenCenter.y + 25.0f));
+    MoveTo(descriptionObject, Vec2(screenCenter.x + 6.0f, screenCenter.y + 155.0f));
 }

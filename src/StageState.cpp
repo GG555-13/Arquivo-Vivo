@@ -24,6 +24,7 @@
 #include "ClueBoardState.h"
 #include "Interactable.h"
 #include "ObtainedItemCardPresenter.h"
+#include "TutorialEndInterludeState.h"
 
 StageState::StageState(std::string stageId, float spawnX, float spawnY) : WalkableState(), 
                                                                           currentStageId(stageId), 
@@ -72,6 +73,11 @@ void StageState::LoadBackgroundLayers(const std::vector<BackgroundLayerConfig>& 
 void StageState::LoadStage(const StageConfig& config) {
     Resources::ClearImages();
     Resources::ClearMusics();
+    tutorialClueBoardInteractable = nullptr;
+    tutorialIntroPending = config.stageId == "mansion_interior" &&
+                           GameData::GetTutorialStep() == TutorialStep::TalkToBoss;
+    tutorialIntroTriggered = false;
+    tutorialIntroTimer.Restart();
     LoadBackgroundLayers(config.layers);
 
     if (!config.musicFile.empty()) {
@@ -91,6 +97,18 @@ void StageState::LoadStage(const StageConfig& config) {
 
     AddObject(playerGo);
     Camera::Follow(playerGo);
+    Camera::Update(0.0f);
+
+    if (config.stageId == "mansion_interior") {
+        GameObject* foregroundDesk = new GameObject();
+        SpriteRenderer* deskSprite = new SpriteRenderer(*foregroundDesk, "recursos/img/mesadelegaciaseparada.png");
+        deskSprite->SetScale(0.141f, 0.19f);
+        deskSprite->SetUseSourceFrameOffset(false);
+        foregroundDesk->AddComponent(deskSprite);
+        foregroundDesk->box.x = 1228.0f;
+        foregroundDesk->box.y = 630.0f;
+        AddObject(foregroundDesk);
+    }
 
     // Debug: player position display
     debugPosText = new GameObject();
@@ -138,7 +156,6 @@ void StageState::LoadStage(const StageConfig& config) {
     }
 
     // Clue board interactable — only inside the mansion
-    Interactable* clueBoardInteractable = nullptr;
     if (config.stageId == "mansion_interior") {
         GameObject* clueBoardGo = new GameObject();
         // SpriteRenderer* boardSprite = new SpriteRenderer(*clueBoardGo, "recursos/img/quadro_pistas.png");
@@ -146,7 +163,7 @@ void StageState::LoadStage(const StageConfig& config) {
         // clueBoardGo->AddComponent(boardSprite);
         clueBoardGo->box.SetCenter(Vec2(2400.0f, 750.0f));
 
-        clueBoardInteractable = new Interactable(
+        tutorialClueBoardInteractable = new Interactable(
             *clueBoardGo,
             Interactable::SPACE_OR_CLICK,
             Interactable::REQUIRE_NEAR,
@@ -156,49 +173,40 @@ void StageState::LoadStage(const StageConfig& config) {
             },
             -110.0f
         );
-        clueBoardInteractable->SetEnabled(
+        tutorialClueBoardInteractable->SetEnabled(
             GameData::GetTutorialStep() != TutorialStep::TalkToBoss
         );
-        clueBoardGo->AddComponent(clueBoardInteractable);
+        clueBoardGo->AddComponent(tutorialClueBoardInteractable);
         AddObject(clueBoardGo);
     }
 
     GameObject* npcGO = new GameObject();
-    
-    npcGO->box.x = config.playerSpawn.x + 200.0f; 
-    npcGO->box.y = 750.0f;
+
+    if (config.stageId == "mansion_interior") {
+        npcGO->box.x = 1150.0f;
+        npcGO->box.y = 750.0f;
+    } else {
+        npcGO->box.x = sx + 200.0f;
+        npcGO->box.y = 750.0f;
+    }
 
     npcGO->AddComponent(new NPC(*npcGO, "recursos/img/NPC.png", 3, 4));
 
     const bool isTutorialBoss = config.stageId == "mansion_interior";
-    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, [isTutorialBoss, clueBoardInteractable]() {
+    npcGO->AddComponent(new Interactable(*npcGO, Interactable::SPACE_ONLY, Interactable::REQUIRE_NEAR, 100.0f, [this, isTutorialBoss]() {
         if (DialogueBox::isPlaying) return; 
 
-        if (isTutorialBoss && GameData::GetTutorialStep() != TutorialStep::TalkToBoss) {
+        const TutorialStep step = GameData::GetTutorialStep();
+        if (isTutorialBoss && step != TutorialStep::TalkToBoss && step != TutorialStep::SolveWhisper) {
             return;
         }
 
-        GameObject* dialogueController = new GameObject();
-        std::function<void()> onComplete;
-        if (isTutorialBoss) {
-            onComplete = [clueBoardInteractable]() {
-                Inventory::Add("tutorial_notebook_1");
-                Inventory::Add("tutorial_notebook_2");
-                Inventory::Add("chief_dialogues");
-                if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
-                    clueBoardInteractable != nullptr) {
-                    clueBoardInteractable->SetEnabled(true);
-                }
-            };
+        if (isTutorialBoss && step == TutorialStep::TalkToBoss) {
+            StartInitialBossDialogue();
         }
-
-        dialogueController->AddComponent(new DialogueBox(
-            *dialogueController,
-            "recursos/dialogos/clue01.json",
-            onComplete,
-            isTutorialBoss ? "chief" : ""
-        ));
-        Game::GetInstance().GetCurrentState().AddObject(dialogueController);
+        else if (isTutorialBoss && step == TutorialStep::SolveWhisper) {
+            StartPostWhisperBossDialogue();
+        }
     }));
 
     AddObject(npcGO);
@@ -237,6 +245,76 @@ void StageState::TransitionTo(std::string targetStageId, float spawnX, float spa
     } else {
         PerformTransitionTo(targetStageId, spawnX, spawnY);
     }
+}
+
+void StageState::StartInitialBossDialogue() {
+    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::TalkToBoss) return;
+
+    tutorialIntroPending = false;
+    tutorialIntroTriggered = true;
+
+    GameObject* dialogueController = new GameObject();
+    dialogueController->AddComponent(new DialogueBox(
+        *dialogueController,
+        "recursos/dialogos/clue01.json",
+        [this]() {
+            Inventory::Add("tutorial_notebook_1");
+            Inventory::Add("tutorial_notebook_2");
+            Inventory::Add("cafe");
+            Inventory::Add("bread_de_queijo");
+            Inventory::Add("relato_1");
+            Inventory::Add("relato_2");
+            Inventory::Add("relato_3");
+            Inventory::Add("chief_dialogues");
+            if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
+                tutorialClueBoardInteractable != nullptr) {
+                tutorialClueBoardInteractable->SetEnabled(true);
+            }
+        },
+        "chief"
+    ));
+    AddObject(dialogueController);
+}
+
+void StageState::StartPostWhisperBossDialogue() {
+    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::SolveWhisper) return;
+
+    GameObject* dialogueController = new GameObject();
+    dialogueController->AddComponent(new DialogueBox(
+        *dialogueController,
+        "recursos/dialogos/chefe_pos_sussurro.json",
+        []() {
+            if (GameData::AdvanceTutorial(TutorialStep::SolveWhisper, TutorialStep::TutorialComplete)) {
+                auto* stage = static_cast<StageState*>(&Game::GetInstance().GetCurrentState());
+                if (stage) stage->BeginTutorialEndSequence();
+            }
+        },
+        "chief"
+    ));
+    AddObject(dialogueController);
+}
+
+void StageState::UpdateTutorialIntro(float dt) {
+    if (!tutorialIntroPending || tutorialIntroTriggered) return;
+    if (currentStageId != "mansion_interior") return;
+    if (GameData::GetTutorialStep() != TutorialStep::TalkToBoss) {
+        tutorialIntroPending = false;
+        return;
+    }
+    if (DialogueBox::isPlaying) return;
+
+    tutorialIntroTimer.Update(dt);
+    if (tutorialIntroTimer.Get() >= 1.5f) {
+        StartInitialBossDialogue();
+    }
+}
+
+void StageState::BeginTutorialEndSequence() {
+    if (screenFade.IsActive()) return;
+
+    screenFade.FadeOut(1.0f, FadeColor::Black, []() {
+        Game::GetInstance().Push(new TutorialEndInterludeState());
+    });
 }
 
 void StageState::LoadAssets() {
@@ -283,6 +361,12 @@ void StageState::Update(float dt) {
     screenFade.Update(dt);
 
     if (screenFade.IsActive()) {
+        return;
+    }
+
+    UpdateTutorialIntro(dt);
+    if (DialogueBox::isPlaying) {
+        UpdateArray(dt);
         return;
     }
 

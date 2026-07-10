@@ -26,6 +26,19 @@ bool Inventory::Add(const std::string &entryId) {
     return true;
 }
 
+bool Inventory::Remove(const std::string &entryId) {
+    const bool hadEntry = Has(entryId);
+    entries.erase(std::remove(entries.begin(), entries.end(), entryId), entries.end());
+    pendingNotifications.erase(std::remove(pendingNotifications.begin(), pendingNotifications.end(), entryId), pendingNotifications.end());
+
+    const InventoryEntryDefinition *definition = InventoryCatalog::Find(entryId);
+    if (definition && definition->kind == InventoryEntryKind::DialogueFolder) {
+        histories.erase(definition->characterId);
+    }
+
+    return hadEntry;
+}
+
 bool Inventory::Has(const std::string &entryId) {
     return std::find(entries.begin(), entries.end(), entryId) != entries.end();
 }
