@@ -14,27 +14,28 @@ bool GameData::GetFlag(const std::string& flagName) {
 }
 
 bool GameData::playerVictory = false;
-TutorialStep GameData::tutorialStep = TutorialStep::TalkToBoss;
+StoryStep GameData::storyStep = StoryStep::TutorialTalkToBoss;
 
-TutorialStep GameData::GetTutorialStep() {
-    return tutorialStep;
+StoryStep GameData::GetStoryStep() {
+    return storyStep;
 }
 
-bool GameData::AdvanceTutorial(TutorialStep expected, TutorialStep next) {
-    if (tutorialStep != expected) {
+bool GameData::AdvanceStory(StoryStep expected, StoryStep next) {
+    if (storyStep != expected) {
         return false;
     }
-    tutorialStep = next;
+    storyStep = next;
     return true;
 }
 
-const char* GameData::GetTutorialStepName() {
-    switch (tutorialStep) {
-        case TutorialStep::TalkToBoss: return "TalkToBoss";
-        case TutorialStep::OpenBoard: return "OpenBoard";
-        case TutorialStep::SolveBoard: return "SolveBoard";
-        case TutorialStep::SolveWhisper: return "SolveWhisper";
-        case TutorialStep::TutorialComplete: return "TutorialComplete";
+const char* GameData::GetStoryStepName() {
+    switch (storyStep) {
+        case StoryStep::TutorialTalkToBoss: return "TutorialTalkToBoss";
+        case StoryStep::TutorialOpenBoard: return "TutorialOpenBoard";
+        case StoryStep::TutorialSolveBoard: return "TutorialSolveBoard";
+        case StoryStep::TutorialSolveWhisper: return "TutorialSolveWhisper";
+        case StoryStep::Day1Briefing: return "Day1Briefing";
+        case StoryStep::Day1Investigation: return "Day1Investigation";
     }
     return "Unknown";
 }

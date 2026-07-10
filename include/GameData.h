@@ -4,12 +4,13 @@
 #include <unordered_map>
 #include <string>
 
-enum class TutorialStep {
-    TalkToBoss,
-    OpenBoard,
-    SolveBoard,
-    SolveWhisper,
-    TutorialComplete
+enum class StoryStep {
+    TutorialTalkToBoss,
+    TutorialOpenBoard,
+    TutorialSolveBoard,
+    TutorialSolveWhisper,
+    Day1Briefing,
+    Day1Investigation
 };
 
 class GameData {
@@ -18,12 +19,12 @@ public:
     static void SetFlag(const std::string& flagName, bool value);
     static bool GetFlag(const std::string& flagName);
     static bool playerVictory;
-    static TutorialStep GetTutorialStep();
-    static bool AdvanceTutorial(TutorialStep expected, TutorialStep next);
-    static const char* GetTutorialStepName();
+    static StoryStep GetStoryStep();
+    static bool AdvanceStory(StoryStep expected, StoryStep next);
+    static const char* GetStoryStepName();
 
 private:
-    static TutorialStep tutorialStep;
+    static StoryStep storyStep;
 };
 
 #endif

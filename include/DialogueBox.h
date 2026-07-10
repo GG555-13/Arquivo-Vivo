@@ -46,6 +46,7 @@ private:
     std::string historyCharacterId;
 
     Timer typeTimer;
+    Timer fastForwardTimer;
     unsigned int visibleChars;
     std::string currentFullText;
     bool isTyping;
@@ -64,6 +65,9 @@ private:
     void UpdateUI();
     void DestroyUI();
     void PositionUI();
+    void FinishTyping();
+    void AdvanceDialogue();
+    void CompleteDialogue();
 };
 
 #endif

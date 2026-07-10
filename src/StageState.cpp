@@ -35,10 +35,10 @@ bool IsTutorialBoardUnlocked()
         return true;
     }
 
-    const TutorialStep step = GameData::GetTutorialStep();
-    return step == TutorialStep::OpenBoard ||
-           step == TutorialStep::SolveBoard ||
-           step == TutorialStep::SolveWhisper;
+    const StoryStep step = GameData::GetStoryStep();
+    return step == StoryStep::TutorialOpenBoard ||
+           step == StoryStep::TutorialSolveBoard ||
+           step == StoryStep::TutorialSolveWhisper;
 }
 }
 
@@ -192,7 +192,7 @@ void StageState::LoadStage(const StageConfig &config)
     tutorialClueBoardInteractable = nullptr;
     tutorialIntroDialogueJson = "recursos/dialogos/clue01.json";
     tutorialIntroPending = config.stageId == "mansion_interior" &&
-                           GameData::GetTutorialStep() == TutorialStep::TalkToBoss;
+                           GameData::GetStoryStep() == StoryStep::TutorialTalkToBoss;
     tutorialIntroTriggered = false;
     tutorialIntroTimer.Restart();
     LoadBackgroundLayers(config.layers);
@@ -310,12 +310,12 @@ void StageState::LoadStage(const StageConfig &config)
 
                 if (npcId == "chefe_policia")
                 {
-                    const TutorialStep step = GameData::GetTutorialStep();
-                    if (step == TutorialStep::TalkToBoss)
+                    const StoryStep step = GameData::GetStoryStep();
+                    if (step == StoryStep::TutorialTalkToBoss)
                     {
                         StartInitialBossDialogue(jsonFile);
                     }
-                    else if (step == TutorialStep::SolveWhisper)
+                    else if (step == StoryStep::TutorialSolveWhisper)
                     {
                         StartPostWhisperBossDialogue();
                     }
@@ -357,7 +357,7 @@ void StageState::LoadStage(const StageConfig &config)
     LoadProps(config, false);
 
     if (config.stageId == "mansion_interior" && 
-        GameData::GetTutorialStep() == TutorialStep::TalkToBoss && 
+        GameData::GetStoryStep() == StoryStep::TutorialTalkToBoss &&
         !GameData::GetFlag("instrucao_andar_mostrada")) 
     {
         GameData::SetFlag("instrucao_andar_mostrada", true);
@@ -413,7 +413,7 @@ void StageState::TransitionTo(std::string targetStageId, float spawnX, float spa
 
 void StageState::StartInitialBossDialogue(const std::string &dialogueJson)
 {
-    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::TalkToBoss)
+    if (DialogueBox::isPlaying || GameData::GetStoryStep() != StoryStep::TutorialTalkToBoss)
         return;
 
     tutorialIntroPending = false;
@@ -434,7 +434,7 @@ void StageState::StartInitialBossDialogue(const std::string &dialogueJson)
             Inventory::Add("chief_dialogues");
             GameData::SetFlag("falou_com_chefe_policia", true);
             GameData::SetFlag("tutorial_board_unlocked", true);
-            if (GameData::AdvanceTutorial(TutorialStep::TalkToBoss, TutorialStep::OpenBoard) &&
+            if (GameData::AdvanceStory(StoryStep::TutorialTalkToBoss, StoryStep::TutorialOpenBoard) &&
                 tutorialClueBoardInteractable != nullptr)
             {
                 tutorialClueBoardInteractable->SetEnabled(true);
@@ -453,7 +453,7 @@ void StageState::StartInitialBossDialogue(const std::string &dialogueJson)
 
 void StageState::StartPostWhisperBossDialogue()
 {
-    if (DialogueBox::isPlaying || GameData::GetTutorialStep() != TutorialStep::SolveWhisper)
+    if (DialogueBox::isPlaying || GameData::GetStoryStep() != StoryStep::TutorialSolveWhisper)
         return;
 
     GameObject *dialogueController = new GameObject();
@@ -461,7 +461,7 @@ void StageState::StartPostWhisperBossDialogue()
         *dialogueController,
         "recursos/dialogos/dia1_3_joca_resolvido.json",
         []() {
-            if (GameData::AdvanceTutorial(TutorialStep::SolveWhisper, TutorialStep::TutorialComplete))
+            if (GameData::AdvanceStory(StoryStep::TutorialSolveWhisper, StoryStep::Day1Briefing))
             {
                 auto *stage = static_cast<StageState *>(&Game::GetInstance().GetCurrentState());
                 if (stage)
@@ -472,16 +472,19 @@ void StageState::StartPostWhisperBossDialogue()
     AddObject(dialogueController);
 }
 
-void StageState::StartPostTutorialSequence() {
+void StageState::StartDay1Briefing() {
     GameObject *dialogueController = new GameObject();
     
     dialogueController->AddComponent(new DialogueBox(
         *dialogueController,
         "recursos/dialogos/dia1_4_caso_machado.json", 
         []() {
-            Inventory::Add("boletim_vizinha");
-            Inventory::Add("cracha_machado");
-            Inventory::Add("chave_casa");
+            if (GameData::AdvanceStory(StoryStep::Day1Briefing, StoryStep::Day1Investigation))
+            {
+                Inventory::Add("boletim_vizinha");
+                Inventory::Add("cracha_machado");
+                Inventory::Add("chave_casa");
+            }
         },
         "chief"));
     
@@ -494,7 +497,7 @@ void StageState::UpdateTutorialIntro(float dt)
         return;
     if (currentStageId != "mansion_interior")
         return;
-    if (GameData::GetTutorialStep() != TutorialStep::TalkToBoss)
+    if (GameData::GetStoryStep() != StoryStep::TutorialTalkToBoss)
     {
         tutorialIntroPending = false;
         return;
@@ -590,17 +593,20 @@ void StageState::Update(float dt) {
     UpdateTutorialIntro(dt);
 
     if (currentStageId == "mansion_interior" && 
-        GameData::GetTutorialStep() == TutorialStep::SolveWhisper && 
+        GameData::GetStoryStep() == StoryStep::TutorialSolveWhisper &&
         !DialogueBox::isPlaying) 
     {
         StartPostWhisperBossDialogue();
     }
 
-    if (GameData::GetTutorialStep() == TutorialStep::TutorialComplete && !postTutorialSequenceTriggered) {
-        postTutorialTimer.Update(dt);
-        if (postTutorialTimer.Get() >= 1.0f) {
-            postTutorialSequenceTriggered = true;
-            StartPostTutorialSequence();
+    if (currentStageId == "mansion_interior" &&
+        GameData::GetStoryStep() == StoryStep::Day1Briefing &&
+        !day1BriefingTriggered &&
+        !DialogueBox::isPlaying) {
+        day1BriefingTimer.Update(dt);
+        if (day1BriefingTimer.Get() >= 1.0f) {
+            day1BriefingTriggered = true;
+            StartDay1Briefing();
         }
     }
 
@@ -618,7 +624,9 @@ void StageState::Update(float dt) {
         Vec2 pos = Player::player->GetPosition();
         auto *text = debugPosText->GetComponent<Text>();
         if (text) {
-            text->SetText("Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ")");
+            text->SetText(
+                "Pos: (" + std::to_string((int)pos.x) + ", " + std::to_string((int)pos.y) + ") | Story: " +
+                GameData::GetStoryStepName());
         }
         debugPosText->box.x = Camera::pos.x + 10.0f;
         debugPosText->box.y = Camera::pos.y + 10.0f;

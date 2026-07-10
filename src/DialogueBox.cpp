@@ -11,6 +11,11 @@ using json = nlohmann::json;
 
 bool DialogueBox::isPlaying = false;
 
+namespace
+{
+const float FAST_FORWARD_INTERVAL = 0.12f;
+}
+
 DialogueBox::DialogueBox(GameObject& associated,
                          std::string jsonFilePath,
                          std::function<void()> onComplete,
@@ -93,6 +98,7 @@ void DialogueBox::UpdateUI() {
     visibleChars = 0;
     isTyping = true;
     typeTimer.Restart();
+    fastForwardTimer.Restart();
 
     if (auto nGO = nameGO.lock()) {
         nGO->GetComponent<Text>()->SetText(seg.speakerName);
@@ -155,7 +161,13 @@ void DialogueBox::Update(float dt) {
         return; 
     }
 
-    if (isTyping) {
+    InputManager& input = InputManager::GetInstance();
+    const bool fastForwarding = input.IsKeyDown(SDLK_LCTRL) || input.IsKeyDown(SDLK_RCTRL);
+
+    if (isTyping && fastForwarding) {
+        FinishTyping();
+        fastForwardTimer.Restart();
+    } else if (isTyping) {
         typeTimer.Update(dt);
         if (typeTimer.Get() > 0.04f) {
             visibleChars++;
@@ -181,63 +193,83 @@ void DialogueBox::Update(float dt) {
         }
     }
 
-    InputManager& input = InputManager::GetInstance();
-    
-    if (input.KeyPress(SDLK_RETURN) ||
-        input.KeyPress(SDLK_KP_ENTER) ||
-        input.KeyPress(SPACE_KEY) ||
-        input.MousePress(LEFT_MOUSE_BUTTON)) {
+    bool advanceRequested = input.KeyPress(SDLK_RETURN) ||
+                            input.KeyPress(SDLK_KP_ENTER) ||
+                            input.KeyPress(SPACE_KEY) ||
+                            input.MousePress(LEFT_MOUSE_BUTTON);
+    if (fastForwarding && !isTyping) {
+        fastForwardTimer.Update(dt);
+        if (fastForwardTimer.Get() >= FAST_FORWARD_INTERVAL) {
+            fastForwardTimer.Restart();
+            advanceRequested = true;
+        }
+    } else if (!fastForwarding) {
+        fastForwardTimer.Restart();
+    }
+
+    if (!advanceRequested) {
+        return;
+    }
 
     if (isTyping) {
-        isTyping = false;
-        visibleChars = currentFullText.size();
-
-        if (auto tGO = textGO.lock()) {
-            tGO->GetComponent<Text>()->SetText(currentFullText);
-        }
-
-        dingSound.Play(1);
-    } else {
-        if (currentSegment < segments.size() - 1) {
-            currentSegment++;
-            UpdateUI();
-        } else {
-            paperSound.Play(1);
-            isFinished = true;
-            DestroyUI();
-
-            if (!completionInvoked) {
-                completionInvoked = true;
-
-                if (!historyCharacterId.empty()) {
-                    std::string transcript;
-
-                    for (const DialogueSegment& segment : segments) {
-                        if (!transcript.empty()) {
-                            transcript += "\n\n";
-                        }
-
-                        transcript +=
-                            segment.speakerName + ":\n" +
-                            segment.text;
-                    }
-
-                    Inventory::AddDialogueHistory(
-                        historyCharacterId,
-                        transcript
-                    );
-                }
-
-                if (onComplete) {
-                    onComplete();
-                }
-            }
-        }
+        FinishTyping();
+        return;
     }
-}
+
+    AdvanceDialogue();
 }
 
 void DialogueBox::Render() {}
+
+void DialogueBox::FinishTyping() {
+    isTyping = false;
+    visibleChars = currentFullText.size();
+
+    if (auto tGO = textGO.lock()) {
+        tGO->GetComponent<Text>()->SetText(currentFullText);
+    }
+
+    dingSound.Play(1);
+}
+
+void DialogueBox::AdvanceDialogue() {
+    if (currentSegment < segments.size() - 1) {
+        currentSegment++;
+        UpdateUI();
+        return;
+    }
+
+    CompleteDialogue();
+}
+
+void DialogueBox::CompleteDialogue() {
+    paperSound.Play(1);
+    isFinished = true;
+    DestroyUI();
+
+    if (completionInvoked) {
+        return;
+    }
+    completionInvoked = true;
+
+    if (!historyCharacterId.empty()) {
+        std::string transcript;
+
+        for (const DialogueSegment& segment : segments) {
+            if (!transcript.empty()) {
+                transcript += "\n\n";
+            }
+
+            transcript += segment.speakerName + ":\n" + segment.text;
+        }
+
+        Inventory::AddDialogueHistory(historyCharacterId, transcript);
+    }
+
+    if (onComplete) {
+        onComplete();
+    }
+}
 
 void DialogueBox::DestroyUI() {
     if (auto bGO = boxGO.lock()) { bGO->box.x = -10000; bGO->RequestDelete(); }

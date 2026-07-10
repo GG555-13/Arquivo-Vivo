@@ -357,7 +357,7 @@ void WhisperState::SubmitAnswer()
     SetInputFocused(false);
     UpdateAnswerText();
     SetFeedback("");
-    GameData::AdvanceTutorial(TutorialStep::SolveBoard, TutorialStep::SolveWhisper);
+    GameData::AdvanceStory(StoryStep::TutorialSolveBoard, StoryStep::TutorialSolveWhisper);
     screenFade.FadeOut(1.0f, FadeColor::White, [this]() {
         Game::GetInstance().SetPendingFadeIn({true, 1.0f, FadeColor::White});
         popRequested = true;

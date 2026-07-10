@@ -186,6 +186,11 @@ void Game::Run()
         CalculateDeltaTime();
         InputManager::GetInstance().Update();
 
+        if (InputManager::GetInstance().QuitRequested())
+        {
+            break;
+        }
+
         stateStack.top()->Update(GetDeltaTime());
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

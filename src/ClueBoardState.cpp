@@ -96,7 +96,7 @@ void ClueBoardState::Start()
     }
 
     StartArray();
-    if (!ClueBoardData::GetQuestions().empty() && GameData::GetTutorialStep() == TutorialStep::OpenBoard)
+    if (!ClueBoardData::GetQuestions().empty() && GameData::GetStoryStep() == StoryStep::TutorialOpenBoard)
     {
         StartTextInput();
     }
@@ -302,7 +302,7 @@ void ClueBoardState::RefreshCarets()
             {
                 component->SetEnabled(index == activeQuestion &&
                                       activeQuestion < questions.size() &&
-                                      GameData::GetTutorialStep() == TutorialStep::OpenBoard);
+                                      GameData::GetStoryStep() == StoryStep::TutorialOpenBoard);
             }
         }
     }
@@ -329,7 +329,7 @@ void ClueBoardState::SubmitAnswer()
                 dialogueFile,
                 [this]() {
                     if (activeQuestion < ClueBoardData::GetQuestions().size() &&
-                        GameData::GetTutorialStep() == TutorialStep::OpenBoard)
+                        GameData::GetStoryStep() == StoryStep::TutorialOpenBoard)
                     {
                         StartTextInput();
                     }
@@ -349,7 +349,7 @@ void ClueBoardState::SubmitAnswer()
     if (activeQuestion >= questions.size())
     {
         RefreshCarets();
-        GameData::AdvanceTutorial(TutorialStep::OpenBoard, TutorialStep::SolveBoard);
+        GameData::AdvanceStory(StoryStep::TutorialOpenBoard, StoryStep::TutorialSolveBoard);
         StopTextInput();
         popRequested = true;
         Game::GetInstance().Push(new WhisperState());
@@ -424,6 +424,6 @@ void ClueBoardState::Render()
 
 void ClueBoardState::Pause() { StopTextInput(); }
 void ClueBoardState::Resume() {
-    if (activeQuestion < ClueBoardData::GetQuestions().size() && GameData::GetTutorialStep() == TutorialStep::OpenBoard)
+    if (activeQuestion < ClueBoardData::GetQuestions().size() && GameData::GetStoryStep() == StoryStep::TutorialOpenBoard)
         StartTextInput();
 }

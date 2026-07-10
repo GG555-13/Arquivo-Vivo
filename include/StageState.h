@@ -31,17 +31,14 @@ public:
     void TransitionTo(std::string targetStageId, float spawnX = -1.0f, float spawnY = -1.0f,
                       const FadeTransitionConfig& fadeConfig = {});
     void BeginTutorialEndSequence();
-    void StartPostTutorialSequence();
 protected:
     void UpdateWalkable(float dt) override;
 
 private:
-    
-    Timer postTutorialTimer;
-    bool postTutorialSequenceTriggered = false;
     void PerformTransitionTo(std::string targetStageId, float spawnX, float spawnY);
     void StartInitialBossDialogue(const std::string& dialogueJson);
     void StartPostWhisperBossDialogue();
+    void StartDay1Briefing();
     void UpdateTutorialIntro(float dt);
 
     TileSet* tileSet;
@@ -62,6 +59,8 @@ private:
     Timer tutorialIntroTimer;
     bool tutorialIntroPending = false;
     bool tutorialIntroTriggered = false;
+    Timer day1BriefingTimer;
+    bool day1BriefingTriggered = false;
 };
 
 #endif
