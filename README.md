@@ -6,6 +6,10 @@
 
 Esse trabalho foi realizado como parte da disciplina de Introdução ao Desenvolvimento de Jogos, e consiste em uma engine para um jogo 2d point and click feito em c++.
 
+## Vídeo Apresentação
+
+https://drive.google.com/file/d/1D1CtPL-miymh4uaLoBP2soH-1NY-vcEr/view?usp=drive_link
+
 ## Como Compilar e Executar
 
 O projeto foi desenvolvido e testado em ambiente Linux e utiliza um `Makefile` para automatizar a compilação.
